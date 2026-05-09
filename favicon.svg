@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="100" height="100" rx="14" fill="#08070a"/>
+  <g filter="url(#g)">
+    <circle cx="50.00" cy="50.00" r="30.00" fill="none" stroke="#e0a85a" stroke-width="0.8" opacity="1.0"/>
+    <circle cx="50.00" cy="50.00" r="21.00" fill="none" stroke="#e0a85a" stroke-width="0.6" opacity="0.92"/>
+    <circle cx="50.00" cy="50.00" r="13.00" fill="none" stroke="#e0a85a" stroke-width="0.6" opacity="0.84"/>
+    <circle cx="50.00" cy="50.00" r="5.50" fill="none" stroke="#e0a85a" stroke-width="0.6" opacity="0.76"/>
+    <path d="M44.17,20.57 L50.00,29.00 L55.83,20.57" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M64.45,23.71 L63.50,33.91 L73.38,31.20" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M77.97,39.15 L70.68,46.35 L79.99,50.63" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M78.40,59.67 L68.19,60.50 L72.57,69.76" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M65.54,75.66 L57.18,69.73 L54.59,79.65" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M45.41,79.65 L42.82,69.73 L34.46,75.66" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M27.43,69.76 L31.81,60.50 L21.60,59.67" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M20.01,50.63 L29.32,46.35 L22.03,39.15" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M26.62,31.20 L36.50,33.91 L35.55,23.71" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M44.78,29.66 L50.00,37.00 L55.22,29.66" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M62.65,33.23 L60.16,41.89 L69.16,41.40" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M70.99,49.43 L62.67,52.89 L68.67,59.62" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M63.53,66.06 L55.64,61.71 L54.12,70.59" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M45.88,70.59 L44.36,61.71 L36.47,66.06" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M31.33,59.62 L37.33,52.89 L29.01,49.43" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M30.84,41.40 L39.84,41.89 L37.35,33.23" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M45.52,37.80 L50.00,44.50 L54.48,37.80" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M60.22,41.97 L55.23,48.30 L62.99,50.49" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M60.80,57.24 L53.23,54.45 L53.55,62.51" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M46.45,62.51 L46.77,54.45 L39.20,57.24" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M37.01,50.49 L44.77,48.30 L39.78,41.97" fill="none" stroke="#e0a85a" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="50.00" cy="50.00" r="2.00" fill="#e0a85a"/>
+  </g>
+</svg>
