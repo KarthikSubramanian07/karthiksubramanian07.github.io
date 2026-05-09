@@ -696,83 +696,6 @@
   }
   .peets-wrap:hover .bean { color: var(--amber); }
 
-  /* ===== Contact Form ===== */
-  .contact-wrap {
-    margin-top: 56px;
-    width: 100%;
-    max-width: 440px;
-  }
-  .contact-rule {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 28px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.38em;
-    text-transform: uppercase;
-    color: var(--sand-faint);
-    justify-content: center;
-  }
-  .contact-rule .rule-label { color: var(--amber); }
-  .contact-form { display: flex; flex-direction: column; gap: 10px; }
-  #contact-fields { display: flex; flex-direction: column; gap: 10px; }
-  .contact-form input,
-  .contact-form textarea {
-    background: color-mix(in oklab, var(--bg-warm) 80%, transparent);
-    border: 1px solid color-mix(in oklab, var(--sand) 18%, transparent);
-    border-radius: 2px;
-    color: var(--sand);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    padding: 11px 14px;
-    outline: none;
-    resize: none;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    transition: border-color .35s, box-shadow .35s;
-  }
-  .contact-form input::placeholder,
-  .contact-form textarea::placeholder {
-    color: var(--sand-faint);
-    text-transform: uppercase;
-  }
-  .contact-form input:focus,
-  .contact-form textarea:focus {
-    border-color: color-mix(in oklab, var(--amber) 55%, transparent);
-    box-shadow: 0 0 16px color-mix(in oklab, var(--amber) 18%, transparent);
-  }
-  .contact-submit {
-    align-self: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--sand-bright);
-    background: transparent;
-    border: 1px solid color-mix(in oklab, var(--amber) 32%, transparent);
-    border-radius: 2px;
-    padding: 10px 28px 10px calc(28px + 0.32em);
-    cursor: none;
-    transition: border-color .35s, box-shadow .35s, transform .35s;
-  }
-  .contact-submit:hover {
-    border-color: var(--amber);
-    box-shadow: 0 0 22px color-mix(in oklab, var(--amber) 28%, transparent);
-    transform: translateY(-2px);
-  }
-  .contact-submit:disabled { opacity: 0.5; }
-  #contact-success {
-    display: none;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.38em;
-    text-transform: uppercase;
-    color: var(--amber);
-    padding: 20px 0;
-  }
-
   .reveal { opacity: 0; transform: translateY(14px); filter: blur(6px); }
   .reveal.in {
     opacity: 1;
@@ -794,7 +717,6 @@
     .monogram { margin: 8px 0 52px; }
     .monogram .seal { width: 110px; height: 110px; }
     .coords { font-size: 9px; gap: 10px; letter-spacing: .3em; margin-bottom: 48px; }
-    .contact-wrap { max-width: 100%; }
   }
 </style>
 </head>
@@ -936,23 +858,6 @@
     </symbol>
   </svg>
 
-  <!-- Contact Form (Formspree — replace FORMSPREE_ID with your 8-char form ID from formspree.io) -->
-  <div class="contact-wrap reveal" data-delay="2200">
-    <div class="contact-rule">
-      <span>——</span>
-      <span class="rule-label">CONTACT</span>
-      <span>——</span>
-    </div>
-    <form class="contact-form" id="contact-form"
-          action="https://formspree.io/f/FORMSPREE_ID" method="POST">
-      <div id="contact-fields">
-        <input type="email" name="email" placeholder="your@email.com" required autocomplete="email" />
-        <textarea name="message" placeholder="Your message" rows="3"></textarea>
-        <button type="submit" class="contact-submit" id="contact-btn">TRANSMIT</button>
-      </div>
-      <p id="contact-success">Transmission received_</p>
-    </form>
-  </div>
 </main>
 
 <script>
@@ -1317,33 +1222,6 @@
     }, 80);
   })();
 
-  /* Contact form — Formspree AJAX */
-  (function () {
-    var form = document.getElementById('contact-form');
-    if (!form) return;
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var btn = document.getElementById('contact-btn');
-      btn.textContent = 'SENDING...';
-      btn.disabled = true;
-      fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      }).then(function (res) {
-        if (res.ok) {
-          document.getElementById('contact-fields').style.display = 'none';
-          document.getElementById('contact-success').style.display = 'block';
-        } else {
-          btn.textContent = 'TRANSMIT';
-          btn.disabled = false;
-        }
-      }).catch(function () {
-        btn.textContent = 'TRANSMIT';
-        btn.disabled = false;
-      });
-    });
-  })();
 </script>
 
 </body>

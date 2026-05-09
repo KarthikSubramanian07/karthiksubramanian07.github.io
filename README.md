@@ -12,7 +12,6 @@ An under-construction landing page built on an Arrakis / Dune theme — deep voi
 |---|---|---|
 | Hosting | [Cloudflare Pages](https://pages.cloudflare.com) | Free |
 | Analytics | [Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/) | Free |
-| Contact form | [Formspree](https://formspree.io) | Free tier |
 | Fonts | [Google Fonts](https://fonts.google.com) — Cormorant Garamond + JetBrains Mono | Free |
 | Domain | `winnerkarthik.dev` | ~$12/yr |
 
@@ -71,18 +70,6 @@ data-cf-beacon='{"token": "CF_ANALYTICS_TOKEN"}'
 ```
 
 with your actual token. Commit and push — Cloudflare Pages redeploys automatically.
-
-**4. Set up Formspree contact form**
-
-1. Create a free account at [formspree.io](https://formspree.io)
-2. **New Form** → name it anything → copy the 8-character form ID
-3. In `index.html`, replace `FORMSPREE_ID` in the form action:
-
-```html
-action="https://formspree.io/f/FORMSPREE_ID"
-```
-
-Commit, push, done. The form submits via AJAX — no page reload, success message appears inline.
 
 ---
 
