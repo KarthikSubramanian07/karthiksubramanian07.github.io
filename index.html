@@ -625,6 +625,7 @@
     pointer-events: none;
     z-index: 9998;
     will-change: transform;
+    opacity: 0;
   }
   .cursor .c-outer {
     position: absolute;
@@ -844,7 +845,7 @@
     <span class="sep">·</span>
     <a href="https://www.instagram.com/winner.karthik" target="_blank" rel="noopener">Instagram</a>
     <span class="sep">·</span>
-    <a href="mailto:karthik@winnerkarthik.dev">Email</a>
+    <a href="mailto:karthik.subramanian@berkeley.edu">Email</a>
   </nav>
 
   <span class="peets-wrap reveal" data-delay="1900" id="peets-wrap">
@@ -1055,11 +1056,14 @@
     var cursor = document.getElementById('cursor');
     if (!cursor) return;
     var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
-    var cx = tx, cy = ty;
+    var cx = tx, cy = ty, moved = false;
 
-    window.addEventListener('mousemove', function (e) { tx = e.clientX; ty = e.clientY; });
+    window.addEventListener('mousemove', function (e) {
+      tx = e.clientX; ty = e.clientY;
+      if (!moved) { cx = tx; cy = ty; moved = true; cursor.style.opacity = '1'; }
+    });
     window.addEventListener('mouseleave', function () { cursor.style.opacity = '0'; });
-    window.addEventListener('mouseenter', function () { cursor.style.opacity = '1'; });
+    window.addEventListener('mouseenter', function () { if (moved) cursor.style.opacity = '1'; });
 
     (function loop() {
       cx += (tx - cx) * 0.18;
