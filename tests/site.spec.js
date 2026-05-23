@@ -243,14 +243,12 @@ test.describe('Navigation links', () => {
 
 // ─── cursor ──────────────────────────────────────────────────────────────────
 
-test.describe('Sandworm cursor', () => {
-  test('cursor element is present with worm maw SVG', async ({ page }) => {
+test.describe('Meteor cursor', () => {
+  test('meteor cursor element and trail canvas are present', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#cursor')).toBeAttached();
-    await expect(page.locator('.cursor-maw')).toBeAttached();
-    await expect(page.locator('.c-outer-ring')).toBeAttached();
-    await expect(page.locator('.c-mid-ring')).toBeAttached();
-    await expect(page.locator('.c-inner-ring')).toBeAttached();
+    await expect(page.locator('.cursor-meteor')).toBeAttached();
+    await expect(page.locator('#cursor-trail')).toBeAttached();
   });
 });
 
