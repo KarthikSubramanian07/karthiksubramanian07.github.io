@@ -243,12 +243,16 @@ test.describe('Navigation links', () => {
 
 // ─── cursor ──────────────────────────────────────────────────────────────────
 
-test.describe('Meteor cursor', () => {
-  test('meteor cursor element and trail canvas are present', async ({ page }) => {
+test.describe('Spice-dust trail', () => {
+  test('trail canvas is present in DOM', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#cursor')).toBeAttached();
-    await expect(page.locator('.cursor-meteor')).toBeAttached();
     await expect(page.locator('#cursor-trail')).toBeAttached();
+  });
+
+  test('trail canvas is sized to viewport on desktop', async ({ page }) => {
+    await page.goto('/');
+    const styleWidth = await page.locator('#cursor-trail').evaluate((el) => el.style.width);
+    expect(styleWidth).toMatch(/\d+px/);
   });
 });
 
@@ -257,9 +261,9 @@ test.describe('Meteor cursor', () => {
 test.describe('Mobile 375×812', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
-  test('custom cursor is hidden on mobile', async ({ page }) => {
+  test('spice-dust trail canvas is hidden on mobile', async ({ page }) => {
     await page.goto('/');
-    const display = await page.locator('#cursor').evaluate(
+    const display = await page.locator('#cursor-trail').evaluate(
       (el) => getComputedStyle(el).display
     );
     expect(display).toBe('none');
@@ -336,8 +340,8 @@ test.describe('Accessibility', () => {
     expect(tabIndex).toBeNull();
   });
 
-  test('cursor element is aria-hidden', async ({ page }) => {
-    await expect(page.locator('#cursor')).toHaveAttribute('aria-hidden', 'true');
+  test('trail canvas is aria-hidden', async ({ page }) => {
+    await expect(page.locator('#cursor-trail')).toHaveAttribute('aria-hidden', 'true');
   });
 
   test('seal-art SVG has aria-label', async ({ page }) => {
@@ -364,15 +368,23 @@ test.describe('Prefers reduced motion', () => {
     await expect(page.locator('.topbar')).toBeVisible();
   });
 
-  test('canvas is skipped when reduced motion is set', async ({ page }) => {
+  test('storm canvas is skipped when reduced motion is set', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    // Canvas exists in DOM but storm IIFE returns early so resize() is never called
     const canvas = page.locator('#storm');
     await expect(canvas).toBeAttached();
-    // style.width is empty when resize() was never called
+    // style.width stays empty — resize() is never called when REDUCED=true
     const styleWidth = await canvas.evaluate((el) => el.style.width);
     expect(styleWidth).toBe('');
+  });
+
+  test('spice-dust trail canvas is hidden when reduced motion is set', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    const display = await page.locator('#cursor-trail').evaluate(
+      (el) => getComputedStyle(el).display
+    );
+    expect(display).toBe('none');
   });
 });
 

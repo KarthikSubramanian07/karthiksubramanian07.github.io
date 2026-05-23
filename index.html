@@ -140,8 +140,8 @@
   .dune-mid-fill   { fill: color-mix(in oklab, var(--rust) 50%, var(--void)); }
   .dune-front-fill { fill: color-mix(in oklab, var(--rust) 70%, var(--void)); }
 
-  .dune.back  { animation: drift1 80s linear infinite; }
-  .dune.mid   { animation: drift2 50s linear infinite; }
+  .dune.back  { animation: drift1 80s linear infinite; will-change: transform; }
+  .dune.mid   { animation: drift2 50s linear infinite; will-change: transform; }
   @keyframes drift1 { from { transform: translateX(0); } to { transform: translateX(-3%); } }
   @keyframes drift2 { from { transform: translateX(0); } to { transform: translateX(-5%); } }
 
@@ -228,6 +228,7 @@
     background: var(--amber);
     box-shadow: 0 0 0 0 var(--amber-glow);
     animation: pulseRing 2.4s cubic-bezier(.4,0,.6,1) infinite;
+    will-change: box-shadow, transform;
   }
   @keyframes pulseRing {
     0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--amber) 70%, transparent); transform: scale(1); }
@@ -622,33 +623,6 @@
   .links a:hover::after { width: 100%; left: 0; }
   .links .sep { color: var(--amber); opacity: .8; }
 
-  body { cursor: none; }
-  a, button, .tag, .seal, .name { cursor: none; }
-  .cursor {
-    position: fixed;
-    top: 0; left: 0;
-    pointer-events: none;
-    z-index: 9998;
-    will-change: transform;
-    opacity: 0;
-  }
-  .cursor-meteor {
-    display: block;
-    width: 18px;
-    height: 18px;
-    transform: translate(-50%, -50%);
-    filter:
-      drop-shadow(0 0 4px var(--amber))
-      drop-shadow(0 0 10px color-mix(in oklab, var(--amber) 55%, transparent));
-    transition: filter .2s ease, transform .2s ease;
-  }
-  .cursor.hot .cursor-meteor {
-    transform: translate(-50%, -50%) scale(1.45);
-    filter:
-      drop-shadow(0 0 6px var(--sand-bright))
-      drop-shadow(0 0 16px var(--amber))
-      drop-shadow(0 0 28px color-mix(in oklab, var(--amber) 40%, transparent));
-  }
   #cursor-trail {
     position: fixed;
     inset: 0;
@@ -656,8 +630,7 @@
     z-index: 9997;
   }
   @media (max-width: 760px), (pointer: coarse) {
-    body, a, button, .tag, .seal, .name { cursor: auto; }
-    .cursor, #cursor-trail { display: none; }
+    #cursor-trail { display: none; }
   }
 
   .peets-wrap {
@@ -761,32 +734,20 @@
       filter: none !important;
     }
     .surname.bursting { animation: none !important; }
-    body, a, button, .tag, .seal, .name { cursor: auto; }
-    .cursor, #cursor-trail { display: none; }
+    #cursor-trail { display: none; }
   }
 </style>
 </head>
 <body>
 <noscript>
 <style>
-  #hero-name::before {
-    content: "Karthik";
-    display: block;
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-style: italic;
-    font-size: clamp(96px, 22vw, 320px);
-    line-height: 0.92;
-    letter-spacing: -0.02em;
-    color: var(--sand-bright);
-  }
-  #tagcluster, .scan-wrap { display: none; }
-  .reveal { opacity: 1; transform: none; filter: none; }
+  .reveal { opacity: 1 !important; transform: none !important; filter: none !important; }
+  #tagcluster, .scan-wrap { display: none !important; }
 </style>
 </noscript>
 
 <div class="layer stars"></div>
-<canvas id="storm" class="layer"></canvas>
+<canvas id="storm" class="layer" aria-hidden="true"></canvas>
 <div class="layer suns" aria-hidden="true">
   <div class="sun primary"></div>
   <div class="sun secondary"></div>
@@ -808,31 +769,6 @@
 <div class="layer vignette"></div>
 <div class="layer grain" id="grain"></div>
 
-<div class="cursor" id="cursor" aria-hidden="true">
-  <svg class="cursor-meteor" viewBox="-9 -9 18 18" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="meteor-grad" cx="28%" cy="24%" r="74%">
-        <stop offset="0%"   stop-color="#fffaf0"/>
-        <stop offset="18%"  stop-color="#f3e1bd"/>
-        <stop offset="48%"  stop-color="#c07a30"/>
-        <stop offset="76%"  stop-color="#3d1a08"/>
-        <stop offset="100%" stop-color="#0e0400"/>
-      </radialGradient>
-    </defs>
-    <!-- Angular asteroid body — irregular polygon, not a circle -->
-    <path d="M2,-8.5 L6.5,-4.5 L8.5,1 L6,6.5 L0.5,8.5 L-4.5,6 L-8,0.5 L-6.5,-4.5 L-2,-8.5 Z"
-          fill="url(#meteor-grad)"/>
-    <!-- Hot leading face (top-right facet, ablating in atmosphere) -->
-    <path d="M2,-8.5 L6.5,-4.5 L4,-2.5 L0.5,-6.5 Z"
-          fill="rgba(255,250,230,0.38)"/>
-    <!-- Glowing edge crease between facets -->
-    <line x1="0.5" y1="-6.5" x2="4" y2="-2.5"
-          stroke="rgba(255,220,140,0.55)" stroke-width="0.5"/>
-    <!-- Secondary smaller hot facet -->
-    <path d="M6.5,-4.5 L8.5,1 L6,-0.5 L4,-2.5 Z"
-          fill="rgba(255,200,100,0.12)"/>
-  </svg>
-</div>
 <canvas id="cursor-trail" aria-hidden="true"></canvas>
 
 <div class="hud tl"></div>
@@ -886,7 +822,7 @@
     </div>
   </div>
 
-  <h1 class="name" id="hero-name" aria-label="Karthik"></h1>
+  <h1 class="name" id="hero-name" aria-label="Karthik">Karthik</h1>
   <div class="surname-wrap reveal" data-delay="780">
     <p class="surname" id="surname">Subramanian</p>
   </div>
@@ -1147,154 +1083,87 @@
     setInterval(tick, 1000);
   })();
 
-  /* Meteor cursor + comet trail + Karthik letter scatter */
+  /* Spice-dust trail */
   (function () {
     if (REDUCED) return;
     if (window.matchMedia('(pointer: coarse)').matches) return;
-    var cursor = document.getElementById('cursor');
-    var trailCv = document.getElementById('cursor-trail');
-    if (!cursor || !trailCv) return;
-
-    var tctx = trailCv.getContext('2d');
-    var TW = 0, TH = 0;
-    function resizeTrail() {
-      TW = window.innerWidth; TH = window.innerHeight;
-      trailCv.width = TW; trailCv.height = TH;
-      trailCv.style.width = TW + 'px'; trailCv.style.height = TH + 'px';
+    var cv = document.getElementById('cursor-trail');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var W = 0, H = 0;
+    function resize() {
+      W = window.innerWidth; H = window.innerHeight;
+      cv.width = W; cv.height = H;
+      cv.style.width = W + 'px'; cv.style.height = H + 'px';
     }
-    resizeTrail();
-    window.addEventListener('resize', resizeTrail);
+    resize();
+    window.addEventListener('resize', resize);
 
-    var tx = window.innerWidth / 2, ty = window.innerHeight / 2;
-    var cx = tx, cy = ty, moved = false;
-    var positions = [];   /* {x,y,t} trail history */
-    var sparkles  = [];   /* {x,y,vx,vy,life,decay,size,color} debris */
-    var lastSpawn = 0;
-    var TRAIL_AGE = 480;  /* ms before a position fades out */
-    var DEBRIS_COLORS = ['rgba(224,168,90,1)', 'rgba(243,225,189,1)', 'rgba(176,119,53,1)', 'rgba(107,58,28,1)'];
+    var particles = [];
+    /* sand · amber · amber-deep · sand-bright · rust */
+    var PALETTE = [[243,225,189],[224,168,90],[176,119,53],[255,242,212],[107,58,28]];
 
     window.addEventListener('mousemove', function (e) {
-      tx = e.clientX; ty = e.clientY;
-      if (!moved) { cx = tx; cy = ty; moved = true; cursor.style.opacity = '1'; }
-    });
-    window.addEventListener('mouseleave', function () { cursor.style.opacity = '0'; });
-    window.addEventListener('mouseenter', function () { if (moved) cursor.style.opacity = '1'; });
-
-    var hotSel = 'a, button, .tag, .seal, .name, [data-hot]';
-    document.addEventListener('mouseover', function (e) {
-      if (e.target.closest && e.target.closest(hotSel)) cursor.classList.add('hot');
-    });
-    document.addEventListener('mouseout', function (e) {
-      if (e.target.closest && e.target.closest(hotSel)) cursor.classList.remove('hot');
-    });
-
-    /* Karthik letter scatter */
-    var nameEl = document.getElementById('hero-name');
-    if (nameEl) {
-      var scatters = [[-18,-12,-3],[8,-20,2],[-6,14,-2],[22,-8,4],[-14,18,-3],[10,-14,2],[-20,8,-4]];
-      nameEl.addEventListener('mouseenter', function () {
-        nameEl.querySelectorAll('.ch.in').forEach(function (ch, i) {
-          var s = scatters[i % scatters.length];
-          ch.style.transition = 'transform .55s cubic-bezier(.2,.7,.2,1), color .4s ease, text-shadow .4s ease';
-          ch.style.transform = 'translate(' + s[0] + 'px,' + s[1] + 'px) rotate(' + s[2] + 'deg) scale(1.06)';
-          ch.style.color = 'var(--sand-bright)';
-          ch.style.textShadow = '0 0 60px color-mix(in oklab, var(--amber) 70%, transparent)';
+      var mx = e.clientX, my = e.clientY;
+      var count = 2 + Math.floor(Math.random() * 2);
+      for (var i = 0; i < count; i++) {
+        var c = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+        particles.push({
+          x: mx + (Math.random() - 0.5) * 12,
+          y: my + (Math.random() - 0.5) * 12,
+          vx: (Math.random() - 0.5) * 0.9,
+          vy: (Math.random() - 0.5) * 0.9 - 0.35,
+          life: 0.75 + Math.random() * 0.25,
+          decay: 0.018 + Math.random() * 0.02,
+          size: 0.5 + Math.random() * 2,
+          r: c[0], g: c[1], b: c[2]
         });
-      });
-      nameEl.addEventListener('mouseleave', function () {
-        nameEl.querySelectorAll('.ch.in').forEach(function (ch) {
-          ch.style.transition = 'transform .7s cubic-bezier(.2,.7,.2,1), color .5s ease, text-shadow .5s ease';
-          ch.style.transform = '';
-          ch.style.color = '';
-          ch.style.textShadow = '';
-        });
-      });
-    }
-
-    function drawTrail(now) {
-      tctx.clearRect(0, 0, TW, TH);
-
-      /* Evict stale positions */
-      while (positions.length > 0 && now - positions[0].t > TRAIL_AGE) positions.shift();
-
-      /* Comet tail: segments oldest→newest, width + brightness grow toward head */
-      if (positions.length >= 2) {
-        var n = positions.length;
-        for (var i = 1; i < n; i++) {
-          var p0 = positions[i - 1], p1 = positions[i];
-          var frac = i / n;                              /* 0=tail, 1=head */
-          var age  = Math.max(0, 1 - (now - p1.t) / TRAIL_AGE);
-          var alpha = frac * age * 0.78;
-          if (alpha < 0.01) continue;
-          var grad = tctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
-          grad.addColorStop(0, 'rgba(107,58,28,'  + (alpha * 0.55).toFixed(3) + ')');
-          grad.addColorStop(0.5, 'rgba(224,168,90,' + (alpha * 0.85).toFixed(3) + ')');
-          grad.addColorStop(1, 'rgba(255,242,212,' + alpha.toFixed(3) + ')');
-          tctx.beginPath();
-          tctx.moveTo(p0.x, p0.y);
-          tctx.lineTo(p1.x, p1.y);
-          tctx.strokeStyle = grad;
-          tctx.lineWidth = frac * 3.5 + 0.4;
-          tctx.lineCap = 'round';
-          tctx.stroke();
-        }
       }
+    });
 
-      /* Sand debris particles */
-      for (var j = sparkles.length - 1; j >= 0; j--) {
-        var s = sparkles[j];
-        s.x += s.vx; s.y += s.vy;
-        s.vy += 0.05;  /* drift downward */
-        s.life -= s.decay;
-        if (s.life <= 0) { sparkles.splice(j, 1); continue; }
-        tctx.globalAlpha = s.life * 0.85;
-        tctx.fillStyle = s.color;
-        tctx.beginPath();
-        tctx.arc(s.x, s.y, s.size * Math.max(0.1, s.life), 0, Math.PI * 2);
-        tctx.fill();
+    (function frame() {
+      ctx.clearRect(0, 0, W, H);
+      for (var i = particles.length - 1; i >= 0; i--) {
+        var p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.vy += 0.025;
+        p.life -= p.decay;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
+        ctx.globalAlpha = p.life * p.life * 0.75;
+        ctx.fillStyle = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
       }
-      tctx.globalAlpha = 1;
-    }
-
-    (function loop() {
-      cx += (tx - cx) * 0.18;
-      cy += (ty - cy) * 0.18;
-      cursor.style.left = cx + 'px';
-      cursor.style.top  = cy + 'px';
-
-      var now = Date.now();
-      if (moved) {
-        /* Record position when moved enough */
-        var last = positions[positions.length - 1];
-        var dx = last ? cx - last.x : 0, dy = last ? cy - last.y : 0;
-        var speed = Math.sqrt(dx * dx + dy * dy);
-        if (!last || speed > 1.5) {
-          positions.push({ x: cx, y: cy, t: now });
-          if (positions.length > 32) positions.shift();
-
-          /* Spawn debris proportional to speed */
-          if (speed > 4 && now - lastSpawn > 25) {
-            lastSpawn = now;
-            var count = Math.min(3, Math.round(speed / 12));
-            for (var k = 0; k < count; k++) {
-              sparkles.push({
-                x: cx + (Math.random() - 0.5) * 10,
-                y: cy + (Math.random() - 0.5) * 10,
-                vx: (Math.random() - 0.5) * 2.2,
-                vy: (Math.random() - 0.5) * 2.2 - 0.2,
-                life:  0.6 + Math.random() * 0.4,
-                decay: 0.016 + Math.random() * 0.022,
-                size:  0.6 + Math.random() * 2,
-                color: DEBRIS_COLORS[Math.floor(Math.random() * DEBRIS_COLORS.length)]
-              });
-            }
-          }
-        }
-        drawTrail(now);
-      }
-
-      requestAnimationFrame(loop);
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(frame);
     })();
+  })();
+
+  /* Karthik letter scatter */
+  (function () {
+    if (REDUCED) return;
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    var nameEl = document.getElementById('hero-name');
+    if (!nameEl) return;
+    var scatters = [[-18,-12,-3],[8,-20,2],[-6,14,-2],[22,-8,4],[-14,18,-3],[10,-14,2],[-20,8,-4]];
+    nameEl.addEventListener('mouseenter', function () {
+      nameEl.querySelectorAll('.ch.in').forEach(function (ch, i) {
+        var s = scatters[i % scatters.length];
+        ch.style.transition = 'transform .55s cubic-bezier(.2,.7,.2,1), color .4s ease, text-shadow .4s ease';
+        ch.style.transform = 'translate(' + s[0] + 'px,' + s[1] + 'px) rotate(' + s[2] + 'deg) scale(1.06)';
+        ch.style.color = 'var(--sand-bright)';
+        ch.style.textShadow = '0 0 60px color-mix(in oklab, var(--amber) 70%, transparent)';
+      });
+    });
+    nameEl.addEventListener('mouseleave', function () {
+      nameEl.querySelectorAll('.ch.in').forEach(function (ch) {
+        ch.style.transition = 'transform .7s cubic-bezier(.2,.7,.2,1), color .5s ease, text-shadow .5s ease';
+        ch.style.transform = '';
+        ch.style.color = '';
+        ch.style.textShadow = '';
+      });
+    });
   })();
 
   /* Sandstorm canvas */
