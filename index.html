@@ -937,11 +937,11 @@
   const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const COARSE  = window.matchMedia('(pointer: coarse)').matches;
   /* Page reveals are delayed by INTRO_OFFSET so the black hole plays first */
-  const INTRO_OFFSET = (REDUCED || COARSE) ? 0 : 4000;
+  const INTRO_OFFSET = (REDUCED || COARSE) ? 0 : 13000;
 
   /* ─────────────────────────────────────────────────────────────────────────
-     Black hole intro
-     Phases: bright star → red giant → supernova → M87 black hole → reveal
+     Cinematic intro
+     Phases: our sun → red giant → supernova → accretion disk BH → reveal
   ───────────────────────────────────────────────────────────────────────── */
   (function () {
     if (REDUCED || COARSE) return;
@@ -966,23 +966,16 @@
 
     /* Phase timing (ms) — T0 set on first frame so no missed start */
     var T0  = null;
-    var TS  = 1200,   /* 0→TS:   bright pulsing star (1.2 s)        */
-        TG  = 2100,   /* TS→TG:  red giant expansion (0.9 s)        */
-        TN  = 2600,   /* TG→TN:  supernova flash (0.5 s)            */
-        TF  = 3500,   /* TN→TF:  M87 ring forms (0.9 s)             */
-        TC  = 3750,   /* TF→TC:  stable ring (0.25 s)               */
-        TX  = 3950,   /* TC→TX:  collapse (0.2 s)                   */
-        TR  = INTRO_OFFSET,   /* = 4000ms — matched to content reveal */
-        TD  = TR + 2000;      /* 2-second smooth reveal               */
+    var TS  = 3000,   /* 0→TS:   our sun (3 s)                        */
+        TG  = 5500,   /* TS→TG:  red giant expansion (2.5 s)          */
+        TN  = 7000,   /* TG→TN:  supernova flash (1.5 s)              */
+        TF  = 10000,  /* TN→TF:  accretion disk forms (3 s)           */
+        TC  = 11500,  /* TF→TC:  stable disk (1.5 s)                  */
+        TX  = 12500,  /* TC→TX:  collapse (1 s)                       */
+        TR  = INTRO_OFFSET,   /* = 13000ms — matched to content reveal */
+        TD  = TR + 2000;      /* 2-second smooth reveal                */
 
     var shockwaves = [], novaFired = false, flashFired = false;
-
-    /* M87-style photon ring constants */
-    var NSEG   = 120;
-    var BRIGHT  = Math.PI * 1.55; /* ~280° = 7-o'clock bright side   */
-    var BETA    = 0.75;            /* higher → more dramatic asymmetry */
-    var D_MIN   = Math.pow(1 - BETA, 3);
-    var D_MAX   = Math.pow(1 + BETA, 3);
 
     function draw(now) {
       if (!T0) T0 = now;
@@ -994,46 +987,65 @@
         /* ── Black background for all pre-reveal phases ── */
         ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
 
+        var minDim = Math.min(CX, CY);
+
         if (t < TS) {
-          /* ── Our Sun — limb-darkened disk + corona ── */
+          /* ── Our Sun — limb-darkened disk, sunspots, prominences, corona ── */
           var sp    = t / TS;
-          var pulse = 0.92 + 0.08 * Math.sin(t * 0.012);
-          var starR = 30 * pulse;
+          var pulse = 0.92 + 0.08 * Math.sin(t * 0.007);
+          var starR = minDim * 0.085 * pulse * Math.min(1, sp * 4);
 
-          /* Outer corona (faint, wide) */
-          var cGrd = ctx.createRadialGradient(CX, CY, starR, CX, CY, starR * 5.5);
-          cGrd.addColorStop(0,   'rgba(255,200,80,'  + (0.45 * sp) + ')');
-          cGrd.addColorStop(0.25,'rgba(255,140,30,'  + (0.14 * sp) + ')');
-          cGrd.addColorStop(0.6, 'rgba(255,100,10,'  + (0.05 * sp) + ')');
-          cGrd.addColorStop(1,   'rgba(0,0,0,0)');
+          /* Outer corona (faint, very wide) */
+          var cGrd = ctx.createRadialGradient(CX, CY, starR, CX, CY, starR * 7);
+          cGrd.addColorStop(0,    'rgba(255,220,100,' + (0.55 * sp) + ')');
+          cGrd.addColorStop(0.18, 'rgba(255,180,50,'  + (0.22 * sp) + ')');
+          cGrd.addColorStop(0.45, 'rgba(255,110,15,'  + (0.08 * sp) + ')');
+          cGrd.addColorStop(1,    'rgba(0,0,0,0)');
           ctx.fillStyle = cGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, starR * 5.5, 0, PI2); ctx.fill();
+          ctx.beginPath(); ctx.arc(CX, CY, starR * 7, 0, PI2); ctx.fill();
 
-          /* Solar disk with limb darkening — crisp edge, not a blob */
+          /* Solar disk with limb darkening — crisp visible edge */
           var sGrd = ctx.createRadialGradient(CX, CY, 0, CX, CY, starR);
-          sGrd.addColorStop(0,    'rgba(255,255,225,1)');  /* white-yellow core */
-          sGrd.addColorStop(0.45, 'rgba(255,240,150,1)');  /* yellow midfield   */
-          sGrd.addColorStop(0.75, 'rgba(255,185,55,1)');   /* orange            */
-          sGrd.addColorStop(0.92, 'rgba(240,115,18,1)');   /* deep limb         */
-          sGrd.addColorStop(1,    'rgba(200,65,8,1)');     /* dark limb edge    */
+          sGrd.addColorStop(0,    'rgba(255,255,235,1)');
+          sGrd.addColorStop(0.40, 'rgba(255,248,160,1)');
+          sGrd.addColorStop(0.72, 'rgba(255,190,60,1)');
+          sGrd.addColorStop(0.90, 'rgba(240,120,20,1)');
+          sGrd.addColorStop(1,    'rgba(205,70,10,1)');
           ctx.fillStyle = sGrd;
           ctx.beginPath(); ctx.arc(CX, CY, starR, 0, PI2); ctx.fill();
 
-          /* Narrow chromosphere glow around the disk edge */
-          var eGrd = ctx.createRadialGradient(CX, CY, starR * 0.88, CX, CY, starR * 1.45);
-          eGrd.addColorStop(0,   'rgba(255,130,30,' + (0.55 * sp) + ')');
-          eGrd.addColorStop(0.5, 'rgba(255,90,10,'  + (0.18 * sp) + ')');
+          /* Chromosphere glow at disk edge */
+          var eGrd = ctx.createRadialGradient(CX, CY, starR * 0.88, CX, CY, starR * 1.7);
+          eGrd.addColorStop(0,   'rgba(255,140,30,' + (0.60 * sp) + ')');
+          eGrd.addColorStop(0.5, 'rgba(255,80,10,'  + (0.22 * sp) + ')');
           eGrd.addColorStop(1,   'rgba(0,0,0,0)');
           ctx.fillStyle = eGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, starR * 1.45, 0, PI2); ctx.fill();
+          ctx.beginPath(); ctx.arc(CX, CY, starR * 1.7, 0, PI2); ctx.fill();
 
-          /* Corona streamers (8 rays) */
-          for (var r = 0; r < 8; r++) {
-            var ra   = (r / 8) * PI2 + t * 0.0002;
-            var rLen = (30 + 14 * Math.sin(t * 0.008 + r * 0.9)) * sp * pulse;
-            ctx.globalAlpha = 0.32 * sp * pulse;
-            ctx.strokeStyle = 'rgba(255,220,120,1)';
-            ctx.lineWidth   = 1.2 + 0.7 * Math.sin(t * 0.007 + r);
+          /* Sunspots — characteristic dark patches on our sun */
+          if (sp > 0.35) {
+            var spotFade = Math.min(1, (sp - 0.35) / 0.3);
+            var sptDefs = [{ ox: 0.24, oy: 0.12, r: 0.13 }, { ox: -0.30, oy: -0.09, r: 0.10 }, { ox: 0.02, oy: 0.28, r: 0.075 }];
+            sptDefs.forEach(function (sd) {
+              var sAng = Math.atan2(sd.oy, sd.ox) + t * 0.00004;
+              var sDst = Math.sqrt(sd.ox * sd.ox + sd.oy * sd.oy) * starR;
+              var sx = CX + Math.cos(sAng) * sDst, sy = CY + Math.sin(sAng) * sDst, sr = sd.r * starR;
+              var spGrd = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+              spGrd.addColorStop(0,   'rgba(35,6,0,'  + (0.90 * spotFade) + ')');
+              spGrd.addColorStop(0.6, 'rgba(65,15,0,' + (0.50 * spotFade) + ')');
+              spGrd.addColorStop(1,   'rgba(0,0,0,0)');
+              ctx.fillStyle = spGrd;
+              ctx.beginPath(); ctx.arc(sx, sy, sr, 0, PI2); ctx.fill();
+            });
+          }
+
+          /* 12 corona streamers */
+          for (var r = 0; r < 12; r++) {
+            var ra   = (r / 12) * PI2 + t * 0.00012;
+            var rLen = (0.9 + 0.7 * Math.sin(t * 0.005 + r * 1.1)) * starR * sp * pulse;
+            ctx.globalAlpha = 0.38 * sp * pulse;
+            ctx.strokeStyle = 'rgba(255,230,130,1)';
+            ctx.lineWidth   = 1.5 + 0.8 * Math.sin(t * 0.006 + r);
             ctx.beginPath();
             ctx.moveTo(CX + Math.cos(ra) * (starR + 2), CY + Math.sin(ra) * (starR + 2));
             ctx.lineTo(CX + Math.cos(ra) * (starR + rLen), CY + Math.sin(ra) * (starR + rLen));
@@ -1041,128 +1053,205 @@
           }
           ctx.globalAlpha = 1;
 
+          /* Solar prominences — iconic red plasma arches */
+          if (sp > 0.50) {
+            var promFade = (sp - 0.50) / 0.50;
+            [{ base: 0.35, span: 0.44, h: 0.85, w: 2.5 }, { base: 0.82, span: 0.38, h: 0.62, w: 1.8 }].forEach(function (pm) {
+              var pBase = pm.base * PI2 + Math.sin(t * 0.0008) * 0.15;
+              var pA1 = pBase - pm.span * 0.5, pA2 = pBase + pm.span * 0.5;
+              var pH = starR * pm.h * promFade;
+              var cpD = starR + pH * 0.88;
+              ctx.globalAlpha = 0.52 * promFade;
+              ctx.strokeStyle = 'rgba(255,55,12,1)';
+              ctx.lineWidth   = pm.w;
+              ctx.beginPath();
+              ctx.moveTo(CX + Math.cos(pA1) * starR, CY + Math.sin(pA1) * starR);
+              ctx.quadraticCurveTo(CX + Math.cos(pBase) * cpD, CY + Math.sin(pBase) * cpD,
+                CX + Math.cos(pA2) * starR, CY + Math.sin(pA2) * starR);
+              ctx.stroke();
+              ctx.globalAlpha = 1;
+            });
+          }
+
         } else if (t < TG) {
           /* ── Red giant ── */
           var gp    = (t - TS) / (TG - TS);
-          var pulse = 0.9 + 0.1 * Math.sin(t * 0.008);
-          var starR = (20 + 50 * gp) * pulse;
-          var coroR = (80 + 110 * gp) * pulse;
-          var gr    = Math.floor(200 - 140 * gp);
-          var gb    = Math.floor(80  -  60 * gp);
+          var pulse = 0.91 + 0.09 * Math.sin(t * 0.006);
+          var starR = minDim * (0.085 + 0.55 * gp) * pulse;
+          var coroR = starR * (1.8 + 0.7 * gp);
+          var grG   = Math.floor(200 - 160 * gp);
+          var grB   = Math.floor(70  -  65 * gp);
 
           var hGrd = ctx.createRadialGradient(CX, CY, starR * 0.4, CX, CY, coroR);
-          hGrd.addColorStop(0,   'rgba(255,' + gr + ',' + gb + ',0.65)');
-          hGrd.addColorStop(0.5, 'rgba(255,' + Math.floor(gr * 0.5) + ',0,0.15)');
+          hGrd.addColorStop(0,   'rgba(255,' + grG + ',' + grB + ',' + (0.65 + 0.15 * gp) + ')');
+          hGrd.addColorStop(0.4, 'rgba(220,' + Math.floor(grG * 0.5) + ',0,' + (0.18 - 0.08 * gp) + ')');
           hGrd.addColorStop(1,   'rgba(0,0,0,0)');
           ctx.fillStyle = hGrd;
           ctx.beginPath(); ctx.arc(CX, CY, coroR, 0, PI2); ctx.fill();
 
           var sGrd = ctx.createRadialGradient(CX, CY, 0, CX, CY, starR);
-          sGrd.addColorStop(0,    'rgba(255,255,' + Math.floor(200 - 180 * gp) + ',1)');
-          sGrd.addColorStop(0.35, 'rgba(255,' + gr + ',' + gb + ',0.95)');
-          sGrd.addColorStop(1,    'rgba(200,' + Math.floor(gr * 0.35) + ',0,0)');
+          sGrd.addColorStop(0,    'rgba(255,255,' + Math.floor(180 - 170 * gp) + ',1)');
+          sGrd.addColorStop(0.35, 'rgba(255,' + grG + ',' + grB + ',0.96)');
+          sGrd.addColorStop(0.85, 'rgba(210,' + Math.floor(grG * 0.3) + ',0,0.4)');
+          sGrd.addColorStop(1,    'rgba(0,0,0,0)');
           ctx.fillStyle = sGrd;
           ctx.beginPath(); ctx.arc(CX, CY, starR, 0, PI2); ctx.fill();
 
         } else if (t < TN) {
           /* ── Supernova flash ── */
           var np = (t - TG) / (TN - TG);
-          var fb = np < 0.3 ? np / 0.3 : Math.max(0, 1 - (np - 0.3) / 0.7);
-          ctx.fillStyle = 'rgba(255,250,220,' + fb + ')';
+          var fb = np < 0.25 ? np / 0.25 : Math.max(0, 1 - (np - 0.25) / 0.75);
+          ctx.fillStyle = 'rgba(255,252,225,' + fb + ')';
           ctx.fillRect(0, 0, W, H);
+          if (fb > 0.05) {
+            ctx.fillStyle = 'rgba(200,235,255,' + (fb * 0.25) + ')';
+            ctx.fillRect(0, 0, W, H);
+          }
 
-          if (!novaFired && np > 0.28) {
+          if (!novaFired && np > 0.22) {
             novaFired = true;
-            var maxD = Math.sqrt(W * W + H * H) * 0.7;
-            for (var k = 0; k < 3; k++) {
-              shockwaves.push({ born: t, delay: k * 110, maxR: maxD + k * 90, dur: 950 + k * 150 });
+            var maxD = Math.sqrt(W * W + H * H) * 0.72;
+            for (var k = 0; k < 4; k++) {
+              shockwaves.push({ born: t, delay: k * 130, maxR: maxD + k * 100, dur: 1100 + k * 180 });
             }
           }
 
         } else if (t < TX) {
-          /* ── Black hole phases ── */
-          var bhAge  = t - TN;
-          var formT  = t < TF ? bhAge / (TF - TN) : 1;
-          var coll   = t > TC ? Math.min(1, (t - TC) / (TX - TC)) : 0;
-          var photR   = 58 * formT * (1 - coll * 0.97);
-          var shadowR = photR * 0.52; /* dark shadow = 52 % of ring */
-          if (photR > 3) {
-            /* Wide lensing halo (warm ambient glow) */
-            var haloR = photR * 3.0 * (1 - coll * 0.55);
-            if (haloR > photR + 2) {
-              var hGrd = ctx.createRadialGradient(CX, CY, shadowR, CX, CY, haloR);
-              hGrd.addColorStop(0,    'rgba(0,0,0,1)');
-              hGrd.addColorStop(0.38, 'rgba(70,25,5,'   + (0.35 * formT * (1 - coll)) + ')');
-              hGrd.addColorStop(0.65, 'rgba(140,60,5,'  + (0.09 * formT) + ')');
-              hGrd.addColorStop(1,    'rgba(0,0,0,0)');
-              ctx.fillStyle = hGrd;
-              ctx.beginPath(); ctx.arc(CX, CY, haloR, 0, PI2); ctx.fill();
+          /* ── Accretion disk black hole (NASA CGI style) ── */
+          /* Flat inclined disk + gravitational lensing arcs over top +
+             event horizon shadow + photon ring + bottom photon band.     */
+          var bhAge = t - TN;
+          var formT = t < TF ? bhAge / (TF - TN) : 1;
+          var coll  = t > TC ? Math.min(1, (t - TC) / (TX - TC)) : 0;
+
+          var bhR    = minDim * 0.058 * formT * (1 - coll * 0.95);
+          var photR  = bhR * 2.2;
+          var diskRx = CX * 0.86 * formT * (1 - coll * 0.88);
+          var diskRy = diskRx * 0.165;
+
+          if (bhR > 0.5 || diskRx > 1) {
+            /* 1: Ambient glow — deep vivid orange-red */
+            var hGrd = ctx.createRadialGradient(CX, CY, bhR * 0.5, CX, CY, diskRx * 1.5);
+            hGrd.addColorStop(0,    'rgba(255,75,5,'   + (0.75 * formT * (1 - coll)) + ')');
+            hGrd.addColorStop(0.20, 'rgba(220,45,3,'   + (0.40 * formT * (1 - coll)) + ')');
+            hGrd.addColorStop(0.50, 'rgba(130,18,2,'   + (0.14 * formT) + ')');
+            hGrd.addColorStop(1,    'rgba(0,0,0,0)');
+            ctx.fillStyle = hGrd;
+            ctx.beginPath(); ctx.arc(CX, CY, diskRx * 1.5, 0, PI2); ctx.fill();
+
+            /* 2: Disk rings — bottom half first (behind everything) */
+            for (var ri = 64; ri >= 0; ri--) {
+              var fr = ri / 64;
+              var rx = photR * 1.08 + (diskRx - photR * 1.08) * Math.pow(fr, 0.7);
+              if (rx <= bhR * 0.88) continue;
+              var ry  = diskRy * Math.max(0.22, 0.30 + 0.70 * fr);
+              var brt = Math.pow(1 - fr * 0.85, 1.4) * 0.95 + 0.05;
+              var gC  = Math.floor(40  + 150 * Math.pow(1 - fr, 0.80));
+              var bC  = Math.floor(3   + 20  * Math.pow(1 - fr, 2.0));
+              var al  = brt * formT * (1 - coll * 0.93) * 0.65;
+              if (al < 0.005) continue;
+              ctx.strokeStyle = 'rgba(255,' + gC + ',' + bC + ',' + al + ')';
+              ctx.lineWidth = 0.7 + 2.8 * (1 - fr * 0.65);
+              ctx.beginPath();
+              ctx.ellipse(CX, CY, rx, ry, 0, 0, Math.PI);
+              ctx.stroke();
             }
 
-            /* Relativistic jets */
-            var jAlph = formT > 0.6 ? Math.min(1, (formT - 0.6) / 0.3) * (1 - coll) : 0;
-            if (jAlph > 0.02) {
-              var jLen = photR * 3.5 * (1 - coll);
-              [1, -1].forEach(function (sign) {
-                var y2   = CY - sign * jLen;
-                var jGrd = ctx.createLinearGradient(CX, CY, CX, y2);
-                jGrd.addColorStop(0,    'rgba(255,230,140,' + (0.8 * jAlph) + ')');
-                jGrd.addColorStop(0.35, 'rgba(140,195,255,' + (0.4 * jAlph) + ')');
-                jGrd.addColorStop(1,    'rgba(70,110,255,0)');
-                ctx.strokeStyle = jGrd;
-                ctx.lineWidth   = 1.4 + 0.4 * formT;
-                ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(CX, y2); ctx.stroke();
-              });
+            /* 3: Bright filaments — ridged texture in disk */
+            for (var fi = 0; fi < 32; fi++) {
+              var fFrac = 0.06 + 0.88 * (fi / 31);
+              var fRx = photR * 1.08 + (diskRx - photR * 1.08) * fFrac;
+              if (fRx <= bhR) continue;
+              var fRy    = diskRy * Math.max(0.22, 0.30 + 0.70 * fFrac) * 0.92;
+              var fBrt   = Math.pow(1 - fFrac * 0.78, 1.8) * 0.95 + 0.05;
+              var fAl    = fBrt * formT * (1 - coll * 0.93) * 0.85;
+              if (fAl < 0.01) continue;
+              var gF = Math.floor(80 + 130 * Math.pow(1 - fFrac, 0.9));
+              ctx.strokeStyle = 'rgba(255,' + gF + ',15,' + fAl + ')';
+              ctx.lineWidth = 0.5;
+              ctx.beginPath();
+              ctx.ellipse(CX, CY, fRx, fRy, (fi % 5 - 2) * 0.015, 0.04, Math.PI - 0.04);
+              ctx.stroke();
             }
 
-            /* ── M87 EHT-style ring: 3-pass thick asymmetric arc ── */
-            /* Matches the actual 2019 EHT image: dramatic Doppler crescent,
-               orange-amber, blurry-thick ring, very dark shadow inside.   */
-            for (var si = 0; si < NSEG; si++) {
-              var a1   = (si / NSEG) * PI2;
-              var a2   = ((si + 1) / NSEG) * PI2;
-              var aMid = (a1 + a2) / 2;
-              var cosA = Math.cos(aMid - BRIGHT);
-              var dop  = Math.pow(1 + BETA * cosA, 3);
-              /* Minimum floor so dim side is barely visible, not invisible */
-              var dopN = Math.max(0.04, (dop - D_MIN) / (D_MAX - D_MIN));
-
-              /* Color: stays warm orange-amber, bright side more yellow */
-              var segG = Math.floor(90  + 110 * dopN); /* 90 → 200  */
-              var segB = Math.floor(0   +  18 * dopN); /* 0  → 18   */
-              var baseA = dopN * formT * (1 - coll * 0.92);
-
-              /* Pass 1 — very wide diffuse halo (telescope blur effect) */
-              ctx.strokeStyle = 'rgba(255,' + segG + ',' + segB + ',' + (baseA * 0.18) + ')';
-              ctx.lineWidth   = 24 + 10 * dopN;
-              ctx.beginPath(); ctx.arc(CX, CY, photR + 4, a1, a2); ctx.stroke();
-
-              /* Pass 2 — mid ring */
-              ctx.strokeStyle = 'rgba(255,' + segG + ',' + segB + ',' + (baseA * 0.55) + ')';
-              ctx.lineWidth   = 10 + 6 * dopN;
-              ctx.beginPath(); ctx.arc(CX, CY, photR, a1, a2); ctx.stroke();
-
-              /* Pass 3 — narrow bright core */
-              ctx.strokeStyle = 'rgba(255,' + segG + ',' + segB + ',' + Math.min(1, baseA * 1.1) + ')';
-              ctx.lineWidth   = 4 + 4 * dopN;
-              ctx.beginPath(); ctx.arc(CX, CY, photR - 3, a1, a2); ctx.stroke();
+            /* 4: Gravitational lensing arcs — far disk bent over BH top */
+            var nArcs = Math.floor(16 * Math.min(1, formT * 1.5));
+            for (var ai = 0; ai < nArcs; ai++) {
+              var af       = ai / (nArcs - 1 || 1);
+              var arcXSpan = diskRx * (0.08 + 0.82 * (1 - af * 0.5));
+              var arcBaseY = CY + diskRy * 0.28;
+              var arcH     = photR * (0.80 + ai * 0.22);
+              var cpY      = CY - arcH;
+              var arcAl    = Math.pow(1 - af, 0.8) * 0.88 * formT * (1 - coll * 0.90);
+              if (arcAl < 0.01) continue;
+              var gA = Math.floor(40 + 140 * Math.pow(1 - af, 0.7));
+              ctx.strokeStyle = 'rgba(255,' + gA + ',8,' + arcAl + ')';
+              ctx.lineWidth = 0.5 + 2.6 * (1 - af);
+              ctx.beginPath();
+              ctx.moveTo(CX + arcXSpan, arcBaseY);
+              ctx.quadraticCurveTo(CX, cpY, CX - arcXSpan, arcBaseY);
+              ctx.stroke();
             }
 
-            /* Event horizon shadow — completely black */
+            /* 5: Top half disk rings — near side of disk in front */
+            for (var ri = 64; ri >= 0; ri--) {
+              var fr = ri / 64;
+              var rx = photR * 1.08 + (diskRx - photR * 1.08) * Math.pow(fr, 0.7);
+              if (rx <= bhR * 0.88) continue;
+              var ry  = diskRy * Math.max(0.22, 0.30 + 0.70 * fr);
+              var brt = Math.pow(1 - fr * 0.85, 1.4) * 0.95 + 0.05;
+              var gC  = Math.floor(40  + 150 * Math.pow(1 - fr, 0.80));
+              var bC  = Math.floor(3   + 20  * Math.pow(1 - fr, 2.0));
+              var al  = brt * formT * (1 - coll * 0.93) * 0.42;
+              if (al < 0.005) continue;
+              ctx.strokeStyle = 'rgba(255,' + gC + ',' + bC + ',' + al + ')';
+              ctx.lineWidth = 0.7 + 2.8 * (1 - fr * 0.65);
+              ctx.beginPath();
+              ctx.ellipse(CX, CY, rx, ry, 0, Math.PI, PI2);
+              ctx.stroke();
+            }
+
+            /* 6: Event horizon shadow */
             ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.arc(CX, CY, shadowR, 0, PI2); ctx.fill();
+            ctx.beginPath(); ctx.arc(CX, CY, bhR, 0, PI2); ctx.fill();
 
-            if (!flashFired && coll > 0.9) {
+            /* 7: Photon ring — vivid glowing band just outside shadow */
+            if (photR > bhR + 1) {
+              for (var pr = 0; pr < 5; pr++) {
+                var prR = bhR + (photR - bhR) * (0.06 + pr * 0.22);
+                var prA = (1.0 - pr * 0.15) * formT * (1 - coll * 0.85);
+                var prG = Math.floor(150 - pr * 30);
+                ctx.strokeStyle = 'rgba(255,' + prG + ',20,' + prA + ')';
+                ctx.lineWidth = 4.0 - pr * 0.6;
+                ctx.beginPath(); ctx.arc(CX, CY, prR, 0, PI2); ctx.stroke();
+              }
+            }
+
+            /* 8: Bottom photon band — lensed light from below BH */
+            if (bhR > 3) {
+              var bpA = 0.85 * formT * (1 - coll * 0.88);
+              ctx.strokeStyle = 'rgba(255,200,50,' + bpA + ')';
+              ctx.lineWidth = 3.5;
+              ctx.beginPath();
+              ctx.ellipse(CX, CY + bhR * 0.32, bhR * 1.18, bhR * 0.21, 0, 0.08, Math.PI - 0.08);
+              ctx.stroke();
+              ctx.strokeStyle = 'rgba(255,140,30,' + (bpA * 0.55) + ')';
+              ctx.lineWidth = 1.8;
+              ctx.beginPath();
+              ctx.ellipse(CX, CY + bhR * 0.52, bhR * 1.30, bhR * 0.16, 0, 0.15, Math.PI - 0.15);
+              ctx.stroke();
+            }
+
+            if (!flashFired && coll > 0.92) {
               flashFired = true;
-              var maxD2 = Math.sqrt(W * W + H * H) * 0.65;
               for (var k = 0; k < 4; k++) {
-                shockwaves.push({ born: t, delay: k * 85, maxR: maxD2 + k * 65, dur: 720 + k * 180 });
+                shockwaves.push({ born: t, delay: k * 90, maxR: Math.sqrt(W * W + H * H) * 0.65 + k * 70, dur: 750 + k * 180 });
               }
             }
           }
 
         } else {
-          /* ── Singularity flash ── */
+          /* ── Singularity flash — brief light then void ── */
           var fp = (t - TX) / (TR - TX);
           var fa = Math.max(0, 1 - fp * 3);
           if (fa > 0) {

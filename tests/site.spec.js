@@ -4,8 +4,8 @@ const { test, expect } = require('@playwright/test');
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 /** Wait until the JS hero-name letters have been injected AND animated in.
- *  Timeout is generous to accommodate the black hole intro delay (~3s). */
-async function waitForName(page, timeout = 7000) {
+ *  Timeout is generous to accommodate the cinematic intro delay (~13s). */
+async function waitForName(page, timeout = 16000) {
   await page.waitForFunction(
     () => document.querySelectorAll('#hero-name .ch.in').length === 7,
     { timeout }
@@ -13,7 +13,7 @@ async function waitForName(page, timeout = 7000) {
 }
 
 /** Wait until the interest tags have been injected into the DOM. */
-async function waitForTags(page, timeout = 7000) {
+async function waitForTags(page, timeout = 16000) {
   await page.waitForFunction(
     () => document.querySelectorAll('#tagcluster .tag').length === 9,
     { timeout }
@@ -182,7 +182,7 @@ test.describe('Percentage counter', () => {
         const pct = document.getElementById('pct');
         return pct && pct.textContent !== 'resolving' && pct.textContent?.includes('%');
       },
-      { timeout: 7000 }
+      { timeout: 16000 }
     );
     const text = await page.locator('#pct').textContent();
     expect(text).toMatch(/\d+\.\d+%/);
@@ -428,8 +428,8 @@ test.describe('JavaScript errors', () => {
     const errors = [];
     page.on('pageerror', (err) => errors.push(err.message));
     await page.goto('/');
-    // Wait long enough to cover the ~3s black hole intro + 2s reveal + deferred JS
-    await page.waitForTimeout(4500);
+    // Wait long enough to cover the full ~13s cinematic intro + deferred JS
+    await page.waitForTimeout(14000);
     expect(errors).toHaveLength(0);
   });
 
