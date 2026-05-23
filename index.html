@@ -651,15 +651,9 @@
     .cursor-plane .ps { stroke: #f0c830; }
     .cursor-plane .pc { stroke: rgba(240,200,48,0.6); }
   }
-  #cursor-trail {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9997;
-  }
   @media (max-width: 760px), (pointer: coarse) {
     body, a, button, .tag, .seal, .name { cursor: auto; }
-    #cursor-wrap, #cursor-trail { display: none; }
+    #cursor-wrap { display: none; }
   }
 
   .peets-wrap {
@@ -763,7 +757,7 @@
       filter: none !important;
     }
     .surname.bursting { animation: none !important; }
-    #cursor-wrap, #cursor-trail { display: none; }
+    #cursor-wrap { display: none; }
   }
 </style>
 </head>
@@ -821,8 +815,6 @@
     </g>
   </svg>
 </div>
-<canvas id="cursor-trail" aria-hidden="true"></canvas>
-
 <div class="hud tl"></div>
 <div class="hud tr"></div>
 <div class="hud bl"></div>
@@ -935,362 +927,7 @@
 
 <script>
   const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const COARSE  = window.matchMedia('(pointer: coarse)').matches;
-  /* Page reveals are delayed by INTRO_OFFSET so the black hole plays first */
-  const INTRO_OFFSET = (REDUCED || COARSE) ? 0 : 13000;
 
-  /* ─────────────────────────────────────────────────────────────────────────
-     Cinematic intro
-     Phases: our sun → red giant → supernova → accretion disk BH → reveal
-  ───────────────────────────────────────────────────────────────────────── */
-  (function () {
-    if (REDUCED || COARSE) return;
-    var PI2 = Math.PI * 2;
-
-    /* Canvas overlay */
-    var cv = document.createElement('canvas');
-    cv.setAttribute('aria-hidden', 'true');
-    cv.style.cssText = 'position:fixed;inset:0;z-index:10000;pointer-events:none;';
-    document.body.appendChild(cv);
-    var ctx = cv.getContext('2d');
-    var W = 0, H = 0, CX = 0, CY = 0;
-    function resize() {
-      W = cv.width  = window.innerWidth;
-      H = cv.height = window.innerHeight;
-      cv.style.width = W + 'px'; cv.style.height = H + 'px';
-      CX = W / 2; CY = H / 2;
-      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-    }
-    resize();
-    window.addEventListener('resize', resize, { passive: true });
-
-    /* Phase timing (ms) — T0 set on first frame so no missed start */
-    var T0  = null;
-    var TS  = 3000,   /* 0→TS:   our sun (3 s)                        */
-        TG  = 5500,   /* TS→TG:  red giant expansion (2.5 s)          */
-        TN  = 7000,   /* TG→TN:  supernova flash (1.5 s)              */
-        TF  = 10000,  /* TN→TF:  accretion disk forms (3 s)           */
-        TC  = 11500,  /* TF→TC:  stable disk (1.5 s)                  */
-        TX  = 12500,  /* TC→TX:  collapse (1 s)                       */
-        TR  = INTRO_OFFSET,   /* = 13000ms — matched to content reveal */
-        TD  = TR + 2000;      /* 2-second smooth reveal                */
-
-    var shockwaves = [], novaFired = false, flashFired = false;
-
-    function draw(now) {
-      if (!T0) T0 = now;
-      var t = now - T0;
-      if (t >= TD) { cv.remove(); return; }
-      ctx.clearRect(0, 0, W, H);
-
-      if (t < TR) {
-        /* ── Black background for all pre-reveal phases ── */
-        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-
-        var minDim = Math.min(CX, CY);
-
-        if (t < TS) {
-          /* ── Our Sun — limb-darkened disk, sunspots, prominences, corona ── */
-          var sp    = t / TS;
-          var pulse = 0.92 + 0.08 * Math.sin(t * 0.007);
-          var starR = minDim * 0.085 * pulse * Math.min(1, sp * 4);
-
-          /* Outer corona (faint, very wide) */
-          var cGrd = ctx.createRadialGradient(CX, CY, starR, CX, CY, starR * 7);
-          cGrd.addColorStop(0,    'rgba(255,220,100,' + (0.55 * sp) + ')');
-          cGrd.addColorStop(0.18, 'rgba(255,180,50,'  + (0.22 * sp) + ')');
-          cGrd.addColorStop(0.45, 'rgba(255,110,15,'  + (0.08 * sp) + ')');
-          cGrd.addColorStop(1,    'rgba(0,0,0,0)');
-          ctx.fillStyle = cGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, starR * 7, 0, PI2); ctx.fill();
-
-          /* Solar disk with limb darkening — crisp visible edge */
-          var sGrd = ctx.createRadialGradient(CX, CY, 0, CX, CY, starR);
-          sGrd.addColorStop(0,    'rgba(255,255,235,1)');
-          sGrd.addColorStop(0.40, 'rgba(255,248,160,1)');
-          sGrd.addColorStop(0.72, 'rgba(255,190,60,1)');
-          sGrd.addColorStop(0.90, 'rgba(240,120,20,1)');
-          sGrd.addColorStop(1,    'rgba(205,70,10,1)');
-          ctx.fillStyle = sGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, starR, 0, PI2); ctx.fill();
-
-          /* Chromosphere glow at disk edge */
-          var eGrd = ctx.createRadialGradient(CX, CY, starR * 0.88, CX, CY, starR * 1.7);
-          eGrd.addColorStop(0,   'rgba(255,140,30,' + (0.60 * sp) + ')');
-          eGrd.addColorStop(0.5, 'rgba(255,80,10,'  + (0.22 * sp) + ')');
-          eGrd.addColorStop(1,   'rgba(0,0,0,0)');
-          ctx.fillStyle = eGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, starR * 1.7, 0, PI2); ctx.fill();
-
-          /* Sunspots — characteristic dark patches on our sun */
-          if (sp > 0.35) {
-            var spotFade = Math.min(1, (sp - 0.35) / 0.3);
-            var sptDefs = [{ ox: 0.24, oy: 0.12, r: 0.13 }, { ox: -0.30, oy: -0.09, r: 0.10 }, { ox: 0.02, oy: 0.28, r: 0.075 }];
-            sptDefs.forEach(function (sd) {
-              var sAng = Math.atan2(sd.oy, sd.ox) + t * 0.00004;
-              var sDst = Math.sqrt(sd.ox * sd.ox + sd.oy * sd.oy) * starR;
-              var sx = CX + Math.cos(sAng) * sDst, sy = CY + Math.sin(sAng) * sDst, sr = sd.r * starR;
-              var spGrd = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
-              spGrd.addColorStop(0,   'rgba(35,6,0,'  + (0.90 * spotFade) + ')');
-              spGrd.addColorStop(0.6, 'rgba(65,15,0,' + (0.50 * spotFade) + ')');
-              spGrd.addColorStop(1,   'rgba(0,0,0,0)');
-              ctx.fillStyle = spGrd;
-              ctx.beginPath(); ctx.arc(sx, sy, sr, 0, PI2); ctx.fill();
-            });
-          }
-
-          /* Coronal streamers — soft diffuse plumes, not spokes */
-          if (sp > 0.18) {
-            var plumes = [
-              { a: 0.18,  len: 2.8, w: 22, crv:  0.22 },
-              { a: 1.35,  len: 2.0, w: 16, crv: -0.16 },
-              { a: 2.60,  len: 3.2, w: 28, crv:  0.18 },
-              { a: 3.80,  len: 1.8, w: 14, crv: -0.20 },
-              { a: 4.90,  len: 2.4, w: 20, crv:  0.12 },
-            ];
-            plumes.forEach(function (pl) {
-              var pa    = pl.a + t * 0.00010 + Math.sin(t * 0.0025 + pl.a) * 0.06;
-              var pLen  = pl.len * starR * Math.min(1, sp * 1.6);
-              var bright = 0.5 + 0.5 * Math.sin(t * 0.003 + pl.a * 2);
-              var pAlpha = (0.20 + 0.12 * bright) * sp;
-              var cpAng  = pa + pl.crv;
-              var cpDist = starR + pLen * 0.55;
-              var ex = CX + Math.cos(pa + pl.crv * 0.5) * (starR + pLen);
-              var ey = CY + Math.sin(pa + pl.crv * 0.5) * (starR + pLen);
-              /* Outer wide soft pass */
-              ctx.globalAlpha = pAlpha * 0.45;
-              ctx.strokeStyle = 'rgba(255,200,80,1)';
-              ctx.lineWidth   = pl.w * (1 + 0.3 * bright);
-              ctx.lineCap     = 'round';
-              ctx.beginPath();
-              ctx.moveTo(CX + Math.cos(pa) * (starR + 1), CY + Math.sin(pa) * (starR + 1));
-              ctx.quadraticCurveTo(CX + Math.cos(cpAng) * cpDist, CY + Math.sin(cpAng) * cpDist, ex, ey);
-              ctx.stroke();
-              /* Inner narrower core */
-              ctx.globalAlpha = pAlpha * 0.70;
-              ctx.strokeStyle = 'rgba(255,230,150,1)';
-              ctx.lineWidth   = pl.w * 0.38 * (1 + 0.3 * bright);
-              ctx.beginPath();
-              ctx.moveTo(CX + Math.cos(pa) * (starR + 1), CY + Math.sin(pa) * (starR + 1));
-              ctx.quadraticCurveTo(CX + Math.cos(cpAng) * cpDist, CY + Math.sin(cpAng) * cpDist, ex, ey);
-              ctx.stroke();
-              ctx.lineCap = 'butt';
-            });
-            ctx.globalAlpha = 1;
-          }
-
-          /* Solar prominences — iconic red plasma arches */
-          if (sp > 0.50) {
-            var promFade = (sp - 0.50) / 0.50;
-            [{ base: 0.35, span: 0.44, h: 0.85, w: 2.5 }, { base: 0.82, span: 0.38, h: 0.62, w: 1.8 }].forEach(function (pm) {
-              var pBase = pm.base * PI2 + Math.sin(t * 0.0008) * 0.15;
-              var pA1 = pBase - pm.span * 0.5, pA2 = pBase + pm.span * 0.5;
-              var pH = starR * pm.h * promFade;
-              var cpD = starR + pH * 0.88;
-              ctx.globalAlpha = 0.52 * promFade;
-              ctx.strokeStyle = 'rgba(255,55,12,1)';
-              ctx.lineWidth   = pm.w;
-              ctx.beginPath();
-              ctx.moveTo(CX + Math.cos(pA1) * starR, CY + Math.sin(pA1) * starR);
-              ctx.quadraticCurveTo(CX + Math.cos(pBase) * cpD, CY + Math.sin(pBase) * cpD,
-                CX + Math.cos(pA2) * starR, CY + Math.sin(pA2) * starR);
-              ctx.stroke();
-              ctx.globalAlpha = 1;
-            });
-          }
-
-        } else if (t < TG) {
-          /* ── Red giant ── */
-          var gp    = (t - TS) / (TG - TS);
-          var pulse = 0.91 + 0.09 * Math.sin(t * 0.006);
-          var starR = minDim * (0.085 + 0.55 * gp) * pulse;
-          var coroR = starR * (1.8 + 0.7 * gp);
-          var grG   = Math.floor(200 - 160 * gp);
-          var grB   = Math.floor(70  -  65 * gp);
-
-          var hGrd = ctx.createRadialGradient(CX, CY, starR * 0.4, CX, CY, coroR);
-          hGrd.addColorStop(0,   'rgba(255,' + grG + ',' + grB + ',' + (0.65 + 0.15 * gp) + ')');
-          hGrd.addColorStop(0.4, 'rgba(220,' + Math.floor(grG * 0.5) + ',0,' + (0.18 - 0.08 * gp) + ')');
-          hGrd.addColorStop(1,   'rgba(0,0,0,0)');
-          ctx.fillStyle = hGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, coroR, 0, PI2); ctx.fill();
-
-          var sGrd = ctx.createRadialGradient(CX, CY, 0, CX, CY, starR);
-          sGrd.addColorStop(0,    'rgba(255,255,' + Math.floor(180 - 170 * gp) + ',1)');
-          sGrd.addColorStop(0.35, 'rgba(255,' + grG + ',' + grB + ',0.96)');
-          sGrd.addColorStop(0.85, 'rgba(210,' + Math.floor(grG * 0.3) + ',0,0.4)');
-          sGrd.addColorStop(1,    'rgba(0,0,0,0)');
-          ctx.fillStyle = sGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, starR, 0, PI2); ctx.fill();
-
-          /* Convective granulation — hot/cool cells break the smooth-blob look */
-          ctx.save();
-          ctx.beginPath(); ctx.arc(CX, CY, starR * 0.96, 0, PI2); ctx.clip();
-          var numCells = 22;
-          for (var ci = 0; ci < numCells; ci++) {
-            var drift  = t * 0.00011;
-            var rAngle = ci * 2.399963 + drift * (0.4 + ci * 0.06);
-            var rDist  = starR * (0.08 + (ci % 6) * 0.13);
-            var gcx    = CX + Math.cos(rAngle) * rDist;
-            var gcy    = CY + Math.sin(rAngle * 1.618034) * rDist;
-            var isHot  = (ci % 3) !== 0;
-            var cellR  = starR * (0.06 + (ci % 5) * 0.028);
-            var fade   = Math.min(1, gp * 3.5);
-            var cAlpha = (0.11 + (ci % 4) * 0.07) * fade;
-            var cGrd   = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, cellR);
-            if (isHot) {
-              var hw = Math.floor(110 - 90 * gp);
-              cGrd.addColorStop(0, 'rgba(255,230,' + hw + ',' + (cAlpha * 1.5) + ')');
-              cGrd.addColorStop(1, 'rgba(255,70,0,0)');
-            } else {
-              cGrd.addColorStop(0, 'rgba(90,8,0,' + (cAlpha * 0.9) + ')');
-              cGrd.addColorStop(1, 'rgba(0,0,0,0)');
-            }
-            ctx.fillStyle = cGrd;
-            ctx.beginPath(); ctx.arc(gcx, gcy, cellR, 0, PI2); ctx.fill();
-          }
-          ctx.restore();
-
-        } else if (t < TN) {
-          /* ── Supernova flash ── */
-          var np = (t - TG) / (TN - TG);
-          var fb = np < 0.25 ? np / 0.25 : Math.max(0, 1 - (np - 0.25) / 0.75);
-          ctx.fillStyle = 'rgba(255,252,225,' + fb + ')';
-          ctx.fillRect(0, 0, W, H);
-          if (fb > 0.05) {
-            ctx.fillStyle = 'rgba(200,235,255,' + (fb * 0.25) + ')';
-            ctx.fillRect(0, 0, W, H);
-          }
-
-          if (!novaFired && np > 0.22) {
-            novaFired = true;
-            var maxD = Math.sqrt(W * W + H * H) * 0.72;
-            for (var k = 0; k < 4; k++) {
-              shockwaves.push({ born: t, delay: k * 130, maxR: maxD + k * 100, dur: 1100 + k * 180 });
-            }
-          }
-
-        } else if (t < TX) {
-          /* ── EHT M87-style black hole — thick blurry Doppler ring ── */
-          /* Matches the actual 2019 EHT photograph: soft orange-red ring,
-             bright crescent at bottom (Doppler), dark event horizon shadow. */
-          var bhAge  = t - TN;
-          var formT  = t < TF ? bhAge / (TF - TN) : 1;
-          var coll   = t > TC ? Math.min(1, (t - TC) / (TX - TC)) : 0;
-
-          /* Ring constants — local to this phase */
-          var EHT_N      = 200;
-          var EHT_BRIGHT = Math.PI * 0.60;   /* ~108° = bottom, slightly toward 7 o'clock */
-          var EHT_BETA   = 0.50;             /* Doppler asymmetry */
-          var EHT_DMIN   = Math.pow(1 - EHT_BETA, 3);
-          var EHT_DMAX   = Math.pow(1 + EHT_BETA, 3);
-
-          var photR   = minDim * 0.40 * formT * (1 - coll * 0.96);
-          var shadowR = photR * 0.44;
-
-          if (photR > 3) {
-            /* 1: Wide warm diffuse halo (telescope background glow) */
-            var haloR = photR * 1.85 * (1 - coll * 0.35);
-            var hGrd = ctx.createRadialGradient(CX, CY, shadowR * 0.7, CX, CY, haloR);
-            hGrd.addColorStop(0,    'rgba(0,0,0,1)');
-            hGrd.addColorStop(0.22, 'rgba(40,8,2,'    + (0.65 * formT * (1 - coll)) + ')');
-            hGrd.addColorStop(0.50, 'rgba(120,30,4,'  + (0.32 * formT * (1 - coll)) + ')');
-            hGrd.addColorStop(0.74, 'rgba(75,14,2,'   + (0.14 * formT) + ')');
-            hGrd.addColorStop(1,    'rgba(0,0,0,0)');
-            ctx.fillStyle = hGrd;
-            ctx.beginPath(); ctx.arc(CX, CY, haloR, 0, PI2); ctx.fill();
-
-            /* 2: Blurry Doppler ring — 4 passes, wide→narrow, diffuse→sharp */
-            /* Each pass draws the full 200-segment ring at a different width,
-               stacking up to create the telescope-resolution blurriness.    */
-            var ringP = [
-              { dr:  9, lw: 85, am: 0.08 },
-              { dr:  3, lw: 46, am: 0.22 },
-              { dr:  0, lw: 22, am: 0.52 },
-              { dr: -3, lw:  6, am: 0.92 },
-            ];
-            ctx.lineCap = 'round';
-            for (var pIdx = 0; pIdx < ringP.length; pIdx++) {
-              var rp = ringP[pIdx];
-              for (var si = 0; si < EHT_N; si++) {
-                var a1   = (si / EHT_N) * PI2;
-                var a2   = ((si + 1) / EHT_N) * PI2;
-                var aMid = (a1 + a2) / 2;
-                var dop  = Math.pow(1 + EHT_BETA * Math.cos(aMid - EHT_BRIGHT), 3);
-                var dopN = Math.max(0.07, (dop - EHT_DMIN) / (EHT_DMAX - EHT_DMIN));
-
-                /* Color: deep red (dim) → bright orange-yellow (bright) */
-                var gC = Math.floor(16 + 190 * Math.pow(dopN, 0.62));
-                var bC = Math.floor(2  + 65  * Math.pow(dopN, 1.25));
-                var al = dopN * rp.am * formT * (1 - coll * 0.93);
-                if (al < 0.004) continue;
-
-                ctx.strokeStyle = 'rgba(255,' + gC + ',' + bC + ',' + al + ')';
-                ctx.lineWidth   = rp.lw;
-                ctx.beginPath();
-                ctx.arc(CX, CY, photR + rp.dr, a1, a2);
-                ctx.stroke();
-              }
-            }
-            ctx.lineCap = 'butt';
-
-            /* 3: Event horizon shadow — completely black */
-            ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.arc(CX, CY, shadowR, 0, PI2); ctx.fill();
-
-            if (!flashFired && coll > 0.92) {
-              flashFired = true;
-              for (var k = 0; k < 4; k++) {
-                shockwaves.push({ born: t, delay: k * 90, maxR: Math.sqrt(W * W + H * H) * 0.65 + k * 70, dur: 750 + k * 180 });
-              }
-            }
-          }
-
-        } else {
-          /* ── Singularity flash — brief light then void ── */
-          var fp = (t - TX) / (TR - TX);
-          var fa = Math.max(0, 1 - fp * 3);
-          if (fa > 0) {
-            ctx.fillStyle = 'rgba(255,252,240,' + fa + ')';
-            ctx.fillRect(0, 0, W, H);
-          }
-          ctx.fillStyle = 'rgba(0,0,0,' + (1 - fa * 0.3) + ')';
-          ctx.fillRect(0, 0, W, H);
-        }
-
-        /* Shockwaves (drawn on top of all pre-reveal phases) */
-        for (var s = 0; s < shockwaves.length; s++) {
-          var sw  = shockwaves[s];
-          var age = (t - sw.born - sw.delay) / sw.dur;
-          if (age < 0 || age >= 1) continue;
-          ctx.strokeStyle = 'rgba(255,210,100,' + (Math.pow(1 - age, 2.2) * 0.85) + ')';
-          ctx.lineWidth   = 2.6 * (1 - age) + 0.4;
-          ctx.beginPath(); ctx.arc(CX, CY, sw.maxR * age, 0, PI2); ctx.stroke();
-        }
-
-      } else {
-        /* ── Smooth top-to-bottom reveal ── */
-        var rt     = (t - TR) / (TD - TR);
-        var eas    = 1 - Math.pow(1 - Math.min(1, rt), 2.2);
-        var sweepY = H * eas;
-        ctx.clearRect(0, 0, W, sweepY);
-        ctx.fillStyle = '#000';
-        if (sweepY < H) ctx.fillRect(0, sweepY, W, H - sweepY);
-        if (sweepY > 0 && sweepY < H) {
-          var eH   = 38;
-          var eGrd = ctx.createLinearGradient(0, sweepY - eH * 0.25, 0, sweepY + eH * 0.75);
-          eGrd.addColorStop(0,    'rgba(0,0,0,0)');
-          eGrd.addColorStop(0.45, 'rgba(210,155,45,' + ((1 - rt) * 0.28) + ')');
-          eGrd.addColorStop(1,    'rgba(0,0,0,0.88)');
-          ctx.fillStyle = eGrd;
-          ctx.fillRect(0, Math.max(0, sweepY - eH * 0.25), W, eH);
-        }
-      }
-
-      requestAnimationFrame(draw);
-    }
-    requestAnimationFrame(draw);
-  })();
 
   /* Surname burst on hold-hover */
   (function () {
@@ -1325,13 +962,11 @@
       s.style.transitionDelay = (0.55 + i * 0.11) + 's';
       el.appendChild(s);
     });
-    setTimeout(function () {
+    requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          el.querySelectorAll('.ch').forEach(function (c) { c.classList.add('in'); });
-        });
+        el.querySelectorAll('.ch').forEach(function (c) { c.classList.add('in'); });
       });
-    }, INTRO_OFFSET);
+    });
   })();
 
   /* Interest tags */
@@ -1355,13 +990,11 @@
       el.appendChild(lbl);
       cluster.appendChild(el);
     });
-    setTimeout(function () {
+    requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          cluster.querySelectorAll('.tag').forEach(function (c) { c.classList.add('in'); });
-        });
+        cluster.querySelectorAll('.tag').forEach(function (c) { c.classList.add('in'); });
       });
-    }, INTRO_OFFSET);
+    });
   })();
 
   /* Worm maw generator */
@@ -1426,7 +1059,7 @@
   (function () {
     document.querySelectorAll('.reveal').forEach(function (el) {
       var d = parseInt(el.getAttribute('data-delay') || '0', 10);
-      setTimeout(function () { el.classList.add('in'); }, INTRO_OFFSET + d);
+      setTimeout(function () { el.classList.add('in'); }, d);
     });
   })();
 
@@ -1474,7 +1107,7 @@
         setTimeout(tick, 90 + Math.random() * 80);
       }
       tick();
-    }, INTRO_OFFSET + 400);
+    }, 400);
   })();
 
   /* PST/PDT live clock */
@@ -1538,74 +1171,6 @@
         wrap.style.transform = 'translate(' + tx + 'px,' + ty + 'px) rotate(' + angle.toFixed(2) + 'deg)';
       }
       requestAnimationFrame(tick);
-    })();
-  })();
-
-  /* Wind trail — pure air gust: white, thin, directional, fast-fading */
-  (function () {
-    if (REDUCED) return;
-    if (window.matchMedia('(pointer: coarse)').matches) return;
-    var cv = document.getElementById('cursor-trail');
-    if (!cv) return;
-    var ctx = cv.getContext('2d');
-    var W = 0, H = 0;
-    function resize() {
-      W = window.innerWidth; H = window.innerHeight;
-      cv.width = W; cv.height = H;
-      cv.style.width = W + 'px'; cv.style.height = H + 'px';
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    var gusts = [], lx = 0, ly = 0, inited = false;
-
-    window.addEventListener('mousemove', function (e) {
-      var dx = e.clientX - lx, dy = e.clientY - ly;
-      if (!inited) { lx = e.clientX; ly = e.clientY; inited = true; return; }
-      lx = e.clientX; ly = e.clientY;
-      var speed = Math.sqrt(dx * dx + dy * dy);
-      if (speed < 1) return;
-      /* Blow backward from cursor movement direction */
-      var ang = Math.atan2(dy, dx) + Math.PI;
-      var n = Math.min(14, 5 + Math.floor(speed / 4));
-      for (var i = 0; i < n; i++) {
-        var fan = (Math.random() - 0.5) * 0.70; /* ±20° fan spread */
-        gusts.push({
-          x:     e.clientX + (Math.random() - 0.5) * 8,
-          y:     e.clientY + (Math.random() - 0.5) * 8,
-          angle: ang + fan,
-          len:   55 + Math.random() * 100 + speed * 2.0,
-          vx:    Math.cos(ang + fan) * (1.2 + Math.random() * 1.5),
-          vy:    Math.sin(ang + fan) * (1.2 + Math.random() * 1.5),
-          life:  0.85 + Math.random() * 0.15,
-          decay: 0.038 + Math.random() * 0.022,
-          thick: 0.9 + Math.random() * 1.4
-        });
-      }
-    });
-
-    (function frame() {
-      ctx.clearRect(0, 0, W, H);
-      ctx.lineCap = 'round';
-      for (var i = gusts.length - 1; i >= 0; i--) {
-        var g = gusts[i];
-        g.x += g.vx; g.y += g.vy;
-        g.life -= g.decay;
-        if (g.life <= 0) { gusts.splice(i, 1); continue; }
-        /* White, semi-transparent — looks like invisible air, not dust */
-        ctx.globalAlpha = g.life * 0.68;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth   = g.thick;
-        ctx.beginPath();
-        ctx.moveTo(g.x, g.y);
-        ctx.lineTo(
-          g.x + Math.cos(g.angle) * g.len * g.life,
-          g.y + Math.sin(g.angle) * g.len * g.life
-        );
-        ctx.stroke();
-      }
-      ctx.globalAlpha = 1;
-      requestAnimationFrame(frame);
     })();
   })();
 

@@ -3,17 +3,14 @@ const { test, expect } = require('@playwright/test');
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-/** Wait until the JS hero-name letters have been injected AND animated in.
- *  Timeout is generous to accommodate the cinematic intro delay (~13s). */
-async function waitForName(page, timeout = 16000) {
+async function waitForName(page, timeout = 4000) {
   await page.waitForFunction(
     () => document.querySelectorAll('#hero-name .ch.in').length === 7,
     { timeout }
   );
 }
 
-/** Wait until the interest tags have been injected into the DOM. */
-async function waitForTags(page, timeout = 16000) {
+async function waitForTags(page, timeout = 4000) {
   await page.waitForFunction(
     () => document.querySelectorAll('#tagcluster .tag').length === 9,
     { timeout }
@@ -182,7 +179,7 @@ test.describe('Percentage counter', () => {
         const pct = document.getElementById('pct');
         return pct && pct.textContent !== 'resolving' && pct.textContent?.includes('%');
       },
-      { timeout: 16000 }
+      { timeout: 5000 }
     );
     const text = await page.locator('#pct').textContent();
     expect(text).toMatch(/\d+\.\d+%/);
@@ -244,18 +241,7 @@ test.describe('Navigation links', () => {
 
 // ─── cursor ──────────────────────────────────────────────────────────────────
 
-test.describe('Spice-dust trail', () => {
-  test('trail canvas is present in DOM', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('#cursor-trail')).toBeAttached();
-  });
-
-  test('trail canvas is sized to viewport on desktop', async ({ page }) => {
-    await page.goto('/');
-    const styleWidth = await page.locator('#cursor-trail').evaluate((el) => el.style.width);
-    expect(styleWidth).toMatch(/\d+px/);
-  });
-
+test.describe('Paper airplane cursor', () => {
   test('cursor-wrap arrow element is present in DOM', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#cursor-wrap')).toBeAttached();
@@ -276,14 +262,6 @@ test.describe('Spice-dust trail', () => {
 
 test.describe('Mobile 375×812', () => {
   test.use({ viewport: { width: 375, height: 812 } });
-
-  test('spice-dust trail canvas is hidden on mobile', async ({ page }) => {
-    await page.goto('/');
-    const display = await page.locator('#cursor-trail').evaluate(
-      (el) => getComputedStyle(el).display
-    );
-    expect(display).toBe('none');
-  });
 
   test('cursor-wrap arrow is hidden on mobile', async ({ page }) => {
     await page.goto('/');
@@ -364,10 +342,6 @@ test.describe('Accessibility', () => {
     expect(tabIndex).toBeNull();
   });
 
-  test('trail canvas is aria-hidden', async ({ page }) => {
-    await expect(page.locator('#cursor-trail')).toHaveAttribute('aria-hidden', 'true');
-  });
-
   test('seal-art SVG has aria-label', async ({ page }) => {
     await expect(page.locator('.seal-art')).toHaveAttribute('aria-label', 'Shai-Hulud');
   });
@@ -402,15 +376,6 @@ test.describe('Prefers reduced motion', () => {
     expect(styleWidth).toBe('');
   });
 
-  test('spice-dust trail canvas is hidden when reduced motion is set', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/');
-    const display = await page.locator('#cursor-trail').evaluate(
-      (el) => getComputedStyle(el).display
-    );
-    expect(display).toBe('none');
-  });
-
   test('cursor-wrap is hidden when reduced motion is set', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
@@ -428,8 +393,7 @@ test.describe('JavaScript errors', () => {
     const errors = [];
     page.on('pageerror', (err) => errors.push(err.message));
     await page.goto('/');
-    // Wait long enough to cover the full ~13s cinematic intro + deferred JS
-    await page.waitForTimeout(14000);
+    await page.waitForTimeout(3000);
     expect(errors).toHaveLength(0);
   });
 
