@@ -623,6 +623,23 @@
   .links a:hover::after { width: 100%; left: 0; }
   .links .sep { color: var(--amber); opacity: .8; }
 
+  body { cursor: none; }
+  a, button, .tag, .seal, .name { cursor: none; }
+  #cursor-wrap {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    will-change: transform;
+  }
+  .cursor-arrow { display: block; width: 22px; height: 28px; overflow: visible; }
+  .cursor-arrow .cf { fill: #ffffff; }
+  .cursor-arrow .cs { fill: none; stroke: #1a1208; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+  @media (prefers-color-scheme: light) {
+    .cursor-arrow .cf { fill: #111; }
+    .cursor-arrow .cs { stroke: #e8e8e8; }
+  }
   #cursor-trail {
     position: fixed;
     inset: 0;
@@ -630,7 +647,8 @@
     z-index: 9997;
   }
   @media (max-width: 760px), (pointer: coarse) {
-    #cursor-trail { display: none; }
+    body, a, button, .tag, .seal, .name { cursor: auto; }
+    #cursor-wrap, #cursor-trail { display: none; }
   }
 
   .peets-wrap {
@@ -734,7 +752,7 @@
       filter: none !important;
     }
     .surname.bursting { animation: none !important; }
-    #cursor-trail { display: none; }
+    #cursor-wrap, #cursor-trail { display: none; }
   }
 </style>
 </head>
@@ -769,6 +787,19 @@
 <div class="layer vignette"></div>
 <div class="layer grain" id="grain"></div>
 
+<div id="cursor-wrap" aria-hidden="true">
+  <svg class="cursor-arrow" viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="cur-sh" x="-30%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="1" dy="1.5" stdDeviation="0.8" flood-color="#000" flood-opacity="0.5"/>
+      </filter>
+    </defs>
+    <g filter="url(#cur-sh)">
+      <path class="cf" d="M0,0 L0,14 L3.5,11 L6.5,18 L8.5,17 L5,10 L11,10 Z"/>
+      <path class="cs" d="M0,0 L0,14 L3.5,11 L6.5,18 L8.5,17 L5,10 L11,10 Z"/>
+    </g>
+  </svg>
+</div>
 <canvas id="cursor-trail" aria-hidden="true"></canvas>
 
 <div class="hud tl"></div>
@@ -1083,6 +1114,20 @@
     setInterval(tick, 1000);
   })();
 
+  /* Arrow cursor tracker */
+  (function () {
+    if (REDUCED) return;
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    var wrap = document.getElementById('cursor-wrap');
+    if (!wrap) return;
+    document.addEventListener('mousemove', function (e) {
+      wrap.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
+      wrap.style.opacity = '1';
+    });
+    document.addEventListener('mouseleave', function () { wrap.style.opacity = '0'; });
+    document.addEventListener('mouseenter', function () { wrap.style.opacity = '1'; });
+  })();
+
   /* Spice-dust trail */
   (function () {
     if (REDUCED) return;
@@ -1100,25 +1145,33 @@
     window.addEventListener('resize', resize);
 
     var particles = [];
-    /* sand · amber · amber-deep · sand-bright · rust */
-    var PALETTE = [[243,225,189],[224,168,90],[176,119,53],[255,242,212],[107,58,28]];
+    /* sand · amber · amber-deep · sand-bright · rust · pale-gold */
+    var PALETTE = [[243,225,189],[224,168,90],[176,119,53],[255,242,212],[107,58,28],[200,175,120]];
 
-    window.addEventListener('mousemove', function (e) {
-      var mx = e.clientX, my = e.clientY;
-      var count = 2 + Math.floor(Math.random() * 2);
+    function spawnAt(mx, my, count, spread, speedMult) {
       for (var i = 0; i < count; i++) {
         var c = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+        var isStreak = Math.random() < 0.28;
         particles.push({
-          x: mx + (Math.random() - 0.5) * 12,
-          y: my + (Math.random() - 0.5) * 12,
-          vx: (Math.random() - 0.5) * 0.9,
-          vy: (Math.random() - 0.5) * 0.9 - 0.35,
-          life: 0.75 + Math.random() * 0.25,
-          decay: 0.018 + Math.random() * 0.02,
-          size: 0.5 + Math.random() * 2,
+          x: mx + (Math.random() - 0.5) * spread,
+          y: my + (Math.random() - 0.5) * spread,
+          vx: (Math.random() * 0.6 + 0.15) * speedMult,  /* rightward wind drift */
+          vy: (Math.random() - 0.6) * 1.1 * speedMult,
+          life: 0.8 + Math.random() * 0.2,
+          decay: 0.008 + Math.random() * 0.012,
+          size: isStreak ? 0.9 + Math.random() * 1.4 : 0.4 + Math.random() * 2.2,
+          streak: isStreak,
           r: c[0], g: c[1], b: c[2]
         });
       }
+    }
+
+    window.addEventListener('mousemove', function (e) {
+      spawnAt(e.clientX, e.clientY, 4 + Math.floor(Math.random() * 4), 16, 1);
+    });
+
+    window.addEventListener('click', function (e) {
+      spawnAt(e.clientX, e.clientY, 14, 24, 1.6);
     });
 
     (function frame() {
@@ -1126,14 +1179,28 @@
       for (var i = particles.length - 1; i >= 0; i--) {
         var p = particles[i];
         p.x += p.vx; p.y += p.vy;
-        p.vy += 0.025;
+        p.vy += 0.018;
+        p.vx *= 0.997;
         p.life -= p.decay;
         if (p.life <= 0) { particles.splice(i, 1); continue; }
-        ctx.globalAlpha = p.life * p.life * 0.75;
+        var alpha = p.life * p.life * 0.85;
+        ctx.globalAlpha = alpha;
         ctx.fillStyle = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        ctx.fill();
+        if (p.streak) {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(Math.atan2(p.vy, p.vx));
+          var len = (3 + p.size * 2) * p.life;
+          var rad = p.size * 0.55 * p.life;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, len, rad, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       ctx.globalAlpha = 1;
       requestAnimationFrame(frame);

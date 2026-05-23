@@ -254,6 +254,21 @@ test.describe('Spice-dust trail', () => {
     const styleWidth = await page.locator('#cursor-trail').evaluate((el) => el.style.width);
     expect(styleWidth).toMatch(/\d+px/);
   });
+
+  test('cursor-wrap arrow element is present in DOM', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#cursor-wrap')).toBeAttached();
+  });
+
+  test('cursor-wrap is aria-hidden', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#cursor-wrap')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  test('cursor-wrap contains SVG arrow', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#cursor-wrap svg.cursor-arrow')).toBeAttached();
+  });
 });
 
 // ─── mobile viewports ────────────────────────────────────────────────────────
@@ -264,6 +279,14 @@ test.describe('Mobile 375×812', () => {
   test('spice-dust trail canvas is hidden on mobile', async ({ page }) => {
     await page.goto('/');
     const display = await page.locator('#cursor-trail').evaluate(
+      (el) => getComputedStyle(el).display
+    );
+    expect(display).toBe('none');
+  });
+
+  test('cursor-wrap arrow is hidden on mobile', async ({ page }) => {
+    await page.goto('/');
+    const display = await page.locator('#cursor-wrap').evaluate(
       (el) => getComputedStyle(el).display
     );
     expect(display).toBe('none');
@@ -382,6 +405,15 @@ test.describe('Prefers reduced motion', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     const display = await page.locator('#cursor-trail').evaluate(
+      (el) => getComputedStyle(el).display
+    );
+    expect(display).toBe('none');
+  });
+
+  test('cursor-wrap is hidden when reduced motion is set', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    const display = await page.locator('#cursor-wrap').evaluate(
       (el) => getComputedStyle(el).display
     );
     expect(display).toBe('none');
