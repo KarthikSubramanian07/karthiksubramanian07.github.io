@@ -1039,19 +1039,45 @@
             });
           }
 
-          /* 12 corona streamers */
-          for (var r = 0; r < 12; r++) {
-            var ra   = (r / 12) * PI2 + t * 0.00012;
-            var rLen = (0.9 + 0.7 * Math.sin(t * 0.005 + r * 1.1)) * starR * sp * pulse;
-            ctx.globalAlpha = 0.38 * sp * pulse;
-            ctx.strokeStyle = 'rgba(255,230,130,1)';
-            ctx.lineWidth   = 1.5 + 0.8 * Math.sin(t * 0.006 + r);
-            ctx.beginPath();
-            ctx.moveTo(CX + Math.cos(ra) * (starR + 2), CY + Math.sin(ra) * (starR + 2));
-            ctx.lineTo(CX + Math.cos(ra) * (starR + rLen), CY + Math.sin(ra) * (starR + rLen));
-            ctx.stroke();
+          /* Coronal streamers — soft diffuse plumes, not spokes */
+          if (sp > 0.18) {
+            var plumes = [
+              { a: 0.18,  len: 2.8, w: 22, crv:  0.22 },
+              { a: 1.35,  len: 2.0, w: 16, crv: -0.16 },
+              { a: 2.60,  len: 3.2, w: 28, crv:  0.18 },
+              { a: 3.80,  len: 1.8, w: 14, crv: -0.20 },
+              { a: 4.90,  len: 2.4, w: 20, crv:  0.12 },
+            ];
+            plumes.forEach(function (pl) {
+              var pa    = pl.a + t * 0.00010 + Math.sin(t * 0.0025 + pl.a) * 0.06;
+              var pLen  = pl.len * starR * Math.min(1, sp * 1.6);
+              var bright = 0.5 + 0.5 * Math.sin(t * 0.003 + pl.a * 2);
+              var pAlpha = (0.20 + 0.12 * bright) * sp;
+              var cpAng  = pa + pl.crv;
+              var cpDist = starR + pLen * 0.55;
+              var ex = CX + Math.cos(pa + pl.crv * 0.5) * (starR + pLen);
+              var ey = CY + Math.sin(pa + pl.crv * 0.5) * (starR + pLen);
+              /* Outer wide soft pass */
+              ctx.globalAlpha = pAlpha * 0.45;
+              ctx.strokeStyle = 'rgba(255,200,80,1)';
+              ctx.lineWidth   = pl.w * (1 + 0.3 * bright);
+              ctx.lineCap     = 'round';
+              ctx.beginPath();
+              ctx.moveTo(CX + Math.cos(pa) * (starR + 1), CY + Math.sin(pa) * (starR + 1));
+              ctx.quadraticCurveTo(CX + Math.cos(cpAng) * cpDist, CY + Math.sin(cpAng) * cpDist, ex, ey);
+              ctx.stroke();
+              /* Inner narrower core */
+              ctx.globalAlpha = pAlpha * 0.70;
+              ctx.strokeStyle = 'rgba(255,230,150,1)';
+              ctx.lineWidth   = pl.w * 0.38 * (1 + 0.3 * bright);
+              ctx.beginPath();
+              ctx.moveTo(CX + Math.cos(pa) * (starR + 1), CY + Math.sin(pa) * (starR + 1));
+              ctx.quadraticCurveTo(CX + Math.cos(cpAng) * cpDist, CY + Math.sin(cpAng) * cpDist, ex, ey);
+              ctx.stroke();
+              ctx.lineCap = 'butt';
+            });
+            ctx.globalAlpha = 1;
           }
-          ctx.globalAlpha = 1;
 
           /* Solar prominences — iconic red plasma arches */
           if (sp > 0.50) {
@@ -1096,6 +1122,34 @@
           sGrd.addColorStop(1,    'rgba(0,0,0,0)');
           ctx.fillStyle = sGrd;
           ctx.beginPath(); ctx.arc(CX, CY, starR, 0, PI2); ctx.fill();
+
+          /* Convective granulation — hot/cool cells break the smooth-blob look */
+          ctx.save();
+          ctx.beginPath(); ctx.arc(CX, CY, starR * 0.96, 0, PI2); ctx.clip();
+          var numCells = 22;
+          for (var ci = 0; ci < numCells; ci++) {
+            var drift  = t * 0.00011;
+            var rAngle = ci * 2.399963 + drift * (0.4 + ci * 0.06);
+            var rDist  = starR * (0.08 + (ci % 6) * 0.13);
+            var gcx    = CX + Math.cos(rAngle) * rDist;
+            var gcy    = CY + Math.sin(rAngle * 1.618034) * rDist;
+            var isHot  = (ci % 3) !== 0;
+            var cellR  = starR * (0.06 + (ci % 5) * 0.028);
+            var fade   = Math.min(1, gp * 3.5);
+            var cAlpha = (0.11 + (ci % 4) * 0.07) * fade;
+            var cGrd   = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, cellR);
+            if (isHot) {
+              var hw = Math.floor(110 - 90 * gp);
+              cGrd.addColorStop(0, 'rgba(255,230,' + hw + ',' + (cAlpha * 1.5) + ')');
+              cGrd.addColorStop(1, 'rgba(255,70,0,0)');
+            } else {
+              cGrd.addColorStop(0, 'rgba(90,8,0,' + (cAlpha * 0.9) + ')');
+              cGrd.addColorStop(1, 'rgba(0,0,0,0)');
+            }
+            ctx.fillStyle = cGrd;
+            ctx.beginPath(); ctx.arc(gcx, gcy, cellR, 0, PI2); ctx.fill();
+          }
+          ctx.restore();
 
         } else if (t < TN) {
           /* ── Supernova flash ── */
@@ -1513,19 +1567,19 @@
       if (speed < 1) return;
       /* Blow backward from cursor movement direction */
       var ang = Math.atan2(dy, dx) + Math.PI;
-      var n = Math.min(7, 3 + Math.floor(speed / 6));
+      var n = Math.min(14, 5 + Math.floor(speed / 4));
       for (var i = 0; i < n; i++) {
-        var fan = (Math.random() - 0.5) * 0.55; /* ±16° fan spread */
+        var fan = (Math.random() - 0.5) * 0.70; /* ±20° fan spread */
         gusts.push({
-          x:     e.clientX + (Math.random() - 0.5) * 6,
-          y:     e.clientY + (Math.random() - 0.5) * 6,
+          x:     e.clientX + (Math.random() - 0.5) * 8,
+          y:     e.clientY + (Math.random() - 0.5) * 8,
           angle: ang + fan,
-          len:   10 + Math.random() * 20 + speed * 0.35,
-          vx:    Math.cos(ang + fan) * (0.7 + Math.random() * 0.8),
-          vy:    Math.sin(ang + fan) * (0.7 + Math.random() * 0.8),
-          life:  0.8 + Math.random() * 0.2,
-          decay: 0.10 + Math.random() * 0.07,
-          thick: 0.35 + Math.random() * 0.5
+          len:   55 + Math.random() * 100 + speed * 2.0,
+          vx:    Math.cos(ang + fan) * (1.2 + Math.random() * 1.5),
+          vy:    Math.sin(ang + fan) * (1.2 + Math.random() * 1.5),
+          life:  0.85 + Math.random() * 0.15,
+          decay: 0.038 + Math.random() * 0.022,
+          thick: 0.9 + Math.random() * 1.4
         });
       }
     });
@@ -1539,7 +1593,7 @@
         g.life -= g.decay;
         if (g.life <= 0) { gusts.splice(i, 1); continue; }
         /* White, semi-transparent — looks like invisible air, not dust */
-        ctx.globalAlpha = g.life * g.life * 0.45;
+        ctx.globalAlpha = g.life * 0.68;
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth   = g.thick;
         ctx.beginPath();
