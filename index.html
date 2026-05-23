@@ -1117,130 +1117,72 @@
           }
 
         } else if (t < TX) {
-          /* ── Accretion disk black hole (NASA CGI style) ── */
-          /* Flat inclined disk + gravitational lensing arcs over top +
-             event horizon shadow + photon ring + bottom photon band.     */
-          var bhAge = t - TN;
-          var formT = t < TF ? bhAge / (TF - TN) : 1;
-          var coll  = t > TC ? Math.min(1, (t - TC) / (TX - TC)) : 0;
+          /* ── EHT M87-style black hole — thick blurry Doppler ring ── */
+          /* Matches the actual 2019 EHT photograph: soft orange-red ring,
+             bright crescent at bottom (Doppler), dark event horizon shadow. */
+          var bhAge  = t - TN;
+          var formT  = t < TF ? bhAge / (TF - TN) : 1;
+          var coll   = t > TC ? Math.min(1, (t - TC) / (TX - TC)) : 0;
 
-          var bhR    = minDim * 0.058 * formT * (1 - coll * 0.95);
-          var photR  = bhR * 2.2;
-          var diskRx = CX * 0.86 * formT * (1 - coll * 0.88);
-          var diskRy = diskRx * 0.165;
+          /* Ring constants — local to this phase */
+          var EHT_N      = 200;
+          var EHT_BRIGHT = Math.PI * 0.60;   /* ~108° = bottom, slightly toward 7 o'clock */
+          var EHT_BETA   = 0.50;             /* Doppler asymmetry */
+          var EHT_DMIN   = Math.pow(1 - EHT_BETA, 3);
+          var EHT_DMAX   = Math.pow(1 + EHT_BETA, 3);
 
-          if (bhR > 0.5 || diskRx > 1) {
-            /* 1: Ambient glow — deep vivid orange-red */
-            var hGrd = ctx.createRadialGradient(CX, CY, bhR * 0.5, CX, CY, diskRx * 1.5);
-            hGrd.addColorStop(0,    'rgba(255,75,5,'   + (0.75 * formT * (1 - coll)) + ')');
-            hGrd.addColorStop(0.20, 'rgba(220,45,3,'   + (0.40 * formT * (1 - coll)) + ')');
-            hGrd.addColorStop(0.50, 'rgba(130,18,2,'   + (0.14 * formT) + ')');
+          var photR   = minDim * 0.40 * formT * (1 - coll * 0.96);
+          var shadowR = photR * 0.44;
+
+          if (photR > 3) {
+            /* 1: Wide warm diffuse halo (telescope background glow) */
+            var haloR = photR * 1.85 * (1 - coll * 0.35);
+            var hGrd = ctx.createRadialGradient(CX, CY, shadowR * 0.7, CX, CY, haloR);
+            hGrd.addColorStop(0,    'rgba(0,0,0,1)');
+            hGrd.addColorStop(0.22, 'rgba(40,8,2,'    + (0.65 * formT * (1 - coll)) + ')');
+            hGrd.addColorStop(0.50, 'rgba(120,30,4,'  + (0.32 * formT * (1 - coll)) + ')');
+            hGrd.addColorStop(0.74, 'rgba(75,14,2,'   + (0.14 * formT) + ')');
             hGrd.addColorStop(1,    'rgba(0,0,0,0)');
             ctx.fillStyle = hGrd;
-            ctx.beginPath(); ctx.arc(CX, CY, diskRx * 1.5, 0, PI2); ctx.fill();
+            ctx.beginPath(); ctx.arc(CX, CY, haloR, 0, PI2); ctx.fill();
 
-            /* 2: Disk rings — bottom half first (behind everything) */
-            for (var ri = 64; ri >= 0; ri--) {
-              var fr = ri / 64;
-              var rx = photR * 1.08 + (diskRx - photR * 1.08) * Math.pow(fr, 0.7);
-              if (rx <= bhR * 0.88) continue;
-              var ry  = diskRy * Math.max(0.22, 0.30 + 0.70 * fr);
-              var brt = Math.pow(1 - fr * 0.85, 1.4) * 0.95 + 0.05;
-              var gC  = Math.floor(40  + 150 * Math.pow(1 - fr, 0.80));
-              var bC  = Math.floor(3   + 20  * Math.pow(1 - fr, 2.0));
-              var al  = brt * formT * (1 - coll * 0.93) * 0.65;
-              if (al < 0.005) continue;
-              ctx.strokeStyle = 'rgba(255,' + gC + ',' + bC + ',' + al + ')';
-              ctx.lineWidth = 0.7 + 2.8 * (1 - fr * 0.65);
-              ctx.beginPath();
-              ctx.ellipse(CX, CY, rx, ry, 0, 0, Math.PI);
-              ctx.stroke();
-            }
+            /* 2: Blurry Doppler ring — 4 passes, wide→narrow, diffuse→sharp */
+            /* Each pass draws the full 200-segment ring at a different width,
+               stacking up to create the telescope-resolution blurriness.    */
+            var ringP = [
+              { dr:  9, lw: 85, am: 0.08 },
+              { dr:  3, lw: 46, am: 0.22 },
+              { dr:  0, lw: 22, am: 0.52 },
+              { dr: -3, lw:  6, am: 0.92 },
+            ];
+            ctx.lineCap = 'round';
+            for (var pIdx = 0; pIdx < ringP.length; pIdx++) {
+              var rp = ringP[pIdx];
+              for (var si = 0; si < EHT_N; si++) {
+                var a1   = (si / EHT_N) * PI2;
+                var a2   = ((si + 1) / EHT_N) * PI2;
+                var aMid = (a1 + a2) / 2;
+                var dop  = Math.pow(1 + EHT_BETA * Math.cos(aMid - EHT_BRIGHT), 3);
+                var dopN = Math.max(0.07, (dop - EHT_DMIN) / (EHT_DMAX - EHT_DMIN));
 
-            /* 3: Bright filaments — ridged texture in disk */
-            for (var fi = 0; fi < 32; fi++) {
-              var fFrac = 0.06 + 0.88 * (fi / 31);
-              var fRx = photR * 1.08 + (diskRx - photR * 1.08) * fFrac;
-              if (fRx <= bhR) continue;
-              var fRy    = diskRy * Math.max(0.22, 0.30 + 0.70 * fFrac) * 0.92;
-              var fBrt   = Math.pow(1 - fFrac * 0.78, 1.8) * 0.95 + 0.05;
-              var fAl    = fBrt * formT * (1 - coll * 0.93) * 0.85;
-              if (fAl < 0.01) continue;
-              var gF = Math.floor(80 + 130 * Math.pow(1 - fFrac, 0.9));
-              ctx.strokeStyle = 'rgba(255,' + gF + ',15,' + fAl + ')';
-              ctx.lineWidth = 0.5;
-              ctx.beginPath();
-              ctx.ellipse(CX, CY, fRx, fRy, (fi % 5 - 2) * 0.015, 0.04, Math.PI - 0.04);
-              ctx.stroke();
-            }
+                /* Color: deep red (dim) → bright orange-yellow (bright) */
+                var gC = Math.floor(16 + 190 * Math.pow(dopN, 0.62));
+                var bC = Math.floor(2  + 65  * Math.pow(dopN, 1.25));
+                var al = dopN * rp.am * formT * (1 - coll * 0.93);
+                if (al < 0.004) continue;
 
-            /* 4: Gravitational lensing arcs — far disk bent over BH top */
-            var nArcs = Math.floor(16 * Math.min(1, formT * 1.5));
-            for (var ai = 0; ai < nArcs; ai++) {
-              var af       = ai / (nArcs - 1 || 1);
-              var arcXSpan = diskRx * (0.08 + 0.82 * (1 - af * 0.5));
-              var arcBaseY = CY + diskRy * 0.28;
-              var arcH     = photR * (0.80 + ai * 0.22);
-              var cpY      = CY - arcH;
-              var arcAl    = Math.pow(1 - af, 0.8) * 0.88 * formT * (1 - coll * 0.90);
-              if (arcAl < 0.01) continue;
-              var gA = Math.floor(40 + 140 * Math.pow(1 - af, 0.7));
-              ctx.strokeStyle = 'rgba(255,' + gA + ',8,' + arcAl + ')';
-              ctx.lineWidth = 0.5 + 2.6 * (1 - af);
-              ctx.beginPath();
-              ctx.moveTo(CX + arcXSpan, arcBaseY);
-              ctx.quadraticCurveTo(CX, cpY, CX - arcXSpan, arcBaseY);
-              ctx.stroke();
-            }
-
-            /* 5: Top half disk rings — near side of disk in front */
-            for (var ri = 64; ri >= 0; ri--) {
-              var fr = ri / 64;
-              var rx = photR * 1.08 + (diskRx - photR * 1.08) * Math.pow(fr, 0.7);
-              if (rx <= bhR * 0.88) continue;
-              var ry  = diskRy * Math.max(0.22, 0.30 + 0.70 * fr);
-              var brt = Math.pow(1 - fr * 0.85, 1.4) * 0.95 + 0.05;
-              var gC  = Math.floor(40  + 150 * Math.pow(1 - fr, 0.80));
-              var bC  = Math.floor(3   + 20  * Math.pow(1 - fr, 2.0));
-              var al  = brt * formT * (1 - coll * 0.93) * 0.42;
-              if (al < 0.005) continue;
-              ctx.strokeStyle = 'rgba(255,' + gC + ',' + bC + ',' + al + ')';
-              ctx.lineWidth = 0.7 + 2.8 * (1 - fr * 0.65);
-              ctx.beginPath();
-              ctx.ellipse(CX, CY, rx, ry, 0, Math.PI, PI2);
-              ctx.stroke();
-            }
-
-            /* 6: Event horizon shadow */
-            ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.arc(CX, CY, bhR, 0, PI2); ctx.fill();
-
-            /* 7: Photon ring — vivid glowing band just outside shadow */
-            if (photR > bhR + 1) {
-              for (var pr = 0; pr < 5; pr++) {
-                var prR = bhR + (photR - bhR) * (0.06 + pr * 0.22);
-                var prA = (1.0 - pr * 0.15) * formT * (1 - coll * 0.85);
-                var prG = Math.floor(150 - pr * 30);
-                ctx.strokeStyle = 'rgba(255,' + prG + ',20,' + prA + ')';
-                ctx.lineWidth = 4.0 - pr * 0.6;
-                ctx.beginPath(); ctx.arc(CX, CY, prR, 0, PI2); ctx.stroke();
+                ctx.strokeStyle = 'rgba(255,' + gC + ',' + bC + ',' + al + ')';
+                ctx.lineWidth   = rp.lw;
+                ctx.beginPath();
+                ctx.arc(CX, CY, photR + rp.dr, a1, a2);
+                ctx.stroke();
               }
             }
+            ctx.lineCap = 'butt';
 
-            /* 8: Bottom photon band — lensed light from below BH */
-            if (bhR > 3) {
-              var bpA = 0.85 * formT * (1 - coll * 0.88);
-              ctx.strokeStyle = 'rgba(255,200,50,' + bpA + ')';
-              ctx.lineWidth = 3.5;
-              ctx.beginPath();
-              ctx.ellipse(CX, CY + bhR * 0.32, bhR * 1.18, bhR * 0.21, 0, 0.08, Math.PI - 0.08);
-              ctx.stroke();
-              ctx.strokeStyle = 'rgba(255,140,30,' + (bpA * 0.55) + ')';
-              ctx.lineWidth = 1.8;
-              ctx.beginPath();
-              ctx.ellipse(CX, CY + bhR * 0.52, bhR * 1.30, bhR * 0.16, 0, 0.15, Math.PI - 0.15);
-              ctx.stroke();
-            }
+            /* 3: Event horizon shadow — completely black */
+            ctx.fillStyle = '#000';
+            ctx.beginPath(); ctx.arc(CX, CY, shadowR, 0, PI2); ctx.fill();
 
             if (!flashFired && coll > 0.92) {
               flashFired = true;
