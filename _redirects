@@ -1,0 +1,7 @@
+# Block public access to development and configuration files
+/package.json         /404.html 404
+/package-lock.json    /404.html 404
+/playwright.config.js /404.html 404
+/README.md            /404.html 404
+/.gitignore           /404.html 404
+/tests/*              /404.html 404

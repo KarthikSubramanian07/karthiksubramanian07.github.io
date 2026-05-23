@@ -2,3 +2,8 @@ node_modules/
 playwright-report/
 test-results/
 .DS_Store
+# Backup / working copies
+index\ 2.html
+*\ 2.html
+*.bak
+*.tmp
