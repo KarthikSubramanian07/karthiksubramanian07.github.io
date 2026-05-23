@@ -4,7 +4,7 @@ const { test, expect } = require('@playwright/test');
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 /** Wait until the JS hero-name letters have been injected AND animated in.
- *  Timeout is generous to accommodate the black hole intro delay (~2s). */
+ *  Timeout is generous to accommodate the black hole intro delay (~3s). */
 async function waitForName(page, timeout = 7000) {
   await page.waitForFunction(
     () => document.querySelectorAll('#hero-name .ch.in').length === 7,
@@ -428,7 +428,7 @@ test.describe('JavaScript errors', () => {
     const errors = [];
     page.on('pageerror', (err) => errors.push(err.message));
     await page.goto('/');
-    // Wait long enough to cover the ~4s black hole intro + deferred JS
+    // Wait long enough to cover the ~3s black hole intro + 2s reveal + deferred JS
     await page.waitForTimeout(4500);
     expect(errors).toHaveLength(0);
   });

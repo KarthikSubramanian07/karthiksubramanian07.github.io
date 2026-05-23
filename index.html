@@ -937,11 +937,11 @@
   const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const COARSE  = window.matchMedia('(pointer: coarse)').matches;
   /* Page reveals are delayed by INTRO_OFFSET so the black hole plays first */
-  const INTRO_OFFSET = (REDUCED || COARSE) ? 0 : 2200;
+  const INTRO_OFFSET = (REDUCED || COARSE) ? 0 : 3000;
 
   /* ─────────────────────────────────────────────────────────────────────────
      Black hole intro
-     Phases: ring forms → stable disk → collapse → singularity flash → pixel reveal
+     Phases: bright star → red giant → supernova → M87 black hole → reveal
   ───────────────────────────────────────────────────────────────────────── */
   (function () {
     if (REDUCED || COARSE) return;
@@ -959,183 +959,228 @@
       H = cv.height = window.innerHeight;
       cv.style.width = W + 'px'; cv.style.height = H + 'px';
       CX = W / 2; CY = H / 2;
-      /* Fill immediately so the canvas is opaque black before the first animation frame */
       ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
     }
     resize();
     window.addEventListener('resize', resize, { passive: true });
 
-    /* Accretion disk particles */
-    var NPART = 210, parts = [];
-    for (var i = 0; i < NPART; i++) {
-      var r0 = 52 + Math.random() * 210;
-      var dir = Math.random() < 0.82 ? 1 : -1;
-      parts.push({
-        r: r0, a: Math.random() * PI2,
-        omega: dir * 0.025 * Math.pow(68 / r0, 1.5),
-        flatY: 0.27 + Math.random() * 0.18,
-        sz: 0.7 + Math.random() * 2.1,
-        op: 0.35 + Math.random() * 0.65,
-      });
-    }
-
-    /* Per-column jitter for pixel reveal — larger blocks = retro feel */
-    var BLOCK = 10;
-    var colJitter = [];
-    for (var c = 0; c < Math.ceil(6000 / BLOCK) + 4; c++) {
-      colJitter.push((Math.random() - 0.5) * 55);
-    }
-
     /* Phase timing (ms) — T0 set on first frame so no missed start */
-    var T0 = null;
-    var TF = 1000,  /* 0→TF   ring forms slowly (dramatic build)  */
-        TC = 1900,  /* TF→TC  stable disk → collapse begins       */
-        TX = 2100,  /* TC→TX  collapse → singularity              */
-        TR = INTRO_OFFSET, /* matched to content reveal offset     */
-        TD = TR + 3400;    /* slow retro pixel reveal (3.4 s)      */
+    var T0  = null;
+    var TS  =  600,   /* 0→TS:   bright pulsing star                */
+        TG  = 1200,   /* TS→TG:  red giant expansion                */
+        TN  = 1700,   /* TG→TN:  supernova flash + collapse         */
+        TF  = 2400,   /* TN→TF:  black hole ring forms (M87 style)  */
+        TC  = 2650,   /* TF→TC:  stable disk, then collapse begins  */
+        TX  = 2850,   /* TC→TX:  singularity                        */
+        TR  = INTRO_OFFSET,   /* = 3000ms — matched to content reveal */
+        TD  = TR + 2000;      /* 2-second smooth reveal               */
 
-    var shockwaves = [], flashFired = false;
+    var shockwaves = [], novaFired = false, flashFired = false;
+
+    /* M87-style photon ring constants */
+    var NSEG  = 120;
+    var BRIGHT = Math.PI * 1.55; /* ~280° = 7-o'clock bright side  */
+    var BETA   = 0.60;
+    var D_MIN  = Math.pow(1 - BETA, 3);
+    var D_MAX  = Math.pow(1 + BETA, 3);
 
     function draw(now) {
-      if (!T0) T0 = now; /* Start clock on first actual painted frame */
+      if (!T0) T0 = now;
       var t = now - T0;
       if (t >= TD) { cv.remove(); return; }
       ctx.clearRect(0, 0, W, H);
 
-      /* ── Pre-flash phases ── */
-      if (t < TX) {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, W, H);
+      if (t < TR) {
+        /* ── Black background for all pre-reveal phases ── */
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
 
-        var formT      = Math.min(1, t / TF);
-        var collapseP  = t > TC ? Math.min(1, (t - TC) / (TX - TC)) : 0;
-        var ringR      = Math.max(0, 58 * formT * (1 - collapseP));
-        var pulse      = 0.72 + 0.28 * Math.sin(t * 0.0024);
+        if (t < TS) {
+          /* ── Bright pulsing star ── */
+          var sp    = t / TS;
+          var pulse = 0.85 + 0.15 * Math.sin(t * 0.018);
+          var starR = 20 * pulse;
+          var coroR = (75 + 25 * pulse) * Math.min(1, sp * 1.8);
 
-        /* Ambient lensing halo */
-        var hR = Math.max(ringR + 6, (105 + 22 * Math.sin(t * 0.0018)) * formT);
-        if (hR > ringR + 3) {
-          var hGrd = ctx.createRadialGradient(CX, CY, ringR + 1, CX, CY, hR);
-          hGrd.addColorStop(0,    'rgba(0,0,0,1)');
-          hGrd.addColorStop(0.3,  'rgba(55,24,5,' + (0.4 * pulse * formT) + ')');
-          hGrd.addColorStop(0.65, 'rgba(160,80,10,' + (0.15 * formT) + ')');
-          hGrd.addColorStop(1,    'rgba(0,0,0,0)');
+          var hGrd = ctx.createRadialGradient(CX, CY, starR * 0.5, CX, CY, coroR);
+          hGrd.addColorStop(0,   'rgba(255,240,150,' + (0.55 * sp) + ')');
+          hGrd.addColorStop(0.4, 'rgba(255,180,60,'  + (0.2 * sp)  + ')');
+          hGrd.addColorStop(1,   'rgba(0,0,0,0)');
           ctx.fillStyle = hGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, hR, 0, PI2); ctx.fill();
-        }
+          ctx.beginPath(); ctx.arc(CX, CY, coroR, 0, PI2); ctx.fill();
 
-        /* Relativistic jets */
-        if (formT > 0.55 && collapseP < 0.9) {
-          var jLen  = ringR * 3.8 * (1 - collapseP);
-          var jAlph = Math.min(1, (formT - 0.55) / 0.35) * (1 - collapseP);
-          if (jLen > 3 && jAlph > 0) {
-            [1, -1].forEach(function (sign) {
-              var y2 = CY - sign * jLen;
-              var jGrd = ctx.createLinearGradient(CX, CY, CX, y2);
-              jGrd.addColorStop(0,   'rgba(255,235,150,' + (0.85 * jAlph) + ')');
-              jGrd.addColorStop(0.4, 'rgba(160,205,255,' + (0.45 * jAlph) + ')');
-              jGrd.addColorStop(1,   'rgba(80,120,255,0)');
-              ctx.strokeStyle = jGrd;
-              ctx.lineWidth = 1.6 + pulse * 0.5;
-              ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(CX, y2); ctx.stroke();
-            });
-          }
-        }
+          var sGrd = ctx.createRadialGradient(CX, CY, 0, CX, CY, starR * 2.2);
+          sGrd.addColorStop(0,   'rgba(255,255,255,1)');
+          sGrd.addColorStop(0.2, 'rgba(255,252,220,' + sp + ')');
+          sGrd.addColorStop(0.6, 'rgba(255,200,80,'  + (0.85 * sp) + ')');
+          sGrd.addColorStop(1,   'rgba(0,0,0,0)');
+          ctx.fillStyle = sGrd;
+          ctx.beginPath(); ctx.arc(CX, CY, starR * 2.2, 0, PI2); ctx.fill();
 
-        /* Accretion disk */
-        var diskA = Math.max(0, Math.min(1, (formT - 0.18) / 0.35));
-        if (diskA > 0) {
-          for (var i = 0; i < NPART; i++) {
-            var p = parts[i];
-            p.a += p.omega * (1 + collapseP * 7);
-            if (collapseP > 0) {
-              p.r = Math.max(ringR, p.r - (p.r - ringR) * 0.06 * (1 + collapseP * 4));
-            }
-            if (p.r <= ringR + 1) continue;
-            var px  = CX + p.r * Math.cos(p.a);
-            var py  = CY + p.r * Math.sin(p.a) * p.flatY;
-            var df  = Math.min(1, Math.max(0, (p.r - ringR) / 130));
-            var dop = 0.58 + 0.42 * Math.cos(p.a);
-            ctx.globalAlpha = p.op * diskA * dop * (1 - collapseP * 0.5);
-            ctx.fillStyle = 'rgb(255,' + Math.floor(70 + 185 * df) + ',' + Math.floor(5 + 80 * df) + ')';
+          /* Solar rays */
+          for (var r = 0; r < 8; r++) {
+            var ra   = (r / 8) * PI2 + t * 0.0003;
+            var rLen = (22 + 10 * Math.sin(t * 0.011 + r * 0.8)) * sp * pulse;
+            ctx.globalAlpha = 0.28 * sp * pulse;
+            ctx.strokeStyle = 'rgba(255,235,140,1)';
+            ctx.lineWidth   = 0.9 + 0.6 * Math.sin(t * 0.009 + r);
             ctx.beginPath();
-            ctx.arc(px, py, Math.max(0.3, p.sz * (1 - collapseP * 0.4)), 0, PI2);
-            ctx.fill();
+            ctx.moveTo(CX + Math.cos(ra) * starR, CY + Math.sin(ra) * starR);
+            ctx.lineTo(CX + Math.cos(ra) * (starR + rLen), CY + Math.sin(ra) * (starR + rLen));
+            ctx.stroke();
           }
           ctx.globalAlpha = 1;
-        }
 
-        /* Photon ring */
-        if (ringR > 2) {
-          var gi       = Math.min(1.6, 0.9 * pulse + collapseP * 1.4);
-          var glowSize = Math.max(1, 22 + collapseP * 32);
+        } else if (t < TG) {
+          /* ── Red giant ── */
+          var gp    = (t - TS) / (TG - TS);
+          var pulse = 0.9 + 0.1 * Math.sin(t * 0.008);
+          var starR = (20 + 50 * gp) * pulse;
+          var coroR = (80 + 110 * gp) * pulse;
+          var gr    = Math.floor(200 - 140 * gp);
+          var gb    = Math.floor(80  -  60 * gp);
 
-          ctx.fillStyle = '#000';
-          ctx.beginPath(); ctx.arc(CX, CY, ringR, 0, PI2); ctx.fill();
+          var hGrd = ctx.createRadialGradient(CX, CY, starR * 0.4, CX, CY, coroR);
+          hGrd.addColorStop(0,   'rgba(255,' + gr + ',' + gb + ',0.65)');
+          hGrd.addColorStop(0.5, 'rgba(255,' + Math.floor(gr * 0.5) + ',0,0.15)');
+          hGrd.addColorStop(1,   'rgba(0,0,0,0)');
+          ctx.fillStyle = hGrd;
+          ctx.beginPath(); ctx.arc(CX, CY, coroR, 0, PI2); ctx.fill();
 
-          var rGrd = ctx.createRadialGradient(CX, CY, Math.max(0.1, ringR - 2), CX, CY, ringR + glowSize);
-          rGrd.addColorStop(0,    'rgba(255,240,155,' + Math.min(1, gi) + ')');
-          rGrd.addColorStop(0.25, 'rgba(255,140,40,' + (gi * 0.5) + ')');
-          rGrd.addColorStop(1,    'rgba(0,0,0,0)');
-          ctx.fillStyle = rGrd;
-          ctx.beginPath(); ctx.arc(CX, CY, ringR + glowSize, 0, PI2); ctx.fill();
+          var sGrd = ctx.createRadialGradient(CX, CY, 0, CX, CY, starR);
+          sGrd.addColorStop(0,    'rgba(255,255,' + Math.floor(200 - 180 * gp) + ',1)');
+          sGrd.addColorStop(0.35, 'rgba(255,' + gr + ',' + gb + ',0.95)');
+          sGrd.addColorStop(1,    'rgba(200,' + Math.floor(gr * 0.35) + ',0,0)');
+          ctx.fillStyle = sGrd;
+          ctx.beginPath(); ctx.arc(CX, CY, starR, 0, PI2); ctx.fill();
 
-          ctx.strokeStyle = 'rgba(255,250,205,' + Math.min(1, gi * 0.95) + ')';
-          ctx.lineWidth = 1.9 + collapseP * 2.5;
-          ctx.beginPath(); ctx.arc(CX, CY, ringR, 0, PI2); ctx.stroke();
+        } else if (t < TN) {
+          /* ── Supernova flash ── */
+          var np = (t - TG) / (TN - TG);
+          var fb = np < 0.3 ? np / 0.3 : Math.max(0, 1 - (np - 0.3) / 0.7);
+          ctx.fillStyle = 'rgba(255,250,220,' + fb + ')';
+          ctx.fillRect(0, 0, W, H);
 
-          ctx.fillStyle = '#000';
-          ctx.beginPath(); ctx.arc(CX, CY, Math.max(0.1, ringR - 1), 0, PI2); ctx.fill();
-        }
-
-        /* Trigger shockwaves near singularity */
-        if (!flashFired && collapseP > 0.93) {
-          flashFired = true;
-          var maxD = Math.sqrt(W * W + H * H) * 0.65;
-          for (var k = 0; k < 4; k++) {
-            shockwaves.push({ born: t, delay: k * 85, maxR: maxD + k * 65, dur: 720 + k * 180 });
+          if (!novaFired && np > 0.28) {
+            novaFired = true;
+            var maxD = Math.sqrt(W * W + H * H) * 0.7;
+            for (var k = 0; k < 3; k++) {
+              shockwaves.push({ born: t, delay: k * 110, maxR: maxD + k * 90, dur: 950 + k * 150 });
+            }
           }
+
+        } else if (t < TX) {
+          /* ── Black hole phases ── */
+          var bhAge  = t - TN;
+          var formT  = t < TF ? bhAge / (TF - TN) : 1;
+          var coll   = t > TC ? Math.min(1, (t - TC) / (TX - TC)) : 0;
+          var photR  = 58 * formT * (1 - coll * 0.97);
+          var shadowR = photR * 0.62;
+
+          if (photR > 3) {
+            /* Lensing halo */
+            var haloR = photR * 2.8 * (1 - coll * 0.55);
+            if (haloR > photR + 2) {
+              var hGrd = ctx.createRadialGradient(CX, CY, photR * 0.9, CX, CY, haloR);
+              hGrd.addColorStop(0,    'rgba(0,0,0,0.98)');
+              hGrd.addColorStop(0.22, 'rgba(60,22,4,'   + (0.38 * formT * (1 - coll)) + ')');
+              hGrd.addColorStop(0.55, 'rgba(160,70,8,'  + (0.10 * formT) + ')');
+              hGrd.addColorStop(1,    'rgba(0,0,0,0)');
+              ctx.fillStyle = hGrd;
+              ctx.beginPath(); ctx.arc(CX, CY, haloR, 0, PI2); ctx.fill();
+            }
+
+            /* Relativistic jets */
+            var jAlph = formT > 0.6 ? Math.min(1, (formT - 0.6) / 0.3) * (1 - coll) : 0;
+            if (jAlph > 0.02) {
+              var jLen = photR * 3.5 * (1 - coll);
+              [1, -1].forEach(function (sign) {
+                var y2   = CY - sign * jLen;
+                var jGrd = ctx.createLinearGradient(CX, CY, CX, y2);
+                jGrd.addColorStop(0,    'rgba(255,230,140,' + (0.8 * jAlph) + ')');
+                jGrd.addColorStop(0.35, 'rgba(140,195,255,' + (0.4 * jAlph) + ')');
+                jGrd.addColorStop(1,    'rgba(70,110,255,0)');
+                ctx.strokeStyle = jGrd;
+                ctx.lineWidth   = 1.4 + 0.4 * formT;
+                ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(CX, y2); ctx.stroke();
+              });
+            }
+
+            /* M87 photon ring — 120 Doppler-weighted arc segments */
+            for (var si = 0; si < NSEG; si++) {
+              var a1   = (si / NSEG) * PI2;
+              var a2   = ((si + 1) / NSEG) * PI2;
+              var aMid = (a1 + a2) / 2;
+              var cosA = Math.cos(aMid - BRIGHT);
+              var dop  = Math.pow(1 + BETA * cosA, 3);
+              var dopN = Math.pow((dop - D_MIN) / (D_MAX - D_MIN), 0.55);
+
+              var segG = Math.floor(75  + 165 * dopN);
+              var segB = Math.floor(5   +  25 * dopN);
+              var segA = (0.12 + 0.88 * dopN) * formT * (1 - coll * 0.92);
+
+              /* Outer diffuse glow */
+              ctx.strokeStyle = 'rgba(255,' + segG + ',' + segB + ',' + (segA * 0.22) + ')';
+              ctx.lineWidth   = 10 + 7 * dopN;
+              ctx.beginPath(); ctx.arc(CX, CY, photR + 5, a1, a2); ctx.stroke();
+
+              /* Core ring */
+              ctx.strokeStyle = 'rgba(255,' + segG + ',' + segB + ',' + segA + ')';
+              ctx.lineWidth   = 3.5 + 3.5 * dopN;
+              ctx.beginPath(); ctx.arc(CX, CY, photR, a1, a2); ctx.stroke();
+            }
+
+            /* Event horizon shadow */
+            ctx.fillStyle = '#000';
+            ctx.beginPath(); ctx.arc(CX, CY, shadowR, 0, PI2); ctx.fill();
+
+            if (!flashFired && coll > 0.9) {
+              flashFired = true;
+              var maxD2 = Math.sqrt(W * W + H * H) * 0.65;
+              for (var k = 0; k < 4; k++) {
+                shockwaves.push({ born: t, delay: k * 85, maxR: maxD2 + k * 65, dur: 720 + k * 180 });
+              }
+            }
+          }
+
+        } else {
+          /* ── Singularity flash ── */
+          var fp = (t - TX) / (TR - TX);
+          var fa = Math.max(0, 1 - fp * 3);
+          if (fa > 0) {
+            ctx.fillStyle = 'rgba(255,252,240,' + fa + ')';
+            ctx.fillRect(0, 0, W, H);
+          }
+          ctx.fillStyle = 'rgba(0,0,0,' + (1 - fa * 0.3) + ')';
+          ctx.fillRect(0, 0, W, H);
         }
 
-      } else if (t < TR) {
-        /* ── Singularity flash ── */
-        var fp = (t - TX) / (TR - TX);
-        var fa = Math.max(0, 1 - fp * 3);
-        if (fa > 0) { ctx.fillStyle = 'rgba(255,252,240,' + fa + ')'; ctx.fillRect(0, 0, W, H); }
-        ctx.fillStyle = 'rgba(0,0,0,' + (1 - fa) + ')'; ctx.fillRect(0, 0, W, H);
+        /* Shockwaves (drawn on top of all pre-reveal phases) */
+        for (var s = 0; s < shockwaves.length; s++) {
+          var sw  = shockwaves[s];
+          var age = (t - sw.born - sw.delay) / sw.dur;
+          if (age < 0 || age >= 1) continue;
+          ctx.strokeStyle = 'rgba(255,210,100,' + (Math.pow(1 - age, 2.2) * 0.85) + ')';
+          ctx.lineWidth   = 2.6 * (1 - age) + 0.4;
+          ctx.beginPath(); ctx.arc(CX, CY, sw.maxR * age, 0, PI2); ctx.stroke();
+        }
 
       } else {
-        /* ── Pixel reveal (slow, retro, suspenseful) ── */
-        var rt  = (t - TR) / (TD - TR);
-        var eas = 1 - Math.pow(1 - rt, 2.0); /* gentle ease-out = slow start */
-        var sweepY = H * Math.min(1, eas * 1.05);
-        var nc = Math.ceil(W / BLOCK) + 2;
+        /* ── Smooth top-to-bottom reveal ── */
+        var rt     = (t - TR) / (TD - TR);
+        var eas    = 1 - Math.pow(1 - Math.min(1, rt), 2.2);
+        var sweepY = H * eas;
+        ctx.clearRect(0, 0, W, sweepY);
         ctx.fillStyle = '#000';
-        for (var c = 0; c < nc; c++) {
-          var jit = c < colJitter.length ? colJitter[c] : 0;
-          var ry = sweepY + jit;
-          if (ry < H) ctx.fillRect(c * BLOCK, Math.max(0, ry), BLOCK + 1, H - Math.max(0, ry));
+        if (sweepY < H) ctx.fillRect(0, sweepY, W, H - sweepY);
+        if (sweepY > 0 && sweepY < H) {
+          var eH   = 38;
+          var eGrd = ctx.createLinearGradient(0, sweepY - eH * 0.25, 0, sweepY + eH * 0.75);
+          eGrd.addColorStop(0,    'rgba(0,0,0,0)');
+          eGrd.addColorStop(0.45, 'rgba(210,155,45,' + ((1 - rt) * 0.28) + ')');
+          eGrd.addColorStop(1,    'rgba(0,0,0,0.88)');
+          ctx.fillStyle = eGrd;
+          ctx.fillRect(0, Math.max(0, sweepY - eH * 0.25), W, eH);
         }
-        /* Amber CRT scan-line glow at the frontier */
-        if (rt < 0.97 && sweepY > 0) {
-          var sA = (1 - rt) * 0.6;
-          var sGrd = ctx.createLinearGradient(0, sweepY - 6, 0, sweepY + 20);
-          sGrd.addColorStop(0,    'rgba(255,200,80,0)');
-          sGrd.addColorStop(0.45, 'rgba(255,235,140,' + sA + ')');
-          sGrd.addColorStop(1,    'rgba(0,0,0,0)');
-          ctx.fillStyle = sGrd;
-          ctx.fillRect(0, Math.max(0, sweepY - 6), W, 27);
-        }
-      }
-
-      /* ── Shockwave rings (drawn on top of all phases) ── */
-      for (var s = 0; s < shockwaves.length; s++) {
-        var sw  = shockwaves[s];
-        var age = (t - sw.born - sw.delay) / sw.dur;
-        if (age < 0 || age >= 1) continue;
-        ctx.strokeStyle = 'rgba(255,210,100,' + (Math.pow(1 - age, 2.2) * 0.85) + ')';
-        ctx.lineWidth = 2.6 * (1 - age) + 0.4;
-        ctx.beginPath(); ctx.arc(CX, CY, sw.maxR * age, 0, PI2); ctx.stroke();
       }
 
       requestAnimationFrame(draw);
@@ -1408,24 +1453,27 @@
     resize();
     window.addEventListener('resize', resize);
 
-    var wisps = [], lx = 0, ly = 0;
+    var wisps = [], lx = 0, ly = 0, inited = false;
 
     window.addEventListener('mousemove', function (e) {
       var dx = e.clientX - lx, dy = e.clientY - ly;
+      if (!inited) { lx = e.clientX; ly = e.clientY; inited = true; return; }
       lx = e.clientX; ly = e.clientY;
       var speed = Math.sqrt(dx * dx + dy * dy);
-      if (speed < 2) return;
-      var n = 1 + Math.floor(speed / 9);
-      for (var i = 0; i < Math.min(n, 3); i++) {
+      if (speed < 0.5) return;
+      var n = Math.min(5, 2 + Math.floor(speed / 6));
+      for (var i = 0; i < n; i++) {
+        var spread = (Math.random() - 0.5) * 9;
         wisps.push({
-          x: e.clientX,
-          y: e.clientY + (Math.random() - 0.5) * 5,
-          vx: -dx * 0.09 - 0.3,
-          vy: -dy * 0.09 + (Math.random() - 0.5) * 0.35,
-          len: 7 + Math.random() * 13,
-          life: 1,
-          decay: 0.055 + Math.random() * 0.04,
-          thick: 0.4 + Math.random() * 0.65
+          x:     e.clientX + spread * 0.25,
+          y:     e.clientY + spread,
+          vx:    -dx * 0.12 - 0.5 + (Math.random() - 0.5) * 0.4,
+          vy:    -dy * 0.12 + (Math.random() - 0.5) * 0.6,
+          len:   22 + Math.random() * 38,
+          curl:  (Math.random() - 0.5) * 7,
+          life:  1,
+          decay: 0.028 + Math.random() * 0.022,
+          thick: 1.3 + Math.random() * 2.2
         });
       }
     });
@@ -1438,12 +1486,17 @@
         p.x += p.vx; p.y += p.vy;
         p.life -= p.decay;
         if (p.life <= 0) { wisps.splice(i, 1); continue; }
-        ctx.globalAlpha = p.life * p.life * 0.48;
-        ctx.strokeStyle = 'rgba(228,218,196,0.95)';
-        ctx.lineWidth = p.thick * p.life;
+        ctx.globalAlpha = p.life * 0.85;
+        ctx.strokeStyle = 'rgba(240,220,165,1)';
+        ctx.lineWidth   = p.thick * (0.25 + 0.75 * p.life);
         ctx.beginPath();
         ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x - p.len, p.y + Math.sin(p.x * 0.09) * 2.5);
+        ctx.quadraticCurveTo(
+          p.x - p.len * 0.45,
+          p.y + p.curl,
+          p.x - p.len,
+          p.y + p.curl * 2
+        );
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
