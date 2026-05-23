@@ -809,23 +809,28 @@
 <div class="layer grain" id="grain"></div>
 
 <div class="cursor" id="cursor" aria-hidden="true">
-  <svg class="cursor-meteor" viewBox="-8 -8 16 16" xmlns="http://www.w3.org/2000/svg">
+  <svg class="cursor-meteor" viewBox="-9 -9 18 18" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <radialGradient id="meteor-grad" cx="40%" cy="35%" r="60%">
-        <stop offset="0%" stop-color="#fff2d4"/>
-        <stop offset="35%" stop-color="#e0a85a"/>
-        <stop offset="75%" stop-color="#b07735"/>
-        <stop offset="100%" stop-color="#6b3a1c"/>
+      <radialGradient id="meteor-grad" cx="28%" cy="24%" r="74%">
+        <stop offset="0%"   stop-color="#fffaf0"/>
+        <stop offset="18%"  stop-color="#f3e1bd"/>
+        <stop offset="48%"  stop-color="#c07a30"/>
+        <stop offset="76%"  stop-color="#3d1a08"/>
+        <stop offset="100%" stop-color="#0e0400"/>
       </radialGradient>
     </defs>
-    <!-- Rock body -->
-    <path d="M0,-7 C2.5,-6.5 6,-3.5 6.5,0 C6,3.5 3,6.5 0,7 C-3,6 -6.5,3 -6,0 C-6.5,-4 -2.5,-7 0,-7 Z" fill="url(#meteor-grad)"/>
-    <!-- Surface craters (spice pockmarks) -->
-    <circle cx="-2" cy="-2" r="1.4" fill="rgba(0,0,0,0.22)"/>
-    <circle cx="2" cy="1.5" r="0.9" fill="rgba(0,0,0,0.18)"/>
-    <circle cx="-0.5" cy="2.8" r="0.6" fill="rgba(0,0,0,0.14)"/>
-    <!-- Spice vein highlight -->
-    <path d="M-1,-4.5 C0.5,-2.5 -0.5,-0.5 1,1.5" stroke="rgba(243,225,189,0.35)" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+    <!-- Angular asteroid body — irregular polygon, not a circle -->
+    <path d="M2,-8.5 L6.5,-4.5 L8.5,1 L6,6.5 L0.5,8.5 L-4.5,6 L-8,0.5 L-6.5,-4.5 L-2,-8.5 Z"
+          fill="url(#meteor-grad)"/>
+    <!-- Hot leading face (top-right facet, ablating in atmosphere) -->
+    <path d="M2,-8.5 L6.5,-4.5 L4,-2.5 L0.5,-6.5 Z"
+          fill="rgba(255,250,230,0.38)"/>
+    <!-- Glowing edge crease between facets -->
+    <line x1="0.5" y1="-6.5" x2="4" y2="-2.5"
+          stroke="rgba(255,220,140,0.55)" stroke-width="0.5"/>
+    <!-- Secondary smaller hot facet -->
+    <path d="M6.5,-4.5 L8.5,1 L6,-0.5 L4,-2.5 Z"
+          fill="rgba(255,200,100,0.12)"/>
   </svg>
 </div>
 <canvas id="cursor-trail" aria-hidden="true"></canvas>
