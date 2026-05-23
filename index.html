@@ -554,7 +554,8 @@
   .scan::before {
     content: "";
     position: absolute;
-    inset: -1px 0;
+    top: -1px;
+    left: 0;
     height: 3px;
     width: 110px;
     background: linear-gradient(90deg,
@@ -565,9 +566,13 @@
       transparent 100%);
     filter: blur(0.4px);
     box-shadow: 0 0 18px var(--amber-glow);
+    will-change: transform;
     animation: scan 5.5s cubic-bezier(.65,.05,.36,1) infinite;
   }
-  @keyframes scan { 0% { left: -110px; } 100% { left: 100%; } }
+  @keyframes scan {
+    0%   { transform: translateX(-110px); }
+    100% { transform: translateX(500px); }
+  }
   .scan-label {
     margin-top: 18px;
     font-family: 'JetBrains Mono', monospace;
@@ -627,24 +632,21 @@
     will-change: transform;
     opacity: 0;
   }
-  .cursor .c-outer {
-    position: absolute;
-    width: 28px; height: 28px;
-    border: 1px solid var(--amber);
-    border-radius: 50%;
+  .cursor-maw {
+    display: block;
+    width: 36px;
+    height: 36px;
+    color: var(--amber);
     transform: translate(-50%, -50%);
-    opacity: .55;
-    transition: width .3s ease, height .3s ease, opacity .3s ease;
+    filter: drop-shadow(0 0 2px color-mix(in oklab, var(--amber) 45%, transparent));
+    transition: transform .25s cubic-bezier(.2,.7,.2,1), filter .25s ease;
   }
-  .cursor .c-inner {
-    position: absolute;
-    width: 4px; height: 4px;
-    background: var(--amber);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 6px var(--amber-glow);
+  .cursor-maw .c-outer-ring { transform-origin: 0 0; animation: spin 12s linear infinite; }
+  .cursor-maw .c-mid-ring   { transform-origin: 0 0; animation: spinReverse 7s linear infinite; }
+  .cursor.hot .cursor-maw {
+    transform: translate(-50%, -50%) scale(1.5);
+    filter: drop-shadow(0 0 7px var(--amber));
   }
-  .cursor.hot .c-outer { width: 44px; height: 44px; opacity: .35; }
   @media (max-width: 760px), (pointer: coarse) {
     body, a, button, .tag, .seal, .name { cursor: auto; }
     .cursor { display: none; }
@@ -696,6 +698,14 @@
     z-index: 5;
   }
   .peets-wrap:hover .bean { color: var(--amber); }
+  @keyframes bean-drift-a { 0%,100%{translate:0 0;}50%{translate:-4px -5px;} }
+  @keyframes bean-drift-b { 0%,100%{translate:0 0;}50%{translate:5px -4px;} }
+  @keyframes bean-drift-c { 0%,100%{translate:0 0;}50%{translate:-4px 5px;} }
+  @keyframes bean-drift-d { 0%,100%{translate:0 0;}50%{translate:5px 4px;} }
+  .bean.drift-a { animation: bean-drift-a 4.1s ease-in-out infinite; }
+  .bean.drift-b { animation: bean-drift-b 3.7s ease-in-out infinite; animation-delay: -1.2s; }
+  .bean.drift-c { animation: bean-drift-c 4.4s ease-in-out infinite; animation-delay: -0.6s; }
+  .bean.drift-d { animation: bean-drift-d 3.9s ease-in-out infinite; animation-delay: -1.8s; }
 
   .reveal { opacity: 0; transform: translateY(14px); filter: blur(6px); }
   .reveal.in {
@@ -714,14 +724,58 @@
     main { padding: 110px 18px 140px; }
     .name { font-size: clamp(72px, 22vw, 200px); }
     .transmission { font-size: 17px; }
+    .transmission br { display: none; }
     .links { gap: 18px; font-size: 10px; }
     .monogram { margin: 8px 0 52px; }
     .monogram .seal { width: 110px; height: 110px; }
     .coords { font-size: 9px; gap: 10px; letter-spacing: .3em; margin-bottom: 48px; }
   }
+  @media (max-width: 380px) {
+    .links { flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+    .links .sep { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dune, .haze, .grain, .pulse,
+    .monogram .seal .dashed, .monogram .seal .ticks, .monogram .seal .orbit, .seal-art,
+    .divider .star, .transmission .resolve .blink,
+    .sun, .stars, .bean { animation: none !important; }
+    .divider svg .draw { animation: none !important; stroke-dashoffset: 0; }
+    .reveal, .reveal.in {
+      opacity: 1 !important; transform: none !important;
+      filter: none !important; transition: none !important;
+    }
+    .name .ch, .name .ch.in {
+      opacity: 1 !important; transform: none !important;
+      filter: none !important; transition: none !important;
+    }
+    .tag, .tag.in {
+      opacity: 1 !important; transform: none !important;
+      filter: none !important;
+    }
+    .surname.bursting { animation: none !important; }
+    .cursor-maw .c-outer-ring,
+    .cursor-maw .c-mid-ring { animation: none !important; }
+  }
 </style>
 </head>
 <body>
+<noscript>
+<style>
+  #hero-name::before {
+    content: "Karthik";
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(96px, 22vw, 320px);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--sand-bright);
+  }
+  #tagcluster, .scan-wrap { display: none; }
+  .reveal { opacity: 1; transform: none; filter: none; }
+</style>
+</noscript>
 
 <div class="layer stars"></div>
 <canvas id="storm" class="layer"></canvas>
@@ -747,8 +801,36 @@
 <div class="layer grain" id="grain"></div>
 
 <div class="cursor" id="cursor" aria-hidden="true">
-  <div class="c-outer"></div>
-  <div class="c-inner"></div>
+  <svg class="cursor-maw" viewBox="-20 -20 40 40" xmlns="http://www.w3.org/2000/svg">
+    <g class="c-outer-ring">
+      <circle r="16" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.5"/>
+      <line x1="13" y1="0" x2="16" y2="0" stroke="currentColor" stroke-width="0.7"/>
+      <line x1="9.19" y1="9.19" x2="11.31" y2="11.31" stroke="currentColor" stroke-width="0.5"/>
+      <line x1="0" y1="13" x2="0" y2="16" stroke="currentColor" stroke-width="0.7"/>
+      <line x1="-9.19" y1="9.19" x2="-11.31" y2="11.31" stroke="currentColor" stroke-width="0.5"/>
+      <line x1="-13" y1="0" x2="-16" y2="0" stroke="currentColor" stroke-width="0.7"/>
+      <line x1="-9.19" y1="-9.19" x2="-11.31" y2="-11.31" stroke="currentColor" stroke-width="0.5"/>
+      <line x1="0" y1="-13" x2="0" y2="-16" stroke="currentColor" stroke-width="0.7"/>
+      <line x1="9.19" y1="-9.19" x2="11.31" y2="-11.31" stroke="currentColor" stroke-width="0.5"/>
+    </g>
+    <g class="c-mid-ring">
+      <circle r="10.5" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.75"/>
+      <path d="M9.52,-4.44 L7,0 L9.52,4.44" stroke="currentColor" stroke-width="0.55" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M8.6,6.02 L3.5,6.06 L0.91,10.46" stroke="currentColor" stroke-width="0.55" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M-0.91,10.46 L-3.5,6.06 L-8.6,6.02" stroke="currentColor" stroke-width="0.55" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M-9.52,4.44 L-7,0 L-9.52,-4.44" stroke="currentColor" stroke-width="0.55" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M-8.6,-6.02 L-3.5,-6.06 L-0.91,-10.46" stroke="currentColor" stroke-width="0.55" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M0.91,-10.46 L3.5,-6.06 L8.6,-6.02" stroke="currentColor" stroke-width="0.55" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+    <g class="c-inner-ring">
+      <circle r="5.5" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.85"/>
+      <path d="M5.31,-1.42 L3.2,0 L5.31,1.42" stroke="currentColor" stroke-width="0.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M1.42,5.31 L0,3.2 L-1.42,5.31" stroke="currentColor" stroke-width="0.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M-5.31,1.42 L-3.2,0 L-5.31,-1.42" stroke="currentColor" stroke-width="0.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M-1.42,-5.31 L0,-3.2 L1.42,-5.31" stroke="currentColor" stroke-width="0.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+    </g>
+    <circle r="1.8" fill="currentColor"/>
+  </svg>
 </div>
 
 <div class="hud tl"></div>
@@ -774,11 +856,11 @@
     <span class="dot"></span>
     <span class="label">122.2585° W</span>
     <span class="dot"></span>
-    <span>ARRAKIS · <span id="pst-time">--:--</span> PST</span>
+    <span>ARRAKIS · <span id="pst-time">--:--</span> <span id="tz-label">PST</span></span>
   </div>
 
   <div class="monogram reveal" data-delay="350" id="monogram">
-    <div class="seal" aria-hidden="false">
+    <div class="seal">
       <div class="ring"></div>
       <svg class="dashed" viewBox="0 0 100 100" aria-hidden="true">
         <circle cx="50" cy="50" r="49" />
@@ -839,17 +921,17 @@
   </div>
 
   <nav class="links reveal" data-delay="1700">
-    <a href="https://www.linkedin.com/in/karthik-subramanian-07/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.linkedin.com/in/karthik-subramanian-07/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
     <span class="sep">·</span>
-    <a href="https://github.com/KarthikSubramanian07" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://github.com/KarthikSubramanian07" target="_blank" rel="noopener noreferrer">GitHub</a>
     <span class="sep">·</span>
-    <a href="https://www.instagram.com/winner.karthik" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://www.instagram.com/winner.karthik" target="_blank" rel="noopener noreferrer">Instagram</a>
     <span class="sep">·</span>
     <a href="mailto:karthik.subramanian@berkeley.edu">Email</a>
   </nav>
 
   <span class="peets-wrap reveal" data-delay="1900" id="peets-wrap">
-    <a class="peets" href="https://buymeacoffee.com/winnerkarthik" target="_blank" rel="noopener" aria-label="Buy me a Peet's coffee">Buy me a Peet's</a>
+    <a class="peets" href="https://buymeacoffee.com/winnerkarthik" target="_blank" rel="noopener noreferrer" aria-label="Buy me a Peet's coffee">Buy me a Peet's</a>
   </span>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <symbol id="bean-svg" viewBox="0 0 22 20">
@@ -1036,15 +1118,29 @@
     }, 1700);
   })();
 
-  /* PST live clock */
+  /* PST/PDT live clock */
   (function () {
     var el = document.getElementById('pst-time');
+    var tzEl = document.getElementById('tz-label');
     if (!el) return;
     var fmt = new Intl.DateTimeFormat('en-US', {
       hour: '2-digit', minute: '2-digit',
       hour12: false, timeZone: 'America/Los_Angeles'
     });
-    function tick() { el.textContent = fmt.format(new Date()); }
+    var tzFmt = new Intl.DateTimeFormat('en-US', {
+      timeZoneName: 'short', timeZone: 'America/Los_Angeles'
+    });
+    var cachedTZ = '';
+    function tick() {
+      var now = new Date();
+      el.textContent = fmt.format(now);
+      if (tzEl) {
+        var parts = tzFmt.formatToParts(now);
+        var tzPart = parts.find(function (p) { return p.type === 'timeZoneName'; });
+        var tz = tzPart ? tzPart.value : 'PST';
+        if (tz !== cachedTZ) { cachedTZ = tz; tzEl.textContent = tz; }
+      }
+    }
     tick();
     setInterval(tick, 1000);
   })();
@@ -1121,7 +1217,12 @@
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     }
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', function () {
+      resize();
+      layers.forEach(function (L) {
+        L.particles.forEach(function (p) { spawn(p, L); });
+      });
+    });
 
     var COUNT = Math.min(560, Math.round((W * H) / 5200));
     var layers = [];
@@ -1153,6 +1254,7 @@
       return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha.toFixed(3) + ')';
     }
 
+    var mono = document.getElementById('monogram');
     var t0 = performance.now(), gust = 0;
     var nextGust = 4000 + Math.random() * 6000, lastGust = t0;
     var mouseX = W * 0.5, mouseY = H * 0.5, mouseInfluence = 0;
@@ -1172,6 +1274,7 @@
       gust *= 0.985;
       mouseInfluence *= 0.96;
       cv.classList.toggle('boost', gust > 0.3);
+      if (mono) mono.style.setProperty('--mglow', gust.toFixed(2));
       ctx.clearRect(0, 0, W, H);
 
       for (var li = 0; li < layers.length; li++) {
@@ -1214,16 +1317,20 @@
           }
         }
       }
-      requestAnimationFrame(frame);
+      rafId = requestAnimationFrame(frame);
     }
-    requestAnimationFrame(frame);
+    var rafId = requestAnimationFrame(frame);
 
     window.addEventListener('click', function () { gust = Math.min(1, gust + 0.7); });
 
-    var mono = document.getElementById('monogram');
-    setInterval(function () {
-      if (mono) mono.style.setProperty('--mglow', gust.toFixed(2));
-    }, 80);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        cancelAnimationFrame(rafId);
+      } else {
+        t0 = performance.now();
+        rafId = requestAnimationFrame(frame);
+      }
+    });
   })();
 
 </script>
