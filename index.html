@@ -637,18 +637,19 @@
   }
   .cursor-plane {
     position: absolute;
-    left: -18px; top: -8px;
-    width: 20px; height: 16px;
+    left: -22px; top: -12px;
+    width: 24px; height: 24px;
     display: block;
     overflow: visible;
   }
-  .cursor-plane .pf { fill: #fff; }
-  .cursor-plane .ps { fill: none; stroke: rgba(0,0,0,0.45); stroke-width: 0.9; stroke-linejoin: round; }
-  .cursor-plane .pc { fill: none; stroke: rgba(0,0,0,0.22); stroke-width: 0.65; }
+  /* Dune amber-gold paper airplane */
+  .cursor-plane .pf { fill: #efc840; }
+  .cursor-plane .ps { fill: none; stroke: rgba(140,80,5,0.65); stroke-width: 1; stroke-linejoin: round; }
+  .cursor-plane .pc { fill: none; stroke: rgba(140,80,5,0.35); stroke-width: 0.7; }
   @media (prefers-color-scheme: light) {
-    .cursor-plane .pf { fill: #111; }
-    .cursor-plane .ps { stroke: rgba(255,255,255,0.4); }
-    .cursor-plane .pc { stroke: rgba(255,255,255,0.22); }
+    .cursor-plane .pf { fill: #c06010; }
+    .cursor-plane .ps { stroke: rgba(255,240,180,0.55); }
+    .cursor-plane .pc { stroke: rgba(255,240,180,0.3); }
   }
   #cursor-trail {
     position: fixed;
@@ -798,19 +799,25 @@
 <div class="layer grain" id="grain"></div>
 
 <div id="cursor-wrap" aria-hidden="true">
-  <!-- viewBox puts nose at SVG coord (0,0) = pixel (18,8) within the element;
-       CSS offsets element left/up so that pixel aligns with cursor-wrap's (0,0) origin -->
-  <svg class="cursor-plane" viewBox="-18 -8 20 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- viewBox: nose at SVG (0,0) = pixel (22,12) in the element;
+       CSS shifts element so that pixel lands at cursor-wrap origin (0,0) -->
+  <svg class="cursor-plane" viewBox="-22 -12 24 24" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <filter id="cur-sh" x="-50%" y="-60%" width="200%" height="220%">
-        <feDropShadow dx="0.5" dy="1" stdDeviation="0.9" flood-color="#000" flood-opacity="0.45"/>
+      <filter id="cur-sh" x="-60%" y="-60%" width="220%" height="220%">
+        <feDropShadow dx="0.8" dy="1.2" stdDeviation="1.2" flood-color="#000" flood-opacity="0.5"/>
       </filter>
     </defs>
     <g filter="url(#cur-sh)">
-      <path class="pf" d="M0,0 L-16,-7 L-10,0 Z"/>
-      <path class="pf" d="M0,0 L-16,7 L-10,0 Z"/>
-      <path class="ps" d="M0,0 L-16,-7 L-10,0 L-16,7 Z"/>
-      <line class="pc" x1="0" y1="0" x2="-10" y2="0"/>
+      <!-- upper wing -->
+      <path class="pf" d="M0,0 L-20,-11 L-12,0 Z"/>
+      <!-- lower body -->
+      <path class="pf" d="M0,0 L-12,0 L-20,11 Z"/>
+      <!-- perimeter outline -->
+      <path class="ps" d="M0,0 L-20,-11 L-12,0 L-20,11 Z"/>
+      <!-- nose-to-fold crease -->
+      <line class="pc" x1="0" y1="0" x2="-12" y2="0"/>
+      <!-- tail edge -->
+      <line class="pc" x1="-20" y1="-11" x2="-20" y2="11"/>
     </g>
   </svg>
 </div>
@@ -928,6 +935,200 @@
 
 <script>
   const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const COARSE  = window.matchMedia('(pointer: coarse)').matches;
+  /* Page reveals are delayed by INTRO_OFFSET so the black hole plays first */
+  const INTRO_OFFSET = (REDUCED || COARSE) ? 0 : 2000;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     Black hole intro
+     Phases: ring forms → stable disk → collapse → singularity flash → pixel reveal
+  ───────────────────────────────────────────────────────────────────────── */
+  (function () {
+    if (REDUCED || COARSE) return;
+    var PI2 = Math.PI * 2;
+
+    /* Canvas overlay */
+    var cv = document.createElement('canvas');
+    cv.setAttribute('aria-hidden', 'true');
+    cv.style.cssText = 'position:fixed;inset:0;z-index:10000;pointer-events:none;';
+    document.body.appendChild(cv);
+    var ctx = cv.getContext('2d');
+    var W = 0, H = 0, CX = 0, CY = 0;
+    function resize() {
+      W = cv.width  = window.innerWidth;
+      H = cv.height = window.innerHeight;
+      cv.style.width = W + 'px'; cv.style.height = H + 'px';
+      CX = W / 2; CY = H / 2;
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    /* Accretion disk particles */
+    var NPART = 210, parts = [];
+    for (var i = 0; i < NPART; i++) {
+      var r0 = 52 + Math.random() * 210;
+      var dir = Math.random() < 0.82 ? 1 : -1;
+      parts.push({
+        r: r0, a: Math.random() * PI2,
+        omega: dir * 0.025 * Math.pow(68 / r0, 1.5),
+        flatY: 0.27 + Math.random() * 0.18,
+        sz: 0.7 + Math.random() * 2.1,
+        op: 0.35 + Math.random() * 0.65,
+      });
+    }
+
+    /* Per-column jitter for pixel reveal (pre-computed for perf) */
+    var BLOCK = 7;
+    var colJitter = [];
+    for (var c = 0; c < Math.ceil(6000 / BLOCK) + 4; c++) {
+      colJitter.push((Math.random() - 0.5) * 30);
+    }
+
+    /* Phase timing (ms) */
+    var T0 = performance.now();
+    var TF = 650,   /* 0→TF   ring forms               */
+        TC = 1700,  /* TF→TC  stable → collapse starts  */
+        TX = 1920,  /* TC→TX  collapse → singularity    */
+        TR = 2000,  /* TX→TR  flash                     */
+        TD = 4000;  /* TR→TD  pixel reveal → done        */
+
+    var shockwaves = [], flashFired = false;
+
+    function draw(now) {
+      var t = now - T0;
+      if (t >= TD) { cv.remove(); return; }
+      ctx.clearRect(0, 0, W, H);
+
+      /* ── Pre-flash phases ── */
+      if (t < TX) {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, W, H);
+
+        var formT      = Math.min(1, t / TF);
+        var collapseP  = t > TC ? Math.min(1, (t - TC) / (TX - TC)) : 0;
+        var ringR      = Math.max(0, 58 * formT * (1 - collapseP));
+        var pulse      = 0.72 + 0.28 * Math.sin(t * 0.0024);
+
+        /* Ambient lensing halo */
+        var hR = Math.max(ringR + 6, (105 + 22 * Math.sin(t * 0.0018)) * formT);
+        if (hR > ringR + 3) {
+          var hGrd = ctx.createRadialGradient(CX, CY, ringR + 1, CX, CY, hR);
+          hGrd.addColorStop(0,    'rgba(0,0,0,1)');
+          hGrd.addColorStop(0.3,  'rgba(55,24,5,' + (0.4 * pulse * formT) + ')');
+          hGrd.addColorStop(0.65, 'rgba(160,80,10,' + (0.15 * formT) + ')');
+          hGrd.addColorStop(1,    'rgba(0,0,0,0)');
+          ctx.fillStyle = hGrd;
+          ctx.beginPath(); ctx.arc(CX, CY, hR, 0, PI2); ctx.fill();
+        }
+
+        /* Relativistic jets */
+        if (formT > 0.55 && collapseP < 0.9) {
+          var jLen  = ringR * 3.8 * (1 - collapseP);
+          var jAlph = Math.min(1, (formT - 0.55) / 0.35) * (1 - collapseP);
+          if (jLen > 3 && jAlph > 0) {
+            [1, -1].forEach(function (sign) {
+              var y2 = CY - sign * jLen;
+              var jGrd = ctx.createLinearGradient(CX, CY, CX, y2);
+              jGrd.addColorStop(0,   'rgba(255,235,150,' + (0.85 * jAlph) + ')');
+              jGrd.addColorStop(0.4, 'rgba(160,205,255,' + (0.45 * jAlph) + ')');
+              jGrd.addColorStop(1,   'rgba(80,120,255,0)');
+              ctx.strokeStyle = jGrd;
+              ctx.lineWidth = 1.6 + pulse * 0.5;
+              ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(CX, y2); ctx.stroke();
+            });
+          }
+        }
+
+        /* Accretion disk */
+        var diskA = Math.max(0, Math.min(1, (formT - 0.18) / 0.35));
+        if (diskA > 0) {
+          for (var i = 0; i < NPART; i++) {
+            var p = parts[i];
+            p.a += p.omega * (1 + collapseP * 7);
+            if (collapseP > 0) {
+              p.r = Math.max(ringR, p.r - (p.r - ringR) * 0.06 * (1 + collapseP * 4));
+            }
+            if (p.r <= ringR + 1) continue;
+            var px  = CX + p.r * Math.cos(p.a);
+            var py  = CY + p.r * Math.sin(p.a) * p.flatY;
+            var df  = Math.min(1, Math.max(0, (p.r - ringR) / 130));
+            var dop = 0.58 + 0.42 * Math.cos(p.a);
+            ctx.globalAlpha = p.op * diskA * dop * (1 - collapseP * 0.5);
+            ctx.fillStyle = 'rgb(255,' + Math.floor(70 + 185 * df) + ',' + Math.floor(5 + 80 * df) + ')';
+            ctx.beginPath();
+            ctx.arc(px, py, Math.max(0.3, p.sz * (1 - collapseP * 0.4)), 0, PI2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        /* Photon ring */
+        if (ringR > 2) {
+          var gi       = Math.min(1.6, 0.9 * pulse + collapseP * 1.4);
+          var glowSize = Math.max(1, 22 + collapseP * 32);
+
+          ctx.fillStyle = '#000';
+          ctx.beginPath(); ctx.arc(CX, CY, ringR, 0, PI2); ctx.fill();
+
+          var rGrd = ctx.createRadialGradient(CX, CY, Math.max(0.1, ringR - 2), CX, CY, ringR + glowSize);
+          rGrd.addColorStop(0,    'rgba(255,240,155,' + Math.min(1, gi) + ')');
+          rGrd.addColorStop(0.25, 'rgba(255,140,40,' + (gi * 0.5) + ')');
+          rGrd.addColorStop(1,    'rgba(0,0,0,0)');
+          ctx.fillStyle = rGrd;
+          ctx.beginPath(); ctx.arc(CX, CY, ringR + glowSize, 0, PI2); ctx.fill();
+
+          ctx.strokeStyle = 'rgba(255,250,205,' + Math.min(1, gi * 0.95) + ')';
+          ctx.lineWidth = 1.9 + collapseP * 2.5;
+          ctx.beginPath(); ctx.arc(CX, CY, ringR, 0, PI2); ctx.stroke();
+
+          ctx.fillStyle = '#000';
+          ctx.beginPath(); ctx.arc(CX, CY, Math.max(0.1, ringR - 1), 0, PI2); ctx.fill();
+        }
+
+        /* Trigger shockwaves near singularity */
+        if (!flashFired && collapseP > 0.93) {
+          flashFired = true;
+          var maxD = Math.sqrt(W * W + H * H) * 0.65;
+          for (var k = 0; k < 4; k++) {
+            shockwaves.push({ born: t, delay: k * 85, maxR: maxD + k * 65, dur: 720 + k * 180 });
+          }
+        }
+
+      } else if (t < TR) {
+        /* ── Singularity flash ── */
+        var fp = (t - TX) / (TR - TX);
+        var fa = Math.max(0, 1 - fp * 3);
+        if (fa > 0) { ctx.fillStyle = 'rgba(255,252,240,' + fa + ')'; ctx.fillRect(0, 0, W, H); }
+        ctx.fillStyle = 'rgba(0,0,0,' + (1 - fa) + ')'; ctx.fillRect(0, 0, W, H);
+
+      } else {
+        /* ── Pixel reveal ── */
+        var rt  = (t - TR) / (TD - TR);
+        var eas = 1 - Math.pow(1 - rt, 2.8);  /* ease-out */
+        var sweepY = H * Math.min(1, eas * 1.06);
+        var nc = Math.ceil(W / BLOCK) + 2;
+        ctx.fillStyle = '#000';
+        for (var c = 0; c < nc; c++) {
+          var jit = c < colJitter.length ? colJitter[c] : 0;
+          var ry = sweepY + jit;
+          if (ry < H) ctx.fillRect(c * BLOCK, Math.max(0, ry), BLOCK + 1, H - Math.max(0, ry));
+        }
+      }
+
+      /* ── Shockwave rings (drawn on top of all phases) ── */
+      for (var s = 0; s < shockwaves.length; s++) {
+        var sw  = shockwaves[s];
+        var age = (t - sw.born - sw.delay) / sw.dur;
+        if (age < 0 || age >= 1) continue;
+        ctx.strokeStyle = 'rgba(255,210,100,' + (Math.pow(1 - age, 2.2) * 0.85) + ')';
+        ctx.lineWidth = 2.6 * (1 - age) + 0.4;
+        ctx.beginPath(); ctx.arc(CX, CY, sw.maxR * age, 0, PI2); ctx.stroke();
+      }
+
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  })();
 
   /* Surname burst on hold-hover */
   (function () {
@@ -962,11 +1163,13 @@
       s.style.transitionDelay = (0.55 + i * 0.11) + 's';
       el.appendChild(s);
     });
-    requestAnimationFrame(function () {
+    setTimeout(function () {
       requestAnimationFrame(function () {
-        el.querySelectorAll('.ch').forEach(function (c) { c.classList.add('in'); });
+        requestAnimationFrame(function () {
+          el.querySelectorAll('.ch').forEach(function (c) { c.classList.add('in'); });
+        });
       });
-    });
+    }, INTRO_OFFSET);
   })();
 
   /* Interest tags */
@@ -984,11 +1187,13 @@
       el.innerHTML = '<span class="glyph">✦</span><span>' + t + '</span>';
       cluster.appendChild(el);
     });
-    requestAnimationFrame(function () {
+    setTimeout(function () {
       requestAnimationFrame(function () {
-        cluster.querySelectorAll('.tag').forEach(function (c) { c.classList.add('in'); });
+        requestAnimationFrame(function () {
+          cluster.querySelectorAll('.tag').forEach(function (c) { c.classList.add('in'); });
+        });
       });
-    });
+    }, INTRO_OFFSET);
   })();
 
   /* Worm maw generator */
@@ -1050,7 +1255,7 @@
   (function () {
     document.querySelectorAll('.reveal').forEach(function (el) {
       var d = parseInt(el.getAttribute('data-delay') || '0', 10);
-      setTimeout(function () { el.classList.add('in'); }, d);
+      setTimeout(function () { el.classList.add('in'); }, INTRO_OFFSET + d);
     });
   })();
 
@@ -1098,7 +1303,7 @@
         setTimeout(tick, 90 + Math.random() * 80);
       }
       tick();
-    }, 1700);
+    }, INTRO_OFFSET + 400);
   })();
 
   /* PST/PDT live clock */
