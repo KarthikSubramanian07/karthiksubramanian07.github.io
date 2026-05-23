@@ -265,9 +265,9 @@ test.describe('Spice-dust trail', () => {
     await expect(page.locator('#cursor-wrap')).toHaveAttribute('aria-hidden', 'true');
   });
 
-  test('cursor-wrap contains SVG arrow', async ({ page }) => {
+  test('cursor-wrap contains paper airplane SVG', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('#cursor-wrap svg.cursor-arrow')).toBeAttached();
+    await expect(page.locator('#cursor-wrap svg.cursor-plane')).toBeAttached();
   });
 });
 
