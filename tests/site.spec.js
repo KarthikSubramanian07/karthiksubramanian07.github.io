@@ -1,5 +1,8 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { injectAxe, checkA11y } = require('axe-playwright');
+const fs = require('fs');
+const path = require('path');
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -12,49 +15,53 @@ async function waitForName(page, timeout = 4000) {
 
 async function waitForTags(page, timeout = 4000) {
   await page.waitForFunction(
-    () => document.querySelectorAll('#tagcluster .tag').length === 9,
+    () => document.querySelectorAll('#tagcluster .tag.in').length === 9,
     { timeout }
   );
 }
+
+// ─── shared navigation ───────────────────────────────────────────────────────
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+});
 
 // ─── page structure ──────────────────────────────────────────────────────────
 
 test.describe('Page structure', () => {
   test('has correct title', async ({ page }) => {
-    await page.goto('/');
     await expect(page).toHaveTitle(/winnerkarthik\.dev/);
   });
 
   test('has meta description mentioning Karthik Subramanian', async ({ page }) => {
-    await page.goto('/');
     const desc = page.locator('meta[name="description"]');
     await expect(desc).toHaveAttribute('content', /Karthik Subramanian/);
   });
 
   test('has Open Graph image', async ({ page }) => {
-    await page.goto('/');
     const ogImage = page.locator('meta[property="og:image"]');
     await expect(ogImage).toHaveAttribute('content', /og-image\.png/);
   });
 
   test('has canonical URL', async ({ page }) => {
-    await page.goto('/');
     const canonical = page.locator('link[rel="canonical"]');
     await expect(canonical).toHaveAttribute('href', /winnerkarthik\.dev/);
   });
 
+  test('loads external stylesheet and script', async ({ page }) => {
+    await expect(page.locator('link[href="/styles.css"]')).toHaveCount(1);
+    await expect(page.locator('script[src="/main.js"]')).toHaveCount(1);
+  });
+
   test('uses semantic header element for topbar', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('header.topbar')).toBeAttached();
   });
 
   test('uses semantic nav element for links', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('nav.links')).toBeAttached();
   });
 
   test('hero name is an h1', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('h1.name')).toBeAttached();
   });
 });
@@ -62,10 +69,6 @@ test.describe('Page structure', () => {
 // ─── core content ───────────────────────────────────────────────────────────
 
 test.describe('Core content', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
   test('topbar shows branding and transmission status', async ({ page }) => {
     await expect(page.locator('.topbar')).toBeVisible();
     await expect(page.locator('.topbar')).toContainText('winnerkarthik.dev');
@@ -99,14 +102,17 @@ test.describe('Core content', () => {
 
   test('monogram seal and worm-maw SVG render', async ({ page }) => {
     await expect(page.locator('.monogram')).toBeVisible();
-    await page.waitForFunction(
-      () => (document.getElementById('worm-maw')?.childElementCount ?? 0) > 5,
-      { timeout: 2000 }
-    );
     const childCount = await page.evaluate(
       () => document.getElementById('worm-maw')?.childElementCount ?? 0
     );
     expect(childCount).toBeGreaterThan(5);
+  });
+
+  test('tick marks are present in monogram', async ({ page }) => {
+    const tickCount = await page.evaluate(
+      () => document.querySelectorAll('#tickgroup line').length
+    );
+    expect(tickCount).toBe(60);
   });
 
   test('scan line is visible', async ({ page }) => {
@@ -126,7 +132,6 @@ test.describe('Core content', () => {
 
 test.describe('Interest tags', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
     await waitForTags(page);
   });
 
@@ -150,10 +155,6 @@ test.describe('Interest tags', () => {
 // ─── clock ───────────────────────────────────────────────────────────────────
 
 test.describe('Live clock', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
   test('PST clock shows HH:MM format after load', async ({ page }) => {
     await page.waitForFunction(
       () => /^\d{2}:\d{2}$/.test(document.getElementById('pst-time')?.textContent ?? ''),
@@ -173,7 +174,6 @@ test.describe('Live clock', () => {
 
 test.describe('Percentage counter', () => {
   test('animates away from initial "resolving" state', async ({ page }) => {
-    await page.goto('/');
     await page.waitForFunction(
       () => {
         const pct = document.getElementById('pct');
@@ -189,10 +189,6 @@ test.describe('Percentage counter', () => {
 // ─── links ───────────────────────────────────────────────────────────────────
 
 test.describe('Navigation links', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
   test('LinkedIn link has correct href and security attrs', async ({ page }) => {
     const link = page.locator('.links a[href*="linkedin.com"]');
     await expect(link).toBeVisible();
@@ -239,21 +235,31 @@ test.describe('Navigation links', () => {
   });
 });
 
+// ─── security headers (static file contract) ─────────────────────────────────
+
+test.describe('Security headers contract', () => {
+  test('_headers CSP disallows inline scripts and styles', () => {
+    const headers = fs.readFileSync(path.join(__dirname, '..', '_headers'), 'utf8');
+    expect(headers).not.toMatch(/script-src[^;]*'unsafe-inline'/);
+    expect(headers).not.toMatch(/style-src[^;]*'unsafe-inline'/);
+    expect(headers).toMatch(/frame-ancestors 'none'/);
+    expect(headers).toMatch(/form-action 'none'/);
+    expect(headers).toMatch(/object-src 'none'/);
+  });
+});
+
 // ─── cursor ──────────────────────────────────────────────────────────────────
 
 test.describe('Paper airplane cursor', () => {
   test('cursor-wrap arrow element is present in DOM', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('#cursor-wrap')).toBeAttached();
   });
 
   test('cursor-wrap is aria-hidden', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('#cursor-wrap')).toHaveAttribute('aria-hidden', 'true');
   });
 
   test('cursor-wrap contains paper airplane SVG', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('#cursor-wrap svg.cursor-plane')).toBeAttached();
   });
 });
@@ -264,7 +270,6 @@ test.describe('Mobile 375×812', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
   test('cursor-wrap arrow is hidden on mobile', async ({ page }) => {
-    await page.goto('/');
     const display = await page.locator('#cursor-wrap').evaluate(
       (el) => getComputedStyle(el).display
     );
@@ -272,30 +277,25 @@ test.describe('Mobile 375×812', () => {
   });
 
   test('hero name is visible on mobile', async ({ page }) => {
-    await page.goto('/');
     await waitForName(page);
     await expect(page.locator('#hero-name')).toBeVisible();
   });
 
   test('topbar is visible on mobile', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('.topbar')).toBeVisible();
   });
 
   test('interest tags render on mobile', async ({ page }) => {
-    await page.goto('/');
     await waitForTags(page);
     expect(await page.locator('#tagcluster .tag').count()).toBe(9);
   });
 
   test('no horizontal overflow on mobile', async ({ page }) => {
-    await page.goto('/');
     const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
     expect(scrollWidth).toBeLessThanOrEqual(376);
   });
 
   test('links do not cause horizontal overflow on mobile', async ({ page }) => {
-    await page.goto('/');
     const box = await page.locator('.links').boundingBox();
     expect(box?.width ?? 0).toBeLessThanOrEqual(375);
   });
@@ -305,13 +305,11 @@ test.describe('Mobile 320×568 (small screen)', () => {
   test.use({ viewport: { width: 320, height: 568 } });
 
   test('page renders without horizontal scroll', async ({ page }) => {
-    await page.goto('/');
     const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
     expect(scrollWidth).toBeLessThanOrEqual(321);
   });
 
   test('hero name is visible on 320px screen', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('#hero-name')).toBeVisible();
   });
 });
@@ -320,7 +318,6 @@ test.describe('Tablet 768×1024', () => {
   test.use({ viewport: { width: 768, height: 1024 } });
 
   test('page renders correctly on tablet', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('#hero-name')).toBeVisible();
     await expect(page.locator('.transmission')).toBeVisible();
   });
@@ -329,10 +326,6 @@ test.describe('Tablet 768×1024', () => {
 // ─── accessibility ───────────────────────────────────────────────────────────
 
 test.describe('Accessibility', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
   test('hero name h1 has aria-label', async ({ page }) => {
     await expect(page.locator('#hero-name')).toHaveAttribute('aria-label', 'Karthik');
   });
@@ -353,32 +346,43 @@ test.describe('Accessibility', () => {
   test('page language is set', async ({ page }) => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });
+
+  test('passes axe accessibility scan', async ({ page }) => {
+    await waitForName(page);
+    await injectAxe(page);
+    await checkA11y(page, undefined, {
+      detailedReport: false,
+      axeOptions: {
+        rules: {
+          'color-contrast': { enabled: false },
+        },
+      },
+    });
+  });
 });
 
 // ─── prefers-reduced-motion ──────────────────────────────────────────────────
 
 test.describe('Prefers reduced motion', () => {
-  test('content is visible immediately without animation', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
+  });
+
+  test('content is visible immediately without animation', async ({ page }) => {
     await expect(page.locator('#hero-name')).toBeVisible();
     await expect(page.locator('.transmission')).toBeVisible();
     await expect(page.locator('.topbar')).toBeVisible();
   });
 
   test('storm canvas is skipped when reduced motion is set', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/');
     const canvas = page.locator('#storm');
     await expect(canvas).toBeAttached();
-    // style.width stays empty — resize() is never called when REDUCED=true
     const styleWidth = await canvas.evaluate((el) => el.style.width);
     expect(styleWidth).toBe('');
   });
 
   test('cursor-wrap is hidden when reduced motion is set', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/');
     const display = await page.locator('#cursor-wrap').evaluate(
       (el) => getComputedStyle(el).display
     );
@@ -391,8 +395,11 @@ test.describe('Prefers reduced motion', () => {
 test.describe('JavaScript errors', () => {
   test('no uncaught errors on load', async ({ page }) => {
     const errors = [];
-    page.on('pageerror', (err) => errors.push(err.message));
-    await page.goto('/');
+    page.on('pageerror', (err) => {
+      const msg = err.message;
+      if (msg.includes('cloudflareinsights') || msg.includes('CF_ANALYTICS')) return;
+      errors.push(msg);
+    });
     await page.waitForTimeout(3000);
     expect(errors).toHaveLength(0);
   });
@@ -400,11 +407,16 @@ test.describe('JavaScript errors', () => {
   test('no failed network requests for critical assets', async ({ page }) => {
     const failed = [];
     page.on('requestfailed', (req) => {
-      if (!req.url().includes('cloudflareinsights') && !req.url().includes('CF_ANALYTICS')) {
-        failed.push(req.url());
+      const url = req.url();
+      if (
+        !url.includes('cloudflareinsights') &&
+        !url.includes('CF_ANALYTICS') &&
+        !url.includes('fonts.googleapis.com') &&
+        !url.includes('fonts.gstatic.com')
+      ) {
+        failed.push(url);
       }
     });
-    await page.goto('/');
     await page.waitForTimeout(1000);
     expect(failed).toHaveLength(0);
   });

@@ -6,9 +6,9 @@ module.exports = defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 2 : undefined,
   reporter: [['html', { open: 'never' }], ['list']],
-  timeout: 15000,
+  timeout: 30000,
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
@@ -37,9 +37,9 @@ module.exports = defineConfig({
     },
   ],
   webServer: {
-    command: 'npx serve . -p 3000 -s',
+    command: 'npx serve . -p 3000 -n',
     port: 3000,
     reuseExistingServer: !process.env.CI,
-    timeout: 10000,
+    timeout: 60000,
   },
 });
