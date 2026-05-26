@@ -66,29 +66,6 @@
 <div class="layer vignette"></div>
 <div class="layer grain" id="grain"></div>
 
-<div id="cursor-wrap" aria-hidden="true">
-  <!-- viewBox: nose at SVG (0,0) = pixel (26,13) in element;
-       CSS left:-26px top:-13px aligns that pixel with cursor-wrap origin -->
-  <svg class="cursor-plane" viewBox="-26 -13 28 26" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <filter id="cur-sh" x="-60%" y="-60%" width="220%" height="220%">
-        <feDropShadow dx="1" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.55"/>
-      </filter>
-    </defs>
-    <g filter="url(#cur-sh)">
-      <!-- upper wing (exaggerated sweep) -->
-      <path class="pf" d="M0,0 L-24,-12 L-14,0 Z"/>
-      <!-- lower body -->
-      <path class="pf" d="M0,0 L-14,0 L-24,12 Z"/>
-      <!-- bold perimeter outline = silhouette look -->
-      <path class="ps" d="M0,0 L-24,-12 L-14,0 L-24,12 Z"/>
-      <!-- nose-to-fold crease -->
-      <line class="pc" x1="0" y1="0" x2="-14" y2="0"/>
-      <!-- tail edge -->
-      <line class="pc" x1="-24" y1="-12" x2="-24" y2="12"/>
-    </g>
-  </svg>
-</div>
 <div class="hud tl"></div>
 <div class="hud tr"></div>
 <div class="hud bl"></div>

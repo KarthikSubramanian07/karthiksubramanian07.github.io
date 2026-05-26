@@ -593,38 +593,6 @@
   }
   .links .sep { color: var(--amber); opacity: .8; }
 
-  body { cursor: none; }
-  a, button, .tag, .seal, .name { cursor: none; }
-  #cursor-wrap {
-    position: fixed;
-    top: 0; left: 0;
-    width: 0; height: 0;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0;
-    /* 0×0 makes transform-origin resolve to (0,0) = nose tip, so rotation pivots there */
-  }
-  .cursor-plane {
-    position: absolute;
-    left: -26px; top: -13px;
-    width: 28px; height: 26px;
-    display: block;
-    overflow: visible;
-  }
-  /* Bold silhouette — comic/graphic style, Dune amber */
-  .cursor-plane .pf { fill: #f0c830; }
-  .cursor-plane .ps { fill: none; stroke: #1a0e00; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
-  .cursor-plane .pc { fill: none; stroke: rgba(26,14,0,0.5); stroke-width: 0.9; }
-  @media (prefers-color-scheme: light) {
-    .cursor-plane .pf { fill: #1a0e00; }
-    .cursor-plane .ps { stroke: #f0c830; }
-    .cursor-plane .pc { stroke: rgba(240,200,48,0.6); }
-  }
-  @media (max-width: 760px), (pointer: coarse) {
-    body, a, button, .tag, .seal, .name { cursor: auto; }
-    #cursor-wrap { display: none; }
-  }
-
   .peets-wrap {
     margin-top: 32px;
     position: relative;
@@ -729,5 +697,4 @@
       filter: none !important;
     }
     .surname.bursting { animation: none !important; }
-    #cursor-wrap { display: none; }
   }

@@ -248,33 +248,10 @@ test.describe('Security headers contract', () => {
   });
 });
 
-// ─── cursor ──────────────────────────────────────────────────────────────────
-
-test.describe('Paper airplane cursor', () => {
-  test('cursor-wrap arrow element is present in DOM', async ({ page }) => {
-    await expect(page.locator('#cursor-wrap')).toBeAttached();
-  });
-
-  test('cursor-wrap is aria-hidden', async ({ page }) => {
-    await expect(page.locator('#cursor-wrap')).toHaveAttribute('aria-hidden', 'true');
-  });
-
-  test('cursor-wrap contains paper airplane SVG', async ({ page }) => {
-    await expect(page.locator('#cursor-wrap svg.cursor-plane')).toBeAttached();
-  });
-});
-
 // ─── mobile viewports ────────────────────────────────────────────────────────
 
 test.describe('Mobile 375×812', () => {
   test.use({ viewport: { width: 375, height: 812 } });
-
-  test('cursor-wrap arrow is hidden on mobile', async ({ page }) => {
-    const display = await page.locator('#cursor-wrap').evaluate(
-      (el) => getComputedStyle(el).display
-    );
-    expect(display).toBe('none');
-  });
 
   test('hero name is visible on mobile', async ({ page }) => {
     await waitForName(page);
@@ -382,12 +359,6 @@ test.describe('Prefers reduced motion', () => {
     expect(styleWidth).toBe('');
   });
 
-  test('cursor-wrap is hidden when reduced motion is set', async ({ page }) => {
-    const display = await page.locator('#cursor-wrap').evaluate(
-      (el) => getComputedStyle(el).display
-    );
-    expect(display).toBe('none');
-  });
 });
 
 // ─── no JS errors ────────────────────────────────────────────────────────────

@@ -7,9 +7,6 @@
     finePointer: function () {
       return !this.reduced && !this.coarse;
     },
-    animations: function () {
-      return !this.reduced;
-    },
     sandstorm: function () {
       return !this.reduced && !this.coarse;
     }
@@ -186,78 +183,6 @@
     }
     tick();
     setInterval(tick, 1000);
-  })();
-
-  /* Paper airplane cursor */
-  (function () {
-    if (!CAPABILITIES.finePointer()) return;
-    var wrap = document.getElementById('cursor-wrap');
-    if (!wrap) return;
-    var angle = 0;
-    var targetAngle = 0;
-    var rafId = 0;
-
-    function lerpAngle(a, b, t) {
-      var d = b - a;
-      while (d > 180) d -= 360;
-      while (d < -180) d += 360;
-      return a + d * t;
-    }
-
-    var lastX = null;
-    var lastY = null;
-
-    document.addEventListener(
-      'mousemove',
-      throttle(function (e) {
-        if (lastX !== null) {
-          var dx = e.clientX - lastX;
-          var dy = e.clientY - lastY;
-          if (Math.abs(dx) + Math.abs(dy) > 1.5) {
-            targetAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
-          }
-        }
-        lastX = e.clientX;
-        lastY = e.clientY;
-        wrap.style.opacity = '1';
-      }, 16)
-    );
-    document.addEventListener('mouseleave', function () {
-      wrap.style.opacity = '0';
-    });
-
-    function tick() {
-      if (!document.hidden && lastX !== null) {
-        angle = lerpAngle(angle, targetAngle, 0.14);
-        wrap.style.transform =
-          'translate(' +
-          lastX +
-          'px,' +
-          lastY +
-          'px) rotate(' +
-          angle.toFixed(2) +
-          'deg)';
-      }
-      rafId = requestAnimationFrame(tick);
-    }
-
-    function start() {
-      if (!rafId) rafId = requestAnimationFrame(tick);
-    }
-
-    function stop() {
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-        rafId = 0;
-      }
-    }
-
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stop();
-      else start();
-    });
-
-    start();
   })();
 
   /* Karthik letter scatter */
