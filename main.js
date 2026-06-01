@@ -182,7 +182,10 @@
       }
     }
     tick();
-    setInterval(tick, 1000);
+    var clockInterval = setInterval(tick, 1000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) tick();
+    });
   })();
 
   /* Karthik letter scatter */
@@ -308,14 +311,17 @@
       })
     );
 
+    var resizeTimer = null;
     window.addEventListener('resize', function () {
-      resize();
-      COUNT = particleCap();
-      layers.forEach(function (L) {
-        L.particles.forEach(function (p) {
-          spawn(p, L);
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        resizeTimer = null;
+        resize();
+        COUNT = particleCap();
+        layers.forEach(function (L) {
+          L.particles.forEach(function (p) { spawn(p, L); });
         });
-      });
+      }, 150);
     });
 
     function colorFor(tone, alpha) {
