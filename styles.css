@@ -174,7 +174,7 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    padding: 22px 36px;
+    padding: 14px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     font-weight: 400;
@@ -675,7 +675,7 @@
   }
 
   @media (max-width: 640px) {
-    .topbar { padding: 16px 18px; font-size: 9px; letter-spacing: 0.28em; }
+    .topbar { padding: 14px; font-size: 9px; letter-spacing: 0.28em; }
     .topbar .right span:not(.pulse) { font-size: 9px; }
     main { padding: 110px 18px 140px; }
     .name { font-size: clamp(72px, 22vw, 200px); }
