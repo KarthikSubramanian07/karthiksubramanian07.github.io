@@ -84,9 +84,8 @@ test.describe('Page structure', () => {
 // ─── core content ───────────────────────────────────────────────────────────
 
 test.describe('Core content', () => {
-  test('topbar shows branding and transmission status', async ({ page }) => {
+  test('topbar shows transmission status', async ({ page }) => {
     await expect(page.locator('.topbar')).toBeVisible();
-    await expect(page.locator('.topbar')).toContainText('karthiksubramanian07');
     await expect(page.locator('.topbar')).toContainText('Transmission Incoming');
   });
 

@@ -172,7 +172,7 @@
     top: 0; left: 0; right: 0;
     z-index: 50;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 22px 36px;
     font-family: 'JetBrains Mono', monospace;
@@ -323,12 +323,6 @@
     opacity: 0;
     transform: translateY(60px) scale(.92) rotate(-2deg);
     filter: blur(18px);
-  }
-  /* LCP: first letter visible on first paint before JS adds .in */
-  .name .ch:first-child {
-    opacity: 1;
-    transform: translateY(0) scale(1) rotate(0);
-    filter: blur(0);
   }
   .name:hover .ch.in {
     color: var(--sand-bright);
@@ -685,9 +679,6 @@
   @media (max-width: 640px) {
     .topbar { padding: 16px 18px; font-size: 9px; letter-spacing: 0.28em; }
     .topbar .right span:not(.pulse) { font-size: 9px; }
-    /* Prevent long username from crowding the right side */
-    .topbar .left { min-width: 0; overflow: hidden; }
-    .topbar .left span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
     main { padding: 110px 18px 140px; }
     .name { font-size: clamp(72px, 22vw, 200px); }
     .transmission { font-size: 17px; }
