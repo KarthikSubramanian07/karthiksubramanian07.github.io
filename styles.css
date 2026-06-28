@@ -182,9 +182,7 @@
     text-transform: uppercase;
     color: var(--sand-soft);
   }
-  .topbar .left { display: flex; align-items: center; gap: 14px; }
   .topbar .right { display: flex; align-items: center; gap: 12px; color: var(--sand); }
-  .topbar .bracket { color: var(--amber); }
   .pulse {
     width: 8px; height: 8px; border-radius: 50%;
     background: var(--amber);
