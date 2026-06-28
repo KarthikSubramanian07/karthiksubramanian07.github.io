@@ -69,7 +69,7 @@ Playwright starts a static server on port 3000 and runs tests across Chromium, F
 - **Fonts:** Cormorant Garamond (headings, name) + JetBrains Mono (UI, coordinates, tags)
 - **Animations:** Sandstorm canvas (mouse-reactive, pauses when tab hidden), dune drift, worm maw counter-rotation, letter scatter on hover, surname burst on hold
 - **Sandstorm:** Canvas particle field skips touch and reduced-motion; caps at 120 particles below 760px width, 400 on desktop; animation loop cancels when the tab is hidden
-- **Coordinates:** 37.8719° N, 122.2585° W — UC Berkeley
+- **Coordinates:** 37.8755° N, 122.2596° W — Soda Hall, UC Berkeley
 
 ---
 
