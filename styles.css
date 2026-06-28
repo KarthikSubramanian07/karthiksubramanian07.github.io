@@ -685,6 +685,9 @@
   @media (max-width: 640px) {
     .topbar { padding: 16px 18px; font-size: 9px; letter-spacing: 0.28em; }
     .topbar .right span:not(.pulse) { font-size: 9px; }
+    /* Prevent long username from crowding the right side */
+    .topbar .left { min-width: 0; overflow: hidden; }
+    .topbar .left span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
     main { padding: 110px 18px 140px; }
     .name { font-size: clamp(72px, 22vw, 200px); }
     .transmission { font-size: 17px; }

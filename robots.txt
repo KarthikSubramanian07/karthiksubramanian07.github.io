@@ -27,4 +27,4 @@ Disallow: /
 User-agent: PetalBot
 Disallow: /
 
-Sitemap: https://winnerkarthik.dev/sitemap.xml
+Sitemap: https://karthiksubramanian07.github.io/sitemap.xml

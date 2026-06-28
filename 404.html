@@ -1,22 +1,243 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="robots" content="noindex">
-  <title>Not Found · winnerkarthik.dev</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Not Found · Karthik Subramanian</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet" />
+
   <style>
-    body { margin: 0; background: #0d0a06; color: #c8a860; font-family: monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
-    h1 { font-size: 1.1rem; letter-spacing: .15em; opacity: .7; }
-    a { color: #e8c050; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    :root {
+      --sand:        #f3e1bd;
+      --sand-soft:   rgba(243,225,189,.6);
+      --sand-faint:  rgba(243,225,189,.3);
+      --amber:       #e0a85a;
+      --amber-glow:  rgba(224,168,90,.5);
+      --rust:        #6b3a1c;
+      --void:        #08070a;
+      --bg-warm:     #14100c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    html { background: var(--void); }
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse 100% 80% at 50% 100%,
+          color-mix(in oklab, var(--rust) 40%, var(--bg-warm)) 0%,
+          color-mix(in oklab, var(--rust) 14%, var(--bg-warm)) 22%,
+          var(--bg-warm) 50%,
+          var(--void) 100%);
+      color: var(--sand);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* stars */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 12% 18%, rgba(255,240,210,.5), transparent 60%),
+        radial-gradient(1px 1px at 78% 9%,  rgba(255,240,210,.4), transparent 60%),
+        radial-gradient(1.2px 1.2px at 33% 22%, rgba(255,240,210,.35), transparent 60%),
+        radial-gradient(1px 1px at 88% 31%, rgba(255,240,210,.45), transparent 60%),
+        radial-gradient(1px 1px at 60% 14%, rgba(255,240,210,.3), transparent 60%),
+        radial-gradient(1px 1px at 8%  44%, rgba(255,240,210,.3), transparent 60%),
+        radial-gradient(1px 1px at 92% 38%, rgba(255,240,210,.35), transparent 60%),
+        radial-gradient(1.2px 1.2px at 48% 6%, rgba(255,240,210,.4), transparent 60%);
+      opacity: .45;
+      pointer-events: none;
+      animation: breathe 8s ease-in-out infinite;
+    }
+    @keyframes breathe { 0%,100% { opacity: .35; } 50% { opacity: .55; } }
+
+    /* vignette */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 35%, transparent 45%, rgba(0,0,0,.75) 100%);
+      pointer-events: none;
+    }
+
+    /* dune */
+    .dune-wrap {
+      position: fixed;
+      bottom: 0; left: -5%; right: -5%;
+      width: 110%;
+      height: 30vh;
+      pointer-events: none;
+    }
+    .dune-wrap svg {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; display: block;
+    }
+    .dune-wrap .back { bottom: 14%; opacity: .45; animation: drift1 80s linear infinite; }
+    .dune-wrap .front { bottom: 0; opacity: .9; }
+    @keyframes drift1 { from { transform: translateX(0); } to { transform: translateX(-3%); } }
+
+    /* hud corners */
+    .hud {
+      position: fixed;
+      width: 20px; height: 20px;
+      border: 1px solid rgba(224,168,90,.18);
+      pointer-events: none;
+    }
+    .hud.tl { top: 14px; left: 14px; border-right: 0; border-bottom: 0; }
+    .hud.tr { top: 14px; right: 14px; border-left: 0; border-bottom: 0; }
+    .hud.bl { bottom: 14px; left: 14px; border-right: 0; border-top: 0; }
+    .hud.br { bottom: 14px; right: 14px; border-left: 0; border-top: 0; }
+
+    .content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .coords {
+      font-size: 10px;
+      letter-spacing: 0.42em;
+      color: var(--amber);
+      text-transform: uppercase;
+      margin-bottom: 48px;
+      opacity: .8;
+    }
+
+    .code {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(80px, 18vw, 200px);
+      line-height: 1;
+      color: var(--sand);
+      letter-spacing: -0.02em;
+      margin: 0;
+      text-shadow:
+        0 0 80px rgba(224,168,90,.2),
+        0 2px 0 rgba(176,119,53,.5);
+    }
+
+    .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--sand-soft);
+      margin: 20px 0 0;
+    }
+
+    .tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(16px, 2vw, 22px);
+      color: var(--sand-soft);
+      margin: 32px 0 0;
+      line-height: 1.5;
+    }
+
+    .divider {
+      margin: 40px 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: min(360px, 80%);
+    }
+    .divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(243,225,189,.25) 30%, rgba(243,225,189,.25) 70%, transparent);
+    }
+    .divider .star {
+      font-size: 10px;
+      color: var(--amber);
+      opacity: .7;
+    }
+
+    .back-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--sand);
+      text-decoration: none;
+      padding: 10px 24px;
+      border: 1px solid rgba(224,168,90,.28);
+      border-radius: 2px;
+      background: rgba(20,16,12,.85);
+      transition: color .35s, border-color .35s, box-shadow .35s, transform .3s;
+      display: inline-block;
+    }
+    .back-link:hover {
+      color: var(--sand);
+      border-color: var(--amber);
+      box-shadow: 0 0 18px rgba(224,168,90,.25);
+      transform: translateY(-2px);
+    }
+    .back-link:focus-visible {
+      outline: 2px solid var(--amber);
+      outline-offset: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body::before, .dune-wrap .back { animation: none !important; }
+    }
   </style>
 </head>
 <body>
-  <div>
-    <h1>404 · NOT FOUND</h1>
-    <p><a href="/">← Return to the desert</a></p>
+
+<div class="hud tl"></div>
+<div class="hud tr"></div>
+<div class="hud bl"></div>
+<div class="hud br"></div>
+
+<div class="dune-wrap" aria-hidden="true">
+  <svg class="back" viewBox="0 0 1600 200" preserveAspectRatio="none">
+    <path fill="rgba(107,58,28,.35)" d="M0,200 L0,140 C 200,90 320,160 520,120 C 720,80 880,150 1080,110 C 1280,75 1420,140 1600,100 L1600,200 Z"/>
+  </svg>
+  <svg class="front" viewBox="0 0 1600 220" preserveAspectRatio="none">
+    <path fill="rgba(107,58,28,.65)" d="M0,220 L0,160 C 180,90 380,195 600,140 C 820,85 1020,210 1240,155 C 1400,115 1510,195 1600,140 L1600,220 Z"/>
+  </svg>
+</div>
+
+<div class="content">
+  <p class="coords">37.8719° N · 122.2585° W · ARRAKIS</p>
+
+  <h1 class="code">404</h1>
+  <p class="label">Signal Lost</p>
+
+  <p class="tagline">The desert does not remember this path.</p>
+
+  <div class="divider" aria-hidden="true">
+    <div class="line"></div>
+    <span class="star">✦</span>
+    <div class="line"></div>
   </div>
+
+  <a class="back-link" href="/">← Return to the transmission</a>
+</div>
+
 </body>
 </html>

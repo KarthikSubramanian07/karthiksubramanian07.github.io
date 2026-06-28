@@ -10,7 +10,7 @@ module.exports = defineConfig({
   reporter: [['html', { open: 'never' }], ['list']],
   timeout: 30000,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3001',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -37,8 +37,8 @@ module.exports = defineConfig({
     },
   ],
   webServer: {
-    command: 'npx serve . -p 3000 -n',
-    port: 3000,
+    command: 'npx serve . -p 3001 -n',
+    port: 3001,
     reuseExistingServer: !process.env.CI,
     timeout: 60000,
   },

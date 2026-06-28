@@ -4,7 +4,7 @@
 const { chromium } = require('@playwright/test');
 const { spawn } = require('child_process');
 
-const PORT = 3000;
+const PORT = 3001;
 const BASE = 'http://localhost:' + PORT;
 const THRESHOLD_MS = 4000;
 

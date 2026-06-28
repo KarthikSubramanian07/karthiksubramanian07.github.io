@@ -30,7 +30,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Page structure', () => {
   test('has correct title', async ({ page }) => {
-    await expect(page).toHaveTitle(/winnerkarthik\.dev/);
+    await expect(page).toHaveTitle(/Karthik Subramanian/);
   });
 
   test('has meta description mentioning Karthik Subramanian', async ({ page }) => {
@@ -38,14 +38,29 @@ test.describe('Page structure', () => {
     await expect(desc).toHaveAttribute('content', /Karthik Subramanian/);
   });
 
-  test('has Open Graph image', async ({ page }) => {
+  test('has Open Graph image pointing to correct domain', async ({ page }) => {
     const ogImage = page.locator('meta[property="og:image"]');
-    await expect(ogImage).toHaveAttribute('content', /og-image\.png/);
+    await expect(ogImage).toHaveAttribute('content', /karthiksubramanian07\.github\.io.*og-image\.png/);
   });
 
-  test('has canonical URL', async ({ page }) => {
+  test('has canonical URL pointing to github.io', async ({ page }) => {
     const canonical = page.locator('link[rel="canonical"]');
-    await expect(canonical).toHaveAttribute('href', /winnerkarthik\.dev/);
+    await expect(canonical).toHaveAttribute('href', /karthiksubramanian07\.github\.io/);
+  });
+
+  test('OG metadata contains no stale domain references', async ({ page }) => {
+    const metas = await page.locator('meta[content*="winnerkarthik"]').count();
+    expect(metas).toBe(0);
+  });
+
+  test('og:url points to correct domain', async ({ page }) => {
+    const ogUrl = page.locator('meta[property="og:url"]');
+    await expect(ogUrl).toHaveAttribute('content', /karthiksubramanian07\.github\.io/);
+  });
+
+  test('twitter:image points to correct domain', async ({ page }) => {
+    const twitterImg = page.locator('meta[name="twitter:image"]');
+    await expect(twitterImg).toHaveAttribute('content', /karthiksubramanian07\.github\.io/);
   });
 
   test('loads external stylesheet and script', async ({ page }) => {
@@ -71,7 +86,7 @@ test.describe('Page structure', () => {
 test.describe('Core content', () => {
   test('topbar shows branding and transmission status', async ({ page }) => {
     await expect(page.locator('.topbar')).toBeVisible();
-    await expect(page.locator('.topbar')).toContainText('winnerkarthik.dev');
+    await expect(page.locator('.topbar')).toContainText('karthiksubramanian07');
     await expect(page.locator('.topbar')).toContainText('Transmission Incoming');
   });
 
@@ -291,12 +306,43 @@ test.describe('Mobile 320×568 (small screen)', () => {
   });
 });
 
-test.describe('Tablet 768×1024', () => {
+test.describe('iPad 768×1024 (portrait)', () => {
   test.use({ viewport: { width: 768, height: 1024 } });
 
-  test('page renders correctly on tablet', async ({ page }) => {
+  test('hero name is visible', async ({ page }) => {
+    await waitForName(page);
     await expect(page.locator('#hero-name')).toBeVisible();
+  });
+
+  test('all content sections are visible', async ({ page }) => {
     await expect(page.locator('.transmission')).toBeVisible();
+    await expect(page.locator('.monogram')).toBeVisible();
+    await expect(page.locator('.topbar')).toBeVisible();
+    await expect(page.locator('nav.links')).toBeVisible();
+  });
+
+  test('no horizontal overflow on iPad portrait', async ({ page }) => {
+    const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(769);
+  });
+
+  test('interest tags render on iPad', async ({ page }) => {
+    await waitForTags(page);
+    expect(await page.locator('#tagcluster .tag').count()).toBe(9);
+  });
+});
+
+test.describe('iPad 1024×768 (landscape)', () => {
+  test.use({ viewport: { width: 1024, height: 768 } });
+
+  test('hero name is visible in landscape', async ({ page }) => {
+    await waitForName(page);
+    await expect(page.locator('#hero-name')).toBeVisible();
+  });
+
+  test('no horizontal overflow on iPad landscape', async ({ page }) => {
+    const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(1025);
   });
 });
 
@@ -361,6 +407,36 @@ test.describe('Prefers reduced motion', () => {
 
 });
 
+// ─── 404 page ────────────────────────────────────────────────────────────────
+
+test.describe('404 page', () => {
+  test('has correct title', async ({ page }) => {
+    await page.goto('/404.html');
+    await expect(page).toHaveTitle(/Not Found/);
+  });
+
+  test('has return link', async ({ page }) => {
+    await page.goto('/404.html');
+    await expect(page.locator('a[href="/"]')).toBeVisible();
+  });
+});
+
+// ─── performance ─────────────────────────────────────────────────────────────
+
+test.describe('Performance', () => {
+  test('hero name reveals within 4 seconds', async ({ page }) => {
+    const start = Date.now();
+    await waitForName(page, 4000);
+    expect(Date.now() - start).toBeLessThan(4000);
+  });
+
+  test('all 9 tags reveal within 5 seconds', async ({ page }) => {
+    const start = Date.now();
+    await waitForTags(page, 5000);
+    expect(Date.now() - start).toBeLessThan(5000);
+  });
+});
+
 // ─── no JS errors ────────────────────────────────────────────────────────────
 
 test.describe('JavaScript errors', () => {
@@ -379,12 +455,8 @@ test.describe('JavaScript errors', () => {
     const failed = [];
     page.on('requestfailed', (req) => {
       const url = req.url();
-      if (
-        !url.includes('cloudflareinsights') &&
-        !url.includes('CF_ANALYTICS') &&
-        !url.includes('fonts.googleapis.com') &&
-        !url.includes('fonts.gstatic.com')
-      ) {
+      // Only flag failures on our own server — external CDNs and analytics may fail in dev
+      if (url.startsWith('http://localhost:3001')) {
         failed.push(url);
       }
     });
