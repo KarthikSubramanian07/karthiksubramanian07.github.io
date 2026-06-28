@@ -30,7 +30,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Page structure', () => {
   test('has correct title', async ({ page }) => {
-    await expect(page).toHaveTitle('karthik subramanian');
+    await expect(page).toHaveTitle('Karthik Subramanian');
   });
 
   test('has meta description mentioning Karthik Subramanian', async ({ page }) => {
