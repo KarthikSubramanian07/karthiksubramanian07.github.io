@@ -194,15 +194,6 @@
     border-right: 1px solid var(--amber-ghost);
     pointer-events: none;
   }
-  .topbar .right::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 22px; height: 22px;
-    border-bottom: 1px solid var(--amber-ghost);
-    border-left: 1px solid var(--amber-ghost);
-    pointer-events: none;
-  }
   .pulse {
     width: 8px; height: 8px; border-radius: 50%;
     background: var(--amber);
