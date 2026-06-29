@@ -34,9 +34,9 @@
   var stack=[
     {cat:'Languages',ic:IC.code,items:['Python','TypeScript','Rust','Swift','C++','C','Java','JavaScript','SQL','HTML','CSS']},
     {cat:'Web & Realtime',ic:IC.layers,items:['Next.js','React','WebRTC','WebSocket','LiveKit','Svelte','Node.js','Tailwind CSS','Three.js','Deck.gl','Mapbox','Framer Motion','Vite','Zod','Zustand']},
-    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['PyTorch','CUDA','OpenCV','scikit-learn','LightGBM','ONNX','Hugging Face','IBM Granite','Claude','GPT','Llama','Gemini','AWS Bedrock','Groq','Whisper','Letta','Depth Anything v2','Fetch.ai uAgents','Agent S','Devin','Deepgram','ElevenLabs','Streamlit']},
     {cat:'Backends & Data',ic:IC.cpu,items:['PostgreSQL','Redis','FastAPI','GraphQL','Apollo','Mongoose','NumPy','pandas','Pillow','MongoDB','MySQL','Supabase','Express','Flask','Prisma','Drizzle','SQLite','tRPC','Auth0','NextAuth','World ID','pytest']},
     {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Google Cloud','Docker','Kubernetes','Cloudflare','Vercel','Firebase','nginx','OpenTelemetry','Arize Phoenix','Browserbase','Stagehand','Playwright','Sentry','Linux']},
+    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['PyTorch','CUDA','OpenCV','scikit-learn','LightGBM','ONNX','Hugging Face','IBM Granite','Claude','GPT','Llama','Gemini','AWS Bedrock','Groq','Whisper','Letta','Depth Anything v2','Fetch.ai uAgents','Agent S','Devin','Deepgram','ElevenLabs','Streamlit']},
     {cat:'Robotics & Hardware',ic:IC.chip,items:['roboRIO','WPILib','FPGA','STM32','Talon FX','SPARK MAX','Raspberry Pi','Arduino Uno','HX711','SiPM']},
     {cat:'Scientific Computing',ic:IC.sci,items:['ROOT','Geant4','SciPy','Matplotlib','Jupyter']}
   ];
