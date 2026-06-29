@@ -240,12 +240,6 @@ test.describe('Navigation links', () => {
     await expect(dev).toHaveAttribute('href', '/dev/');
   });
 
-  test('Discord is a copy-to-clipboard button (no scrapable URL needed)', async ({ page }) => {
-    const d = page.locator('.links .discord-copy');
-    await expect(d).toBeVisible();
-    await expect(d).toHaveAttribute('data-copy', 'karthik07');
-  });
-
   test("Peet's coffee link has correct href and security attrs", async ({ page }) => {
     const link = page.locator('a.peets');
     await expect(link).toBeVisible();

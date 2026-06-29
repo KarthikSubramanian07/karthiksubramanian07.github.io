@@ -451,23 +451,6 @@
   })();
 })();
 
-(function () {
-  /* Discord username copy-to-clipboard */
-  var btns = document.querySelectorAll('.discord-copy');
-  if (!btns.length) return;
-  btns.forEach(function (b) {
-    b.addEventListener('click', function () {
-      var u = b.getAttribute('data-copy') || '';
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(u).catch(function () {});
-        }
-      } catch (e) {}
-      b.classList.add('copied');
-      setTimeout(function () { b.classList.remove('copied'); }, 1200);
-    });
-  });
-})();
 
 (function () {
   /* Obfuscated email: assemble mailto at click time (no literal address in HTML) */

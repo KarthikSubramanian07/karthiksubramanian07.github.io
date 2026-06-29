@@ -11,7 +11,7 @@ A personal site built like a transmission from deep space — Arrakis-themed, ze
 Two hand-built pages, no framework, no build step, no bundler:
 
 - **`/`** — the Arrakis transmission landing page. Sandstorm that follows your cursor, letter-by-letter name reveal, a worm-maw monogram, live Berkeley clock. Void black, sand-cream, amber, rust. Cormorant Garamond + JetBrains Mono.
-- **`/dev`** — a **Dev Profile** dossier in a warm, editorial register: an interactive constellation starfield, a cratered ringed planet with orbiting dust, count-up stats, and the full stack across languages, AI/ML, infra, and hardware. Reached from the **Dev Profile** control top-left of the landing page.
+- **`/dev`** — a **Dev Profile** dossier in a warm, editorial register: an interactive constellation starfield, a cratered ringed planet with orbiting dust, count-up stats, and the full stack across languages, AI/ML, infra, and hardware. Reached from the **Dev** control top-left of the landing page.
 
 Everything is GPU-accelerated, respects `prefers-reduced-motion`, and loads in under a second.
 
@@ -94,7 +94,7 @@ npm test
 **Landing palette:** void `#08070a` · sand-cream `#f3e1bd` · amber `#e0a85a` · rust `#6b3a1c`
 **Dossier palette:** warm near-black `#161512` · ivory `#f1ece1` · clay `#e08a6b`
 
-The landing page is a teaser ("something is being built here"); the dossier is the substance behind it. The **Dev Profile** control top-left mirrors the **Transmission Incoming** indicator top-right — symmetric HUD framing.
+The landing page is a teaser ("something is being built here"); the dossier is the substance behind it. The **Dev** control top-left mirrors the **Transmission Incoming** indicator top-right — symmetric HUD framing.
 
 ---
 
