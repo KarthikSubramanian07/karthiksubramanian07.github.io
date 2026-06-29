@@ -33,11 +33,11 @@
   };
 
   var stack=[
-    {cat:'Languages',ic:IC.code,items:['Rust','Python','TypeScript','C++','C','Swift','Kotlin','Java','JavaScript','Scheme','SQL','HTML','CSS']},
-    {cat:'Web & Realtime',ic:IC.layers,items:['Next.js','React','React Native','Expo','Android','Electron','WebRTC','LiveKit','Three.js','Deck.gl','Mapbox','WebSocket','React Flow','recharts','Svelte','React Navigation','TanStack Query','Framer Motion','Node.js','Tailwind CSS','Zustand','Radix UI','Vite','Zod']},
-    {cat:'Backends & Data',ic:IC.cpu,items:['PostgreSQL','pgvector','GraphQL','FastAPI','Redis','PySpark','Polars','Dask','MongoDB','FFmpeg','Supabase','tRPC','Prisma','Apollo','Drizzle','Express','Flask','MySQL','SQLite','Auth0','NextAuth','World ID','Mongoose','Pillow','pytest']},
-    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Google Cloud','Kubernetes','Docker','Dagster','BigQuery','Cloudflare','Vercel','OpenTelemetry','Arize Phoenix','Browserbase','Stagehand','Sentry','Firebase','PostHog','Playwright','Railway','Retool','Make','Turborepo','nginx','Linux']},
-    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['PyTorch','CUDA','TensorFlow','XGBoost','YOLO','SAM','Depth Anything v2','OpenCV','Whisper','Claude','GPT','Gemini','Gemma','DeepSeek','Mistral','Llama','Qwen','Hugging Face','Sentence Transformers','fastembed','scikit-learn','LightGBM','ONNX','SHAP','pytesseract','Pydantic AI','Letta','Agent S','Fetch.ai uAgents','IBM Granite','OpenRouter','AWS Bedrock','Groq','Ollama','Deepgram','ElevenLabs','spaCy','Devin','Gradio','Streamlit']},
+    {cat:'Languages',ic:IC.code,items:['Rust','Python','TypeScript','C++','C','Swift','Kotlin','Java','JavaScript','Scheme']},
+    {cat:'Web & Realtime',ic:IC.layers,items:['Next.js','React','React Native','Electron','WebRTC','LiveKit','Three.js','Deck.gl','Mapbox','WebSocket','React Flow','Svelte','Framer Motion','Node.js','Tailwind CSS','Zustand','Radix UI','Vite','Zod']},
+    {cat:'Backends & Data',ic:IC.cpu,items:['PostgreSQL','pgvector','GraphQL','FastAPI','Redis','PySpark','Polars','Dask','MongoDB','FFmpeg','Supabase','tRPC','Prisma','Drizzle','Express','Flask','MySQL','SQLite','Auth0','World ID']},
+    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Google Cloud','Kubernetes','Docker','Dagster','BigQuery','Cloudflare','Vercel','OpenTelemetry','Arize Phoenix','Browserbase','Stagehand','Sentry','Firebase','PostHog','Playwright','Railway','Retool','Make','Turborepo','nginx']},
+    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['PyTorch','CUDA','TensorFlow','XGBoost','YOLO','SAM','Depth Anything v2','OpenCV','Whisper','Claude','GPT','Gemini','Gemma','DeepSeek','Mistral','Llama','Qwen','Hugging Face','Sentence Transformers','fastembed','scikit-learn','LightGBM','ONNX','SHAP','pytesseract','Pydantic AI','Letta','Agent S','Fetch.ai uAgents','OpenRouter','AWS Bedrock','Groq','Ollama','Deepgram','ElevenLabs','spaCy']},
     {cat:'Robotics & Hardware',ic:IC.chip,items:['FPGA','roboRIO','WPILib','STM32','Talon FX','SPARK MAX','SiPM','HX711','Raspberry Pi','Arduino']},
     {cat:'Scientific Computing',ic:IC.sci,items:['ROOT','Geant4','PyMC','SciPy','Matplotlib','Jupyter']}
   ];
