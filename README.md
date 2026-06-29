@@ -1,6 +1,6 @@
 # karthiksubramanian07.github.io
 
-A personal site built like a transmission from deep space — Arrakis-themed, zero dependencies, obsessively crafted.
+A personal site built like a transmission from deep space — Arrakis-themed, zero dependencies, obsessively crafted — with a separate **Dev Profile** dossier at **`/dev`**.
 
 **[karthiksubramanian07.github.io](https://karthiksubramanian07.github.io)** · 37.8755° N, 122.2596° W · Δ 07.04
 
@@ -8,21 +8,24 @@ A personal site built like a transmission from deep space — Arrakis-themed, ze
 
 ## What it is
 
-Pure HTML, CSS, and JavaScript. No framework, no build step, no bundler. Everything you see — the sandstorm that follows your cursor, the letter-by-letter name reveal, the worm-maw monogram in the tab bar — is hand-written and loads in under a second.
+Two hand-built pages, no framework, no build step, no bundler:
 
-The design language is Arrakis: void black, sand-cream, amber, rust. The typography is Cormorant Garamond for weight and JetBrains Mono for precision. The animations are GPU-accelerated and respect `prefers-reduced-motion`.
+- **`/`** — the Arrakis transmission landing page. Sandstorm that follows your cursor, letter-by-letter name reveal, a worm-maw monogram, live Berkeley clock. Void black, sand-cream, amber, rust. Cormorant Garamond + JetBrains Mono.
+- **`/dev`** — a **Dev Profile** dossier in a warm, editorial register: an interactive constellation starfield, a cratered ringed planet with orbiting dust, count-up stats, and the full stack across languages, AI/ML, infra, and hardware. Reached from the **Dev Profile** control top-left of the landing page.
+
+Everything is GPU-accelerated, respects `prefers-reduced-motion`, and loads in under a second.
 
 ---
 
 ## Technical highlights
 
-- **Zero JS dependencies** — no React, no Vue, no lodash, no bundler. The entire runtime is `main.js`.
-- **Inline SVG favicon** — base64-encoded directly in the `<link>` tag, so there is never a favicon flash even in incognito mode.
-- **Canvas sandstorm** — mouse-reactive particle field. Caps at 120 particles on mobile, 400 on desktop. Pauses when the tab is hidden, resumes on focus.
-- **LCP-optimized** — hero font preloaded, CSS stagger delays use `nth-child` rules (no inline styles), name reveal is under 4 seconds.
-- **340 E2E tests** — Playwright across Chromium, Firefox, WebKit, mobile Chrome, and mobile Safari. Covers accessibility (axe), performance budgets, security contracts, and responsive layout.
-- **CI/CD** — GitHub Actions runs the full suite on every push and PR. Test report uploaded as an artifact.
-- **Content Security Policy** — strict CSP header, no `eval`, no `innerHTML`, no untrusted input. All external links use `rel="noopener noreferrer"`.
+- **Zero JS dependencies** — no React, no Vue, no bundler. Two runtimes: `main.js` (landing) and `dev.js` (dossier).
+- **Strict CSP, externalized** — `script-src 'self'` / `style-src 'self'`: no inline scripts or styles anywhere, including on `/dev`. All CSS/JS live in external files.
+- **Scrape-proof contact** — the email never appears in source. It is shown obfuscated (`name [dot] … [at] … [dot] edu`) and the real `mailto:` / copy value is assembled in JS only at click time. Discord copies to clipboard; LinkedIn and Instagram are sandboxed external links.
+- **Live, self-updating stats** — a daily GitHub Action (`update-stats.yml`) fetches GitHub numbers and writes `dev-stats.json`; `/dev` fetches it (`connect-src 'self'`) and falls back to baked values offline.
+- **Canvas effects** — mouse-reactive sandstorm on the landing page; an interactive constellation starfield on `/dev`. Both pause when the tab is hidden.
+- **E2E tests** — Playwright across Chromium, Firefox, WebKit, mobile Chrome, and mobile Safari. Covers accessibility (axe), security contracts (CSP + no literal email), responsive layout, and the `/dev` page.
+- **CI/CD** — GitHub Actions runs the full suite on every push and PR.
 
 ---
 
@@ -31,7 +34,7 @@ The design language is Arrakis: void black, sand-cream, amber, rust. The typogra
 | Layer | Choice |
 |---|---|
 | Hosting | [GitHub Pages](https://pages.github.com) |
-| Fonts | [Cormorant Garamond](https://fonts.google.com/specimen/Cormorant+Garamond) + [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) via Google Fonts |
+| Fonts | [Cormorant Garamond](https://fonts.google.com/specimen/Cormorant+Garamond) + [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (landing); system serif/sans (dossier) |
 | Tests | [Playwright](https://playwright.dev) + [axe-playwright](https://github.com/abhinaba-ghosh/axe-playwright) |
 | CI | [GitHub Actions](https://github.com/features/actions) |
 
@@ -40,21 +43,28 @@ The design language is Arrakis: void black, sand-cream, amber, rust. The typogra
 ## File tree
 
 ```
-├── index.html            # Markup and all metadata
-├── styles.css            # Every style rule
-├── main.js               # Animations, canvas, clock, interactions
+├── index.html            # Landing page (Arrakis transmission)
+├── styles.css            # Landing styles
+├── main.js               # Landing animations, canvas, clock, email assembly
+├── dev/
+│   └── index.html        # Dev Profile dossier (CSP-compliant, external assets)
+├── dev.css               # Dossier styles
+├── dev.js                # Dossier interactions, starfield, live-stats fetch
+├── dev-stats.json        # Live GitHub stats (refreshed daily by Action)
 ├── noscript.css          # Graceful fallback for no-JS
 ├── favicon.svg           # Worm-maw SVG (also inlined as data URI)
 ├── 404.html              # Dune-themed not-found page
 ├── robots.txt
 ├── sitemap.xml
-├── .github/
-│   └── workflows/
-│       └── ci.yml        # Test pipeline
+├── .github/workflows/
+│   ├── ci.yml            # Test pipeline
+│   └── update-stats.yml  # Daily dev-stats.json refresh
 ├── scripts/
-│   └── measure-hero-timing.js
+│   ├── measure-hero-timing.js
+│   └── update-stats.mjs  # Fetches GitHub numbers → dev-stats.json
 └── tests/
-    └── site.spec.js      # 68 unique tests × 5 browsers = 340 total
+    ├── site.spec.js      # Landing page suite
+    └── dev.spec.js       # Dev Profile suite
 ```
 
 ---
@@ -62,13 +72,8 @@ The design language is Arrakis: void black, sand-cream, amber, rust. The typogra
 ## Local development
 
 ```bash
-npm run serve
-# http://localhost:3001
+npm run serve            # http://localhost:3001  (landing at /, dossier at /dev/)
 ```
-
-Or open `index.html` directly — most features work without a server.
-
----
 
 ## Running tests
 
@@ -78,22 +83,21 @@ npx playwright install --with-deps chromium firefox webkit
 npm test
 ```
 
-Tests spin up a static server on port 3001, then run across all five browser projects. The full suite takes about 90 seconds locally.
+## Daily stats
+
+`update-stats.yml` runs on a cron and refreshes `dev-stats.json`. For private-contribution totals, add a `STATS_TOKEN` repository secret (a PAT with `read:user`/`repo`); otherwise it uses the Actions token for public numbers.
 
 ---
 
 ## Design notes
 
-**Palette:** void `#08070a` · sand-cream `#f3e1bd` · amber `#e0a85a` · rust `#6b3a1c`
+**Landing palette:** void `#08070a` · sand-cream `#f3e1bd` · amber `#e0a85a` · rust `#6b3a1c`
+**Dossier palette:** warm near-black `#161512` · ivory `#f1ece1` · clay `#e08a6b`
 
-**Motion:** The sandstorm canvas is mouse-reactive on desktop and skips touch events. The name reveal staggers each character with a CSS `nth-child` delay — no JavaScript timers involved. Hovering the first name scatters letters; holding the surname triggers a burst.
-
-**Favicon:** The worm-maw is a mandala of concentric circles and chevrons rendered in SVG, with a Gaussian blur glow filter. The viewBox is cropped to `15 15 70 70` so the geometry fills the tab icon without padding.
-
-**404:** A separate Dune-themed page — amber palette, starfield, dune SVGs. Copy: *"The desert does not remember this path."*
+The landing page is a teaser ("something is being built here"); the dossier is the substance behind it. The **Dev Profile** control top-left mirrors the **Transmission Incoming** indicator top-right — symmetric HUD framing.
 
 ---
 
 ## Security
 
-No `eval`, no `innerHTML`, no user input surfaces. Strict CSP. All external links sandboxed with `rel="noopener noreferrer"`. No analytics, no trackers, no cookies.
+No `eval`, no untrusted `innerHTML`, no user-input surfaces. Strict CSP with no inline scripts or styles. The email address never appears in source (assembled client-side at click time). All external links use `rel="noopener noreferrer"`. No trackers, no cookies.

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Karthik Subramanian — Dev Profile</title>
+<meta name="description" content="Dev dossier for Karthik Subramanian — UC Berkeley EECS. Founder, engineer, and researcher across systems, ML, and hardware." />
+<meta name="author" content="Karthik Subramanian" />
+<meta name="theme-color" content="#161512" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://karthiksubramanian07.github.io/dev/" />
+<meta property="og:title" content="Karthik Subramanian — Dev Profile" />
+<meta property="og:description" content="Dev dossier — founder, engineer, and researcher across systems, ML, and hardware." />
+<meta property="og:image" content="https://karthiksubramanian07.github.io/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://karthiksubramanian07.github.io/og-image.png" />
+<link rel="canonical" href="https://karthiksubramanian07.github.io/dev/" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="stylesheet" href="/dev.css" />
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "CF_ANALYTICS_TOKEN"}'></script>
+<script defer src="/dev.js"></script>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="cglow" id="cglow" aria-hidden="true"></div>
+
+<svg class="tele" viewBox="0 0 148 200" aria-hidden="true">
+  <line x1="74" y1="150" x2="46" y2="198" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+  <line x1="74" y1="150" x2="98" y2="198" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+  <line x1="74" y1="150" x2="78" y2="196" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+  <g class="tnod"><g transform="rotate(-42 74 150)">
+    <rect x="58" y="84" width="32" height="78" rx="13" fill="var(--coral)"/>
+    <rect x="56" y="76" width="36" height="16" rx="7" fill="var(--coral-deep)"/>
+    <rect x="64" y="158" width="20" height="16" rx="5" fill="var(--ink)" opacity=".8"/>
+    <circle cx="74" cy="84" r="9" fill="var(--bg)" opacity=".9"/>
+  </g></g>
+  <circle cx="74" cy="150" r="6" fill="var(--ink)" opacity=".8"/>
+</svg>
+
+<main class="wrap">
+  <div class="topbar rise">
+    <span><span class="badge">★</span> Mission Profile</span>
+    <span class="clock" id="clock">Berkeley · --:--:--</span>
+    <button class="toggle" id="toggle" aria-label="Toggle colour theme">◑ Theme</button>
+  </div>
+
+  <header class="hero">
+    <div class="craft rise" id="craft" aria-hidden="true">
+      <svg viewBox="0 0 250 380">
+        <defs>
+          <radialGradient id="planetG" cx="36%" cy="32%" r="80%">
+            <stop offset="0%" stop-color="#F2B093"/><stop offset="50%" stop-color="#D97757"/><stop offset="100%" stop-color="#A8492E"/>
+          </radialGradient>
+          <clipPath id="pclip"><circle cx="125" cy="266" r="54"/></clipPath>
+        </defs>
+        <!-- planet -->
+        <circle cx="125" cy="266" r="54" fill="url(#planetG)"/>
+        <g clip-path="url(#pclip)">
+          <g opacity=".6">
+            <circle cx="107" cy="252" r="9" fill="#A8492E"/><circle cx="105" cy="250" r="7.4" fill="#CE6E48"/>
+            <circle cx="139" cy="278" r="6.6" fill="#A8492E"/><circle cx="137" cy="276" r="5.3" fill="#CE6E48"/>
+            <circle cx="125" cy="242" r="4.6" fill="#A8492E"/><circle cx="124" cy="241" r="3.6" fill="#CE6E48"/>
+            <circle cx="146" cy="259" r="4" fill="#A8492E"/><circle cx="145" cy="258" r="3.1" fill="#CE6E48"/>
+            <circle cx="112" cy="284" r="3.4" fill="#A8492E"/><circle cx="111" cy="283" r="2.6" fill="#CE6E48"/>
+          </g>
+          <path d="M88 232 a54 54 0 0 0 18 70 q24 -40 -18 -70 Z" fill="#000" opacity=".16"/>
+        </g>
+        <!-- ring + live dust (front pass) -->
+        <g transform="rotate(-20 125 266)">
+          <ellipse cx="125" cy="266" rx="102" ry="27" fill="none" stroke="var(--ink)" stroke-width="2" opacity=".45"/>
+          <g id="dust"></g>
+        </g>
+        <!-- rocket -->
+        <g class="rk">
+          <path d="M125 32 C111 49 107 72 107 102 L107 124 C107 137 143 137 143 124 L143 102 C143 72 139 49 125 32 Z" fill="var(--ink)"/>
+          <path d="M107 106 L89 138 L107 128 Z" fill="var(--coral)"/>
+          <path d="M143 106 L161 138 L143 128 Z" fill="var(--coral)"/>
+          <path class="fl" d="M125 132 C134 145 132 164 125 172 C118 164 116 145 125 132 Z" fill="var(--coral)"/>
+          <circle cx="125" cy="80" r="10" fill="var(--bg)" stroke="var(--coral)" stroke-width="2.6"/>
+        </g>
+      </svg>
+    </div>
+
+    <div>
+      <div class="eyebrow rise">UC Berkeley · EECS · Regents' Scholar</div>
+      <h1 class="rise">karthik<br>subramanian</h1>
+      <p class="tagline rise">
+        <b>founder, engineer, and researcher</b> building across systems, ML, and hardware,
+        from CUDA telemetry to <b>transformer training</b>, currently orbiting soda hall, berkeley.
+      </p>
+      <div class="live-meta rise">
+        <span><span class="k">Age</span><b id="age">—</b></span>
+        <span><span class="k">Local</span><b id="wx">🌤️ 54°F · mainly clear</b></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats" id="stats">
+    <div class="stat rise"><div class="v" data-to="951">0</div><div class="l">Commits</div></div>
+    <div class="stat rise"><div class="v" data-to="690">0</div><div class="l">Contributions / yr</div></div>
+    <div class="stat rise"><div class="v" data-to="35">0</div><div class="l">Repositories</div></div>
+    <div class="stat rise"><div class="v" data-to="4">0</div><div class="l">Years on GitHub</div></div>
+  </div>
+
+  <section>
+    <div class="sec-h"><h2>stack</h2><span class="rule"></span><span class="n">01</span></div>
+    <div class="grid" id="stack"></div>
+  </section>
+
+  <section>
+    <div class="sec-h"><h2>off the clock</h2><span class="rule"></span><span class="n">02</span></div>
+    <div class="ints chips" id="ints"></div>
+  </section>
+
+  <section>
+    <div class="sec-h"><h2>contact</h2><span class="rule"></span><span class="n">03</span></div>
+    <div class="contact" id="contact"></div>
+  </section>
+
+  <footer>
+    <span>Berkeley, California · 37.8755° N, 122.2596° W</span>
+    <span>Live profile stats refresh daily via GitHub Actions.</span>
+  </footer>
+  <a class="dev-back" href="/">← transmission</a>
+</main>
+
+</body>
+</html>

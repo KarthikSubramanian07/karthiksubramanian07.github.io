@@ -225,8 +225,25 @@ test.describe('Navigation links', () => {
     await expect(link).toHaveAttribute('rel', /noreferrer/);
   });
 
-  test('email link exists', async ({ page }) => {
-    await expect(page.locator('.links a[href^="mailto:"]')).toBeVisible();
+  test('email is an obfuscated, non-scrapable control (no literal address in HTML)', async ({ page }) => {
+    const btn = page.locator('.links .email-open');
+    await expect(btn).toBeVisible();
+    await expect(btn).toHaveAttribute('data-email', /\[at\]/);
+    const content = await page.content();
+    expect(content).not.toContain('karthik.subramanian@berkeley.edu');
+    expect(content).not.toContain('mailto:karthik');
+  });
+
+  test('Dev Profile widget links to /dev/', async ({ page }) => {
+    const dev = page.locator('a.devnav');
+    await expect(dev).toBeVisible();
+    await expect(dev).toHaveAttribute('href', '/dev/');
+  });
+
+  test('Discord is a copy-to-clipboard button (no scrapable URL needed)', async ({ page }) => {
+    const d = page.locator('.links .discord-copy');
+    await expect(d).toBeVisible();
+    await expect(d).toHaveAttribute('data-copy', 'karthik07');
   });
 
   test("Peet's coffee link has correct href and security attrs", async ({ page }) => {

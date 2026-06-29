@@ -722,3 +722,71 @@
     }
     .surname.bursting { animation: none !important; }
   }
+
+  /* ── Dev Profile nav (top-left, mirrors the transmission widget) ───────────── */
+  .devnav {
+    position: fixed; top: 14px; left: 14px; z-index: 50;
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--sand); text-decoration: none;
+  }
+  .devnav::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 22px; height: 22px;
+    border-top: 1px solid var(--amber-ghost); border-left: 1px solid var(--amber-ghost);
+    pointer-events: none;
+  }
+  .devnav-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--amber);
+    box-shadow: 0 0 0 0 var(--amber-glow);
+    animation: pulseRing 2.4s cubic-bezier(.4,0,.6,1) infinite;
+  }
+  .devnav-text { position: relative; }
+  .devnav-text::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px;
+    background: var(--amber); transform: scaleX(0); transform-origin: left;
+    transition: transform .4s cubic-bezier(.2,.7,.2,1);
+  }
+  .devnav-arrow { color: var(--amber); transition: transform .35s ease; }
+  .devnav:hover { color: var(--sand-bright); }
+  .devnav:hover .devnav-text::after { transform: scaleX(1); }
+  .devnav:hover .devnav-arrow { transform: translate(2px,-2px); }
+  .devnav:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: 2px; }
+
+  /* ── Icon links (replaces the text link bar) ──────────────────────────────── */
+  .links.icons { gap: 18px; }
+  .links.icons .iconlink {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; padding: 0;
+    border: 1px solid color-mix(in oklab, var(--sand) 18%, transparent);
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--rust) 22%, transparent);
+    color: var(--sand); cursor: pointer;
+    transition: color .3s, border-color .3s, background .3s, box-shadow .3s, transform .3s;
+  }
+  .links.icons .iconlink svg { width: 19px; height: 19px; fill: currentColor; display: block; }
+  .links.icons .iconlink::after { display: none; }
+  .links.icons .iconlink:hover {
+    color: var(--sand-bright); border-color: var(--amber);
+    background: color-mix(in oklab, var(--amber) 14%, transparent);
+    box-shadow: 0 0 22px color-mix(in oklab, var(--amber) 30%, transparent);
+    transform: translateY(-3px);
+  }
+  .links.icons .iconlink:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; }
+  button.iconlink { font: inherit; }
+  .discord-copy { position: relative; }
+  .discord-copy.copied::after {
+    content: 'copied'; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--amber); white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .devnav { font-size: 9px; letter-spacing: 0.24em; gap: 7px; padding: 6px 9px; }
+    .links.icons .iconlink { width: 38px; height: 38px; }
+    .links.icons { gap: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .devnav-dot { animation: none !important; }
+  }
