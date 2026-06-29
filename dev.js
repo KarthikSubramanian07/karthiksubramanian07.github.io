@@ -23,6 +23,7 @@
     tools:'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-6 6 2.9 2.9 6-6a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.9-2.9 2.6-2.6Z"/>',
     mail:'<rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" d="m3 6 9 7 9-7"/>',
     link:'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>',
+    linkedin:'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="4" cy="4" r="2" fill="none" stroke="currentColor" stroke-width="2"/>',
     cam:'<rect x="2" y="7" width="20" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="14" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" d="M8 7l2-3h4l2 3"/>',
     discord:'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M5 5.5h14v11H9l-4 3.5V5.5Z"/><circle cx="9.6" cy="11" r="1.3" fill="currentColor"/><circle cx="14.4" cy="11" r="1.3" fill="currentColor"/>',
     copy:'<rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" d="M5 15V5a2 2 0 0 1 2-2h8"/>',
@@ -30,12 +31,12 @@
   };
 
   var stack=[
-    {cat:'Languages',ic:IC.code,items:['Python','Java','TypeScript','JavaScript','C','C++','SQL','HTML','CSS']},
-    {cat:'Web & Realtime',ic:IC.layers,items:['React','Next.js','Svelte','Tailwind CSS','Vite','Node.js','Zod','Deck.gl','Mapbox','WebSocket','WebRTC','LiveKit']},
-    {cat:'AI / ML & Agents',ic:IC.ai,items:['PyTorch','Claude','Gemini','Groq','AWS Bedrock','Fetch.ai uAgents','Agent S','Devin','Depth Anything v2','Deepgram','ElevenLabs','NumPy','pandas','Streamlit','CUDA']},
-    {cat:'Backends & Data',ic:IC.cpu,items:['FastAPI','Flask','Express','Redis','PostgreSQL','MongoDB','SQLite','Supabase','Prisma','Drizzle','tRPC','Auth0','NextAuth','World ID']},
-    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Vercel','Google Cloud','Cloudflare','Firebase','Docker','Kubernetes','OpenTelemetry','Arize Phoenix','Sentry','Browserbase','GitHub Actions','Linux']},
-    {cat:'Robotics & Hardware',ic:IC.chip,items:['roboRIO','WPILib','Talon FX','SPARK MAX','STM32','Arduino Uno','Raspberry Pi','FPGA','HX711']}
+    {cat:'Languages',ic:IC.code,items:['Python','TypeScript','C++','C','Java','JavaScript','SQL','HTML','CSS']},
+    {cat:'Web & Realtime',ic:IC.layers,items:['Next.js','React','WebRTC','WebSocket','LiveKit','Svelte','Node.js','Tailwind CSS','Deck.gl','Mapbox','Vite','Zod']},
+    {cat:'AI / ML & Agents',ic:IC.ai,items:['PyTorch','CUDA','Claude','GPT','Gemini','AWS Bedrock','Groq','Depth Anything v2','Fetch.ai uAgents','Agent S','Devin','Deepgram','ElevenLabs','Streamlit']},
+    {cat:'Backends & Data',ic:IC.cpu,items:['PostgreSQL','Redis','FastAPI','NumPy','pandas','MongoDB','Supabase','Express','Flask','Prisma','Drizzle','SQLite','tRPC','Auth0','NextAuth','World ID']},
+    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Google Cloud','Docker','Kubernetes','Cloudflare','Vercel','Firebase','OpenTelemetry','Arize Phoenix','Browserbase','Sentry','Linux']},
+    {cat:'Robotics & Hardware',ic:IC.chip,items:['roboRIO','WPILib','FPGA','STM32','Talon FX','SPARK MAX','Raspberry Pi','Arduino Uno','HX711']}
   ];
   var sEl=document.getElementById('stack');
   stack.forEach(function(s){
@@ -53,7 +54,7 @@
   function deobf(s){return s.replace(/ \[dot\] /g,'.').replace(/ \[at\] /g,'@');}
   var contacts=[
     {ic:IC.mail,lab:'Email',val:'karthik [dot] subramanian [at] berkeley [dot] edu',email:true,copy:true},
-    {ic:IC.link,lab:'LinkedIn',val:'/in/karthik-subramanian-07',href:'https://www.linkedin.com/in/karthik-subramanian-07',ext:true},
+    {ic:IC.linkedin,lab:'LinkedIn',val:'/in/karthik-subramanian-07',href:'https://www.linkedin.com/in/karthik-subramanian-07',ext:true},
     {ic:IC.cam,lab:'Instagram',val:'@winner.karthik',href:'https://www.instagram.com/winner.karthik',ext:true},
     {ic:IC.discord,lab:'Discord',val:'karthik07',copy:'karthik07'}
   ];
@@ -95,7 +96,7 @@
 
   function countUp(el){var to=parseFloat(el.getAttribute('data-to'));
     if(reduce){el.textContent=to.toLocaleString();return;}
-    var start=null,dur=1300;
+    var start=null,dur=2800;
     function step(ts){if(!start)start=ts;var p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
       el.textContent=Math.round(to*e).toLocaleString();if(p<1)requestAnimationFrame(step);}
     requestAnimationFrame(step);}
@@ -124,8 +125,6 @@
       a.addEventListener('mouseleave',function(){a.style.transform='';});});
   }
 
-  document.getElementById('toggle').addEventListener('click',function(){
-    doc.setAttribute('data-theme',doc.getAttribute('data-theme')==='light'?'dark':'light');});
 
   /* ===== orbiting ring dust ===== */
   var dustG=document.getElementById('dust'),dust=[],boost=0,craft=document.getElementById('craft'),craftSvg=craft&&craft.querySelector('svg');
