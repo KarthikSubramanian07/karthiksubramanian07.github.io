@@ -169,20 +169,40 @@
 
   .topbar {
     position: fixed;
-    top: 0; left: 0; right: 0;
+    top: 14px; right: 14px;
     z-index: 50;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 14px 50px 14px 14px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     font-weight: 400;
     letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: var(--sand-soft);
   }
-  .topbar .right { display: flex; align-items: center; gap: 12px; color: var(--sand); }
+  .topbar .right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    color: var(--sand);
+  }
+  .topbar .right::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 22px; height: 22px;
+    border-top: 1px solid var(--amber-ghost);
+    border-right: 1px solid var(--amber-ghost);
+    pointer-events: none;
+  }
+  .topbar .right::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 22px; height: 22px;
+    border-bottom: 1px solid var(--amber-ghost);
+    border-left: 1px solid var(--amber-ghost);
+    pointer-events: none;
+  }
   .pulse {
     width: 8px; height: 8px; border-radius: 50%;
     background: var(--amber);
@@ -675,7 +695,8 @@
   }
 
   @media (max-width: 640px) {
-    .topbar { padding: 14px 50px 14px 14px; font-size: 9px; letter-spacing: 0.28em; }
+    .topbar { font-size: 9px; letter-spacing: 0.28em; }
+    .topbar .right { padding: 6px 8px; }
     .topbar .right span:not(.pulse) { font-size: 9px; }
     main { padding: 110px 18px 140px; }
     .name { font-size: clamp(72px, 22vw, 200px); }
