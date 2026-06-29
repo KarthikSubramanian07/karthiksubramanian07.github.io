@@ -16,7 +16,7 @@
   .cglow{position:fixed;left:0;top:0;width:360px;height:360px;border-radius:50%;pointer-events:none;z-index:1;opacity:0;background:radial-gradient(circle,var(--glow),transparent 68%);transition:opacity .5s ease;will-change:transform}
   .wrap{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:0 30px 70px}
 
-  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:26px 2px 0;
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 2px 0;
     font-size:12px;letter-spacing:1.6px;text-transform:lowercase;color:var(--muted)}
   .badge{color:var(--coral)}
   .clock{font-variant-numeric:tabular-nums}

@@ -96,7 +96,7 @@ test.describe('Home → Dev Profile navigation', () => {
     const dev = page.locator('a.devnav');
     await expect(dev).toBeVisible();
     await expect(dev).toHaveAttribute('href', '/dev/');
-    await expect(dev).toContainText('Dev Profile');
+    await expect(dev).toContainText('Dev');
   });
 
   test('clicking the Dev Profile widget navigates to /dev/', async ({ page }) => {

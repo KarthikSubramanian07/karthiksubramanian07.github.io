@@ -717,7 +717,7 @@
   /* ── Dev Profile nav (top-left, mirrors the transmission widget) ───────────── */
   .devnav {
     position: fixed; top: 14px; left: 14px; z-index: 50;
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 5px;
     padding: 8px 12px;
     font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400;
     letter-spacing: 0.32em; text-transform: uppercase;
