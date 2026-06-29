@@ -64,13 +64,7 @@
   .chip:hover{border-color:var(--coral);color:var(--coral);transform:translateY(-3px);box-shadow:0 8px 18px -8px var(--glow);background:var(--surface)}
 
   .contact{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-  .contact a,.contact button{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink);font:inherit;
-    text-align:left;width:100%;cursor:pointer;background:var(--surface);border:1px solid var(--hair);border-radius:16px;
-    padding:18px 20px;transition:transform .25s cubic-bezier(.16,1,.3,1),border-color .25s,box-shadow .25s;will-change:transform}
-  .contact a:hover,.contact button:hover{border-color:var(--coral);box-shadow:0 16px 34px -14px var(--glow)}
-  .contact a:focus-visible,.contact button:focus-visible{outline:2px solid var(--coral);outline-offset:3px}
   .contact .ic{width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:11px;background:var(--surface2);color:var(--coral);transition:background .25s,color .25s}
-  .contact a:hover .ic,.contact button:hover .ic{background:var(--coral);color:var(--bg)}
   .contact .ic svg{width:19px;height:19px}
   .contact .tx{min-width:0}
   .contact .tx .lab{display:block;font-size:10px;letter-spacing:1.6px;text-transform:lowercase;color:var(--faint);margin-bottom:4px}
