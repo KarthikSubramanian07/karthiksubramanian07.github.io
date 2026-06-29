@@ -31,8 +31,8 @@ test.describe('Dev Profile subpage (/dev)', () => {
     await expect(page.locator('.stat')).toHaveCount(4);
   });
 
-  test('renders six stack panels', async ({ page }) => {
-    await expect(page.locator('#stack .panel')).toHaveCount(6);
+  test('renders seven stack panels', async ({ page }) => {
+    await expect(page.locator('#stack .panel')).toHaveCount(7);
   });
 
   test('email is obfuscated and non-scrapable (no literal address in HTML)', async ({ page }) => {

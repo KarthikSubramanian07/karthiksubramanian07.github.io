@@ -27,20 +27,22 @@
     cam:'<rect x="2" y="7" width="20" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="14" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" d="M8 7l2-3h4l2 3"/>',
     discord:'<path fill="currentColor" d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 13.83 13.83 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.175 13.175 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028z"/>',
     copy:'<rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" d="M5 15V5a2 2 0 0 1 2-2h8"/>',
-    check:'<path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M4 12l5 5L20 6"/>'
+    check:'<path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M4 12l5 5L20 6"/>',
+    sci:'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 3h12M8 3v6L3 20h18L13 9V3"/>'
   };
 
   var stack=[
-    {cat:'Languages',ic:IC.code,items:['Python','TypeScript','C++','C','Java','JavaScript','SQL','HTML','CSS']},
-    {cat:'Web & Realtime',ic:IC.layers,items:['Next.js','React','WebRTC','WebSocket','LiveKit','Svelte','Node.js','Tailwind CSS','Deck.gl','Mapbox','Vite','Zod']},
-    {cat:'AI / ML & Agents',ic:IC.ai,items:['PyTorch','CUDA','Claude','GPT','Gemini','AWS Bedrock','Groq','Depth Anything v2','Fetch.ai uAgents','Agent S','Devin','Deepgram','ElevenLabs','Streamlit']},
-    {cat:'Backends & Data',ic:IC.cpu,items:['PostgreSQL','Redis','FastAPI','NumPy','pandas','MongoDB','Supabase','Express','Flask','Prisma','Drizzle','SQLite','tRPC','Auth0','NextAuth','World ID']},
-    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Google Cloud','Docker','Kubernetes','Cloudflare','Vercel','Firebase','OpenTelemetry','Arize Phoenix','Browserbase','Sentry','Linux']},
-    {cat:'Robotics & Hardware',ic:IC.chip,items:['roboRIO','WPILib','FPGA','STM32','Talon FX','SPARK MAX','Raspberry Pi','Arduino Uno','HX711']}
+    {cat:'Languages',ic:IC.code,items:['Python','TypeScript','Rust','Swift','C++','C','Java','JavaScript','SQL','HTML','CSS']},
+    {cat:'Web & Realtime',ic:IC.layers,items:['Next.js','React','WebRTC','WebSocket','LiveKit','Svelte','Node.js','Tailwind CSS','Three.js','Deck.gl','Mapbox','Framer Motion','Vite','Zod','Zustand']},
+    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['PyTorch','CUDA','OpenCV','scikit-learn','LightGBM','ONNX','Hugging Face','IBM Granite','Claude','GPT','Llama','Gemini','AWS Bedrock','Groq','Whisper','Letta','Depth Anything v2','Fetch.ai uAgents','Agent S','Devin','Deepgram','ElevenLabs','Streamlit']},
+    {cat:'Backends & Data',ic:IC.cpu,items:['PostgreSQL','Redis','FastAPI','GraphQL','Apollo','Mongoose','NumPy','pandas','Pillow','MongoDB','MySQL','Supabase','Express','Flask','Prisma','Drizzle','SQLite','tRPC','Auth0','NextAuth','World ID','pytest']},
+    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Google Cloud','Docker','Kubernetes','Cloudflare','Vercel','Firebase','nginx','OpenTelemetry','Arize Phoenix','Browserbase','Stagehand','Playwright','Sentry','Linux']},
+    {cat:'Robotics & Hardware',ic:IC.chip,items:['roboRIO','WPILib','FPGA','STM32','Talon FX','SPARK MAX','Raspberry Pi','Arduino Uno','HX711','SiPM']},
+    {cat:'Scientific Computing',ic:IC.sci,items:['ROOT','Geant4','SciPy','Matplotlib','Jupyter']}
   ];
   var sEl=document.getElementById('stack');
   stack.forEach(function(s){
-    var p=document.createElement('div');p.className='panel rise';
+    var p=document.createElement('div');p.className='panel rise'+(s.full?' full':'');
     p.innerHTML='<div class="cat"><svg viewBox="0 0 24 24">'+s.ic+'</svg>'+s.cat+'</div><div class="chips">'+
       s.items.map(function(t){return '<span class="chip">'+t+'</span>';}).join('')+'</div>';
     sEl.appendChild(p);
