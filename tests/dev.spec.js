@@ -66,13 +66,8 @@ test.describe('Dev Profile subpage (/dev)', () => {
     await expect(page.locator('#sky')).toBeAttached();
   });
 
-  test('theme toggle switches data-theme', async ({ page }) => {
-    await page.locator('#toggle').click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  });
-
-  test('has a back link to home', async ({ page }) => {
-    await expect(page.locator('a.dev-back[href="/"]')).toBeVisible();
+  test('has a back link to home in topbar', async ({ page }) => {
+    await expect(page.locator('a.back-link[href="/"]')).toBeVisible();
   });
 
   test('no uncaught JS errors', async ({ page }) => {

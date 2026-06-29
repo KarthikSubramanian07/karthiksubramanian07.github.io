@@ -46,9 +46,6 @@
     sEl.appendChild(p);
   });
 
-  var ints=['Writing','Board Games','Stargazing','Philosophy','Travel','Trivia','History & Geography','Civic Engagement','Film & TV'];
-  var iEl=document.getElementById('ints');
-  ints.forEach(function(t){var c=document.createElement('span');c.className='chip';c.textContent=t;iEl.appendChild(c);});
 
   /* email shown obfuscated (non-scrapable); real address assembled at click time */
   function deobf(s){return s.replace(/ \[dot\] /g,'.').replace(/ \[at\] /g,'@');}
@@ -91,7 +88,7 @@
     document.getElementById('age').textContent=pl(y,'year')+', '+pl(m,'month')+', '+pl(d,'day');}
   tickAge();setInterval(tickAge,60000);
   function tickClock(){try{var t=new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
-    document.getElementById('clock').textContent='Berkeley · '+t;}catch(e){document.getElementById('clock').textContent='Berkeley';}}
+    document.getElementById('clock').textContent='Fremont · '+t;}catch(e){document.getElementById('clock').textContent='Fremont';}}
   tickClock();setInterval(tickClock,1000);
 
   function countUp(el){var to=parseFloat(el.getAttribute('data-to'));

@@ -728,18 +728,13 @@
     border-top: 1px solid var(--amber-ghost); border-left: 1px solid var(--amber-ghost);
     pointer-events: none;
   }
-  .devnav-dot {
-    width: 8px; height: 8px; border-radius: 50%; background: var(--amber);
-    box-shadow: 0 0 0 0 var(--amber-glow);
-    animation: pulseRing 2.4s cubic-bezier(.4,0,.6,1) infinite;
-  }
   .devnav-text { position: relative; }
   .devnav-text::after {
     content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px;
     background: var(--amber); transform: scaleX(0); transform-origin: left;
     transition: transform .4s cubic-bezier(.2,.7,.2,1);
   }
-  .devnav-arrow { color: var(--amber); transition: transform .35s ease; }
+  .devnav-arrow { color: var(--amber); font-size: 16px; line-height: 1; transition: transform .35s ease; }
   .devnav:hover { color: var(--sand-bright); }
   .devnav:hover .devnav-text::after { transform: scaleX(1); }
   .devnav:hover .devnav-arrow { transform: translate(2px,-2px); }
@@ -777,7 +772,4 @@
     .devnav { font-size: 9px; letter-spacing: 0.24em; gap: 7px; padding: 6px 9px; }
     .links.icons .iconlink { width: 38px; height: 38px; }
     .links.icons { gap: 14px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .devnav-dot { animation: none !important; }
   }
