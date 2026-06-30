@@ -91,16 +91,28 @@
     document.getElementById('age').textContent=pl(y,'year')+', '+pl(m,'month')+', '+pl(d,'day');}
   tickAge();setInterval(tickAge,60000);
   function tickClock(){try{var t=new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
-    document.getElementById('clock').textContent='Fremont · '+t;}catch(e){document.getElementById('clock').textContent='Fremont';}}
+    document.getElementById('clock').textContent=t;}catch(e){document.getElementById('clock').textContent='--:--:--';}}
   tickClock();setInterval(tickClock,1000);
 
-  function countUp(el){var to=parseFloat(el.getAttribute('data-to'));
+  function countUp(el){var to=parseInt(el.getAttribute('data-to'),10);
     if(reduce){el.textContent=to.toLocaleString();return;}
-    var start=null,dur=2200,cur=0;
-    function step(ts){if(!start)start=ts;var p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,4);
-      var next=Math.round(to*e);if(next!==cur){cur=next;el.textContent=next.toLocaleString();}
-      if(p<1)requestAnimationFrame(step);}
-    requestAnimationFrame(step);}
+    var digits=String(to).split(''),nd=digits.length;
+    el.textContent='';el.style.display='inline-flex';
+    var reels=[];
+    digits.forEach(function(d,idx){
+      var dv=parseInt(d,10);
+      var slot=document.createElement('span');
+      slot.style.cssText='display:block;overflow:hidden;height:1em;line-height:1';
+      var reel=document.createElement('span');
+      var dur=(1.0+(nd-1-idx)*0.5).toFixed(2);
+      reel.style.cssText='display:block;transition:transform '+dur+'s cubic-bezier(.16,1,.3,1)';
+      for(var n=0;n<=9;n++){var row=document.createElement('span');row.style.cssText='display:block;height:1em;line-height:1';row.textContent=n;reel.appendChild(row);}
+      slot.appendChild(reel);el.appendChild(slot);reels.push({reel:reel,dv:dv});
+    });
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      reels.forEach(function(r){r.reel.style.transform='translateY(-'+r.dv+'em)';});
+    });});
+  }
 
   /* reveal */
   function reveal(el){el.classList.add('in');el.addEventListener('animationend',function(){el.classList.remove('rise','in');},{once:true});}
