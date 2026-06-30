@@ -96,21 +96,22 @@
 
   function countUp(el){var to=parseFloat(el.getAttribute('data-to'));
     if(reduce){el.textContent=to.toLocaleString();return;}
-    var start=null,dur=5500;
-    function step(ts){if(!start)start=ts;var p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
+    var start=null,dur=1800;
+    function step(ts){if(!start)start=ts;var p=Math.min((ts-start)/dur,1),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
       el.textContent=Math.round(to*e).toLocaleString();if(p<1)requestAnimationFrame(step);}
     requestAnimationFrame(step);}
 
   /* reveal */
   function reveal(el){el.classList.add('in');el.addEventListener('animationend',function(){el.classList.remove('rise','in');},{once:true});}
+  function revealChips(panel){panel.querySelectorAll('.chip').forEach(function(c,i){setTimeout(function(){c.classList.add('in');},i*28);});}
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var t=e.target;
     if(t.id==='stats'){t.querySelectorAll('.stat').forEach(function(s,i){setTimeout(function(){reveal(s);},i*90);});
       t.querySelectorAll('.v').forEach(function(v,i){setTimeout(function(){countUp(v);},i*90);});}
+    else if(t.classList.contains('panel')){reveal(t);setTimeout(function(){revealChips(t);},120);}
     else reveal(t);
-    io.unobserve(t);});},{threshold:.2});
-  document.querySelectorAll('.rise:not(.stat),.chip,.panel,.sec-h .rule').forEach(function(el){io.observe(el);});
+    io.unobserve(t);});},{threshold:.15});
+  document.querySelectorAll('.rise:not(.stat):not(.chip),.panel,.sec-h .rule').forEach(function(el){io.observe(el);});
   io.observe(document.getElementById('stats'));
-  document.querySelectorAll('.chips').forEach(function(g){g.querySelectorAll('.chip').forEach(function(c,i){c.style.transitionDelay=(i*32)+'ms';});});
   window.addEventListener('load',function(){document.querySelectorAll('.hero .rise,.topbar.rise').forEach(function(e,i){setTimeout(function(){reveal(e);},i*70);});});
 
   /* interactions: tilt + magnetic + craft parallax */
