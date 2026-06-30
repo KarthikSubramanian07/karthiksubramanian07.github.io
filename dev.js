@@ -3,17 +3,24 @@
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches, doc=document.documentElement;
 
   /* live stats: refreshed daily by GitHub Action into /dev-stats.json (CSP connect-src 'self') */
+  var statsRevealed=false;
+  function animateStats(){
+    if(!statsRevealed)return;
+    document.querySelectorAll('.stat .v').forEach(function(v,i){
+      if(v.getAttribute('data-to')&&!v.dataset.animated)setTimeout(function(){countUp(v);},i*150);
+    });
+  }
   fetch('/dev-stats.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){
     if(!s||typeof s!=='object')return;
-    document.querySelectorAll('.stat').forEach(function(card){
-      var v=card.querySelector('.v'),l=card.querySelector('.l');if(!v||!l)return;
-      var k=l.textContent.toLowerCase(),val=null;
-      if(k.indexOf('commit')>=0)val=s.commits;
-      else if(k.indexOf('contrib')>=0)val=s.contributions;
-      else if(k.indexOf('repo')>=0)val=s.repos;
-      else if(k.indexOf('year')>=0)val=s.years;
-      if(val!=null&&isFinite(val)){v.setAttribute('data-to',String(val));if(typeof countUp==='function')countUp(v);}
+    document.querySelectorAll('.stat .v').forEach(function(v){
+      var k=v.dataset.stat||'',val=null;
+      if(k==='alltime')val=s.commits;
+      else if(k==='year')val=s.contributions;
+      else if(k==='repos')val=s.repos;
+      else if(k==='years')val=s.years;
+      if(val!=null&&isFinite(val))v.setAttribute('data-to',String(val));
     });
+    animateStats();
   }).catch(function(){});
   var IC={
     code:'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 6 2 12l6 6M16 6l6 6-6 6"/>',
@@ -94,23 +101,37 @@
     document.getElementById('clock').textContent=t;}catch(e){document.getElementById('clock').textContent='--:--:--';}}
   tickClock();setInterval(tickClock,1000);
 
-  function countUp(el){var to=parseInt(el.getAttribute('data-to'),10);
+  function countUp(el){
+    if(el.dataset.animated)return;
+    el.dataset.animated='1';
+    var to=parseInt(el.getAttribute('data-to'),10);
+    if(isNaN(to)){el.textContent='0';return;}
     if(reduce){el.textContent=to.toLocaleString();return;}
     var digits=String(to).split(''),nd=digits.length;
-    el.textContent='';el.style.display='inline-flex';
+    el.textContent='';el.style.display='inline-flex';el.style.lineHeight='1';
     var reels=[];
     digits.forEach(function(d,idx){
       var dv=parseInt(d,10);
       var slot=document.createElement('span');
+      /* height:1em + overflow:hidden clips to exactly one digit row */
       slot.style.cssText='display:block;overflow:hidden;height:1em;line-height:1';
       var reel=document.createElement('span');
-      var dur=(1.0+(nd-1-idx)*0.5).toFixed(2);
-      reel.style.cssText='display:block;transition:transform '+dur+'s cubic-bezier(.16,1,.3,1)';
-      for(var n=0;n<=9;n++){var row=document.createElement('span');row.style.cssText='display:block;height:1em;line-height:1';row.textContent=n;reel.appendChild(row);}
+      /* easeInOutSine: gentle start, linear middle (counting visible), gentle landing */
+      /* most-significant digit slowest so you see it counting longer */
+      var dur=(2.2+(nd-1-idx)*0.7).toFixed(1);
+      reel.style.cssText='display:block;line-height:1;transition:transform '+dur+'s cubic-bezier(.37,0,.63,1)';
+      for(var n=0;n<=9;n++){
+        var row=document.createElement('span');
+        row.style.cssText='display:block;height:1em;line-height:1';
+        row.textContent=n;
+        reel.appendChild(row);
+      }
       slot.appendChild(reel);el.appendChild(slot);reels.push({reel:reel,dv:dv});
     });
+    /* translateY(-N*10%): reel has 10 equal rows so 10% = exactly 1 row,
+       independent of em/px — no measurement needed */
     requestAnimationFrame(function(){requestAnimationFrame(function(){
-      reels.forEach(function(r){r.reel.style.transform='translateY(-'+r.dv+'em)';});
+      reels.forEach(function(r){r.reel.style.transform='translateY(-'+r.dv*10+'%)';});
     });});
   }
 
@@ -119,7 +140,7 @@
   function revealChips(panel){panel.querySelectorAll('.chip').forEach(function(c,i){setTimeout(function(){c.classList.add('in');},i*28);});}
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var t=e.target;
     if(t.id==='stats'){t.querySelectorAll('.stat').forEach(function(s,i){setTimeout(function(){reveal(s);},i*90);});
-      t.querySelectorAll('.v').forEach(function(v,i){setTimeout(function(){countUp(v);},i*90);});}
+      statsRevealed=true;setTimeout(animateStats,180);}
     else if(t.classList.contains('panel')){reveal(t);setTimeout(function(){revealChips(t);},120);}
     else reveal(t);
     io.unobserve(t);});},{threshold:.15});
