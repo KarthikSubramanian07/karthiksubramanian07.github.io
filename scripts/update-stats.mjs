@@ -18,10 +18,10 @@ async function gql(query, variables) {
   return j.data;
 }
 
-const meta = await gql(`query($login:String!){user(login:$login){repositories(ownerAffiliations:OWNER){totalCount}}}`, { login: USER });
+const meta = await gql(`query{viewer{repositories(ownerAffiliations:OWNER){totalCount}}}`, {});
 const firstCommit = new Date('2021-08-01');
 const years = Math.round((Date.now() - firstCommit.getTime()) / (365.25 * 864e5));
-const repos = meta.user.repositories.totalCount;
+const repos = meta.viewer.repositories.totalCount;
 
 // contributions in the last year
 const lastYear = await gql(`query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions}}}}`, { login: USER });

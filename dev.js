@@ -107,27 +107,30 @@
     var to=parseInt(el.getAttribute('data-to'),10);
     if(isNaN(to)){el.textContent='0';return;}
     if(reduce){el.textContent=to.toLocaleString();return;}
-    var digits=String(to).split(''),nd=digits.length;
-    var dh=parseFloat(getComputedStyle(el).fontSize)||38;
-    el.textContent='';el.style.lineHeight='1';el.style.whiteSpace='nowrap';
-    var reels=[];
-    digits.forEach(function(d,idx){
-      var dv=parseInt(d,10);
-      var slot=document.createElement('span');
-      slot.style.cssText='display:inline-block;overflow:hidden;height:'+dh+'px;line-height:1;vertical-align:top';
-      var reel=document.createElement('span');
-      var dur=(2.2+(nd-1-idx)*0.7).toFixed(1);
-      reel.style.cssText='display:block;line-height:1;transition:transform '+dur+'s cubic-bezier(.37,0,.63,1)';
-      for(var n=0;n<=9;n++){
-        var row=document.createElement('span');
-        row.style.cssText='display:block;height:'+dh+'px;line-height:1';
-        row.textContent=n;
-        reel.appendChild(row);
-      }
-      slot.appendChild(reel);el.appendChild(slot);reels.push({reel:reel,dv:dv});
-    });
+    el.textContent='';
+    el.style.position='relative';
+    el.style.overflow='hidden';
+    var probe=document.createElement('span');
+    probe.style.cssText='position:absolute;visibility:hidden;line-height:1;white-space:nowrap';
+    probe.textContent='0';
+    el.appendChild(probe);
+    var dh=probe.getBoundingClientRect().height;
+    el.removeChild(probe);
+    el.style.height=dh+'px';
+    /* whole-number rows: all digits on one baseline → perfect alignment */
+    var steps=to<=15?to+1:16;
+    var reel=document.createElement('span');
+    reel.style.cssText='position:absolute;top:0;left:0;display:block;line-height:1;transition:transform 2.8s cubic-bezier(.37,0,.63,1)';
+    for(var i=0;i<steps;i++){
+      var v=i===steps-1?to:Math.round(to*i/(steps-1));
+      var row=document.createElement('span');
+      row.style.cssText='display:block;height:'+dh+'px;line-height:1;overflow:hidden';
+      row.textContent=v;
+      reel.appendChild(row);
+    }
+    el.appendChild(reel);
     requestAnimationFrame(function(){requestAnimationFrame(function(){
-      reels.forEach(function(r){r.reel.style.transform='translateY(-'+(r.dv*dh)+'px)';});
+      reel.style.transform='translateY(-'+((steps-1)*dh)+'px)';
     });});
   }
 
