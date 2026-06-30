@@ -27,9 +27,9 @@ const repos = meta.user.repositories.totalCount;
 const lastYear = await gql(`query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions}}}}`, { login: USER });
 const contributions = lastYear.user.contributionsCollection.contributionCalendar.totalContributions;
 
-// all-time commit contributions, walking yearly windows from account creation
+// all-time commit contributions, walking yearly windows from first commit
 let commits = 0;
-let start = new Date(createdAt);
+let start = new Date(firstCommit);
 const now = new Date();
 while (start < now) {
   const end = new Date(Math.min(start.getTime() + 365 * 864e5, now.getTime()));
