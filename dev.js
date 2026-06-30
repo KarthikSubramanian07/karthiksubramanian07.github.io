@@ -108,30 +108,26 @@
     if(isNaN(to)){el.textContent='0';return;}
     if(reduce){el.textContent=to.toLocaleString();return;}
     var digits=String(to).split(''),nd=digits.length;
-    el.textContent='';el.style.display='inline-flex';el.style.lineHeight='1';
+    var dh=parseFloat(getComputedStyle(el).fontSize)||38;
+    el.textContent='';el.style.lineHeight='1';el.style.whiteSpace='nowrap';
     var reels=[];
     digits.forEach(function(d,idx){
       var dv=parseInt(d,10);
       var slot=document.createElement('span');
-      /* height:1em + overflow:hidden clips to exactly one digit row */
-      slot.style.cssText='display:block;overflow:hidden;height:1em;line-height:1';
+      slot.style.cssText='display:inline-block;overflow:hidden;height:'+dh+'px;line-height:1;vertical-align:top';
       var reel=document.createElement('span');
-      /* easeInOutSine: gentle start, linear middle (counting visible), gentle landing */
-      /* most-significant digit slowest so you see it counting longer */
       var dur=(2.2+(nd-1-idx)*0.7).toFixed(1);
       reel.style.cssText='display:block;line-height:1;transition:transform '+dur+'s cubic-bezier(.37,0,.63,1)';
       for(var n=0;n<=9;n++){
         var row=document.createElement('span');
-        row.style.cssText='display:block;height:1em;line-height:1';
+        row.style.cssText='display:block;height:'+dh+'px;line-height:1';
         row.textContent=n;
         reel.appendChild(row);
       }
       slot.appendChild(reel);el.appendChild(slot);reels.push({reel:reel,dv:dv});
     });
-    /* translateY(-N*10%): reel has 10 equal rows so 10% = exactly 1 row,
-       independent of em/px — no measurement needed */
     requestAnimationFrame(function(){requestAnimationFrame(function(){
-      reels.forEach(function(r){r.reel.style.transform='translateY(-'+r.dv*10+'%)';});
+      reels.forEach(function(r){r.reel.style.transform='translateY(-'+(r.dv*dh)+'px)';});
     });});
   }
 
