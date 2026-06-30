@@ -59,10 +59,11 @@
   .panel .cat svg{width:16px;height:16px;flex:none}
   .chips{display:flex;flex-wrap:wrap;gap:9px}
   .chip{font-size:13.5px;padding:7px 14px;border:1px solid var(--hair);border-radius:11px;background:var(--surface2);
-    color:var(--ink);opacity:0;transform:translateY(10px) scale(.96);will-change:opacity,transform;
-    transition:transform .25s cubic-bezier(.16,1,.3,1),border-color .2s,color .2s,background .2s,box-shadow .2s,opacity .25s}
-  .chip.in{opacity:1;transform:none}
-  .chip:hover{border-color:var(--coral);color:var(--coral);transform:translateY(-3px);box-shadow:0 8px 18px -8px var(--glow);background:var(--surface)}
+    color:var(--ink);opacity:0}
+  .chip.in{animation:chipIn .35s cubic-bezier(.16,1,.3,1) both;
+    transition:border-color .2s,color .2s,background .2s,box-shadow .2s,transform .2s cubic-bezier(.16,1,.3,1)}
+  @keyframes chipIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+  .chip.in:hover{border-color:var(--coral);color:var(--coral);transform:translateY(-3px);box-shadow:0 8px 18px -8px var(--glow);background:var(--surface)}
 
   .contact{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
   .contact .ic{width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:11px;background:var(--surface2);color:var(--coral);transition:background .25s,color .25s}
