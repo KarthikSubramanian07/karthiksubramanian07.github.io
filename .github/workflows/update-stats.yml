@@ -19,6 +19,7 @@ jobs:
       - name: Refresh dev-stats.json
         env:
           STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           STATS_USER: KarthikSubramanian07
         run: node scripts/update-stats.mjs
       - name: Commit if changed
