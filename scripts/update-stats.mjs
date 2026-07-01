@@ -39,10 +39,11 @@ if (HAS_PAT) {
   console.warn('No STATS_TOKEN — keeping previous repos count:', repos);
 }
 
-// Contributions this year (contribution calendar is always public; accurate with any token).
+// Contributions last 30 days.
+const thirtyDaysAgo = new Date(now.getTime() - 30 * 864e5);
 const ly = await gql(
-  `query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions}}}}`,
-  { login: USER }
+  `query($login:String!,$from:DateTime!,$to:DateTime!){user(login:$login){contributionsCollection(from:$from,to:$to){contributionCalendar{totalContributions}}}}`,
+  { login: USER, from: thirtyDaysAgo.toISOString(), to: now.toISOString() }
 );
 const contributions = ly.user.contributionsCollection.contributionCalendar.totalContributions;
 
