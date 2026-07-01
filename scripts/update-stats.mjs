@@ -31,7 +31,7 @@ const years = Math.round((Date.now() - firstCommit.getTime()) / (365.25 * 864e5)
 let repos = prev.repos ?? 0;
 if (HAS_PAT) {
   const d = await gql(
-    `{viewer{repositories(ownerAffiliations:[OWNER,ORGANIZATION_MEMBER],isFork:false){totalCount}}}`
+    `{viewer{repositories(ownerAffiliations:OWNER,isFork:false){totalCount}}}`
   );
   repos = d.viewer.repositories.totalCount;
   console.log('Repos (PAT):', repos);
