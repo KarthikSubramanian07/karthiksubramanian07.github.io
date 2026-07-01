@@ -39,6 +39,11 @@ if (HAS_PAT) {
   console.warn('No STATS_TOKEN — keeping previous repos count:', repos);
 }
 
+// All-time contributions: walk yearly windows from first commit.
+let commits = 0;
+let start = new Date(firstCommit);
+const now = new Date();
+
 // Contributions last 30 days.
 const thirtyDaysAgo = new Date(now.getTime() - 30 * 864e5);
 const ly = await gql(
@@ -46,11 +51,6 @@ const ly = await gql(
   { login: USER, from: thirtyDaysAgo.toISOString(), to: now.toISOString() }
 );
 const contributions = ly.user.contributionsCollection.contributionCalendar.totalContributions;
-
-// All-time contributions: walk yearly windows from first commit.
-let commits = 0;
-let start = new Date(firstCommit);
-const now = new Date();
 while (start < now) {
   const end = new Date(Math.min(start.getTime() + 365 * 864e5, now.getTime()));
   const d = await gql(
