@@ -1,12 +1,14 @@
 // Refreshes dev-stats.json with live GitHub numbers.
-// Uses STATS_TOKEN (a PAT, incl. private contributions) if set, else GITHUB_TOKEN (public only).
+// STATS_TOKEN (PAT with repo scope) → full data incl. private repos.
+// GITHUB_TOKEN (Actions auto-token) → contributions accurate, repos kept from previous run.
 import { writeFileSync, readFileSync } from 'node:fs';
 
 const USER = process.env.STATS_USER || 'KarthikSubramanian07';
+const HAS_PAT = !!process.env.STATS_TOKEN;
 const TOKEN = process.env.STATS_TOKEN || process.env.GITHUB_TOKEN;
 if (!TOKEN) { console.error('No token; skipping.'); process.exit(0); }
 
-async function gql(query, variables) {
+async function gql(query, variables = {}) {
   const r = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: { Authorization: `bearer ${TOKEN}`, 'Content-Type': 'application/json' },
@@ -18,16 +20,33 @@ async function gql(query, variables) {
   return j.data;
 }
 
-const meta = await gql(`query{viewer{repositories(ownerAffiliations:OWNER){totalCount}}}`, {});
+const prevRaw = (() => { try { return readFileSync('dev-stats.json', 'utf8'); } catch { return '{}'; } })();
+const prev = JSON.parse(prevRaw);
+
 const firstCommit = new Date('2021-08-01');
 const years = Math.round((Date.now() - firstCommit.getTime()) / (365.25 * 864e5));
-const repos = meta.viewer.repositories.totalCount;
 
-// contributions in the last year
-const lastYear = await gql(`query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions}}}}`, { login: USER });
-const contributions = lastYear.user.contributionsCollection.contributionCalendar.totalContributions;
+// Repos: STATS_TOKEN (PAT) can see private + org repos via viewer.
+// GITHUB_TOKEN viewer = github-actions[bot] → wrong count; keep previous value.
+let repos = prev.repos ?? 0;
+if (HAS_PAT) {
+  const d = await gql(
+    `{viewer{repositories(ownerAffiliations:[OWNER,ORGANIZATION_MEMBER],isFork:false){totalCount}}}`
+  );
+  repos = d.viewer.repositories.totalCount;
+  console.log('Repos (PAT):', repos);
+} else {
+  console.warn('No STATS_TOKEN — keeping previous repos count:', repos);
+}
 
-// all-time commit contributions, walking yearly windows from first commit
+// Contributions this year (contribution calendar is always public; accurate with any token).
+const ly = await gql(
+  `query($login:String!){user(login:$login){contributionsCollection{contributionCalendar{totalContributions}}}}`,
+  { login: USER }
+);
+const contributions = ly.user.contributionsCollection.contributionCalendar.totalContributions;
+
+// All-time contributions: walk yearly windows from first commit.
 let commits = 0;
 let start = new Date(firstCommit);
 const now = new Date();
@@ -42,7 +61,6 @@ while (start < now) {
 }
 
 const out = { commits, contributions, repos, years, updated: new Date().toISOString().slice(0, 10) };
-const prev = (() => { try { return readFileSync('dev-stats.json', 'utf8'); } catch { return ''; } })();
 const next = JSON.stringify(out, null, 2) + '\n';
-if (prev.trim() === next.trim()) { console.log('No change.'); }
+if (prevRaw.trim() === next.trim()) { console.log('No change.'); }
 else { writeFileSync('dev-stats.json', next); console.log('Updated:', out); }
