@@ -106,32 +106,16 @@
     el.dataset.animated='1';
     var to=parseInt(el.getAttribute('data-to'),10);
     if(isNaN(to)){el.textContent='0';return;}
-    if(reduce){el.textContent=to.toLocaleString();return;}
-    el.textContent='';
-    el.style.position='relative';
-    el.style.overflow='hidden';
-    var probe=document.createElement('span');
-    probe.style.cssText='position:absolute;visibility:hidden;line-height:1;white-space:nowrap';
-    probe.textContent='0';
-    el.appendChild(probe);
-    var dh=probe.getBoundingClientRect().height;
-    el.removeChild(probe);
-    el.style.height=dh+'px';
-    /* whole-number rows: all digits on one baseline → perfect alignment */
-    var steps=to<=15?to+1:16;
-    var reel=document.createElement('span');
-    reel.style.cssText='position:absolute;top:0;left:0;display:block;line-height:1;transition:transform 2.8s cubic-bezier(.37,0,.63,1)';
-    for(var i=0;i<steps;i++){
-      var v=i===steps-1?to:Math.round(to*i/(steps-1));
-      var row=document.createElement('span');
-      row.style.cssText='display:block;height:'+dh+'px;line-height:1;overflow:hidden';
-      row.textContent=v;
-      reel.appendChild(row);
-    }
-    el.appendChild(reel);
-    requestAnimationFrame(function(){requestAnimationFrame(function(){
-      reel.style.transform='translateY(-'+((steps-1)*dh)+'px)';
-    });});
+    if(reduce){el.textContent=to;return;}
+    var dur=2400,s=null;
+    el.textContent='0';
+    requestAnimationFrame(function tick(ts){
+      if(!s)s=ts;
+      var t=Math.min((ts-s)/dur,1);
+      var ease=t===1?1:1-Math.pow(2,-10*t);
+      el.textContent=Math.round(ease*to);
+      if(t<1)requestAnimationFrame(tick);
+    });
   }
 
   /* reveal */
