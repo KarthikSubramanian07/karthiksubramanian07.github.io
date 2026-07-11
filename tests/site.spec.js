@@ -6,6 +6,12 @@ const path = require('path');
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
+test('referenced static assets exist on disk', () => {
+  const root = path.join(__dirname, '..');
+  expect(fs.existsSync(path.join(root, 'og-image.png'))).toBe(true);
+  expect(fs.existsSync(path.join(root, 'apple-touch-icon.png'))).toBe(true);
+});
+
 async function waitForName(page, timeout = 4000) {
   await page.waitForFunction(
     () => document.querySelectorAll('#hero-name .ch.in').length === 7,
