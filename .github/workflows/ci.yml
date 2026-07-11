@@ -29,6 +29,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox webkit
 
+      - name: Verify referenced assets exist
+        run: test -f og-image.png && test -f apple-touch-icon.png
+
       - name: Run tests
         run: npm test
 

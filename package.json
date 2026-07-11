@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "test": "playwright test",
+    "gen:og": "node scripts/gen-og-image.js",
+    "gen:icons": "node scripts/gen-apple-touch-icon.js",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
     "serve": "npx serve . -p 3001",
