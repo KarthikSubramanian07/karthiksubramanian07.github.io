@@ -269,6 +269,9 @@ test.describe('Navigation links', () => {
 // ─── security headers (static file contract) ─────────────────────────────────
 
 test.describe('Security headers contract', () => {
+  const META_CSP =
+    "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'";
+
   test('_headers CSP disallows inline scripts and styles', () => {
     const headers = fs.readFileSync(path.join(__dirname, '..', '_headers'), 'utf8');
     expect(headers).not.toMatch(/script-src[^;]*'unsafe-inline'/);
@@ -276,6 +279,19 @@ test.describe('Security headers contract', () => {
     expect(headers).toMatch(/frame-ancestors 'none'/);
     expect(headers).toMatch(/form-action 'none'/);
     expect(headers).toMatch(/object-src 'none'/);
+  });
+
+  test('documents that GitHub Pages does not serve custom HTTP headers', () => {
+    const readme = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
+    expect(readme).toMatch(/GitHub Pages does not apply/i);
+    expect(readme).toMatch(/meta Content-Security-Policy/i);
+  });
+
+  test('index.html ships meta CSP fallback', () => {
+    const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+    expect(html).toContain(`content="${META_CSP}"`);
+    expect(html).not.toMatch(/<script(?![^>]*src=)/);
+    expect(html).not.toMatch(/<style/);
   });
 });
 
@@ -434,6 +450,12 @@ test.describe('404 page', () => {
   test('has return link', async ({ page }) => {
     await page.goto('/404.html');
     await expect(page.locator('a[href="/"]')).toBeVisible();
+  });
+
+  test('uses external stylesheet only', async ({ page }) => {
+    await page.goto('/404.html');
+    await expect(page.locator('style')).toHaveCount(0);
+    await expect(page.locator('link[rel="stylesheet"][href="/404.css"]')).toHaveCount(1);
   });
 });
 
