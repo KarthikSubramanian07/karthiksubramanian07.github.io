@@ -20,7 +20,7 @@ Everything is GPU-accelerated, respects `prefers-reduced-motion`, and loads in u
 ## Technical highlights
 
 - **Zero JS dependencies** — no React, no Vue, no bundler. Two runtimes: `main.js` (landing) and `dev.js` (dossier).
-- **Strict CSP, externalized** — `script-src 'self'` / `style-src 'self'`: no inline scripts or styles anywhere, including on `/dev`. All CSS/JS live in external files.
+- **Strict CSP, externalized** — `script-src 'self'` / `style-src 'self'`: no inline scripts or styles on `/`, `/dev`, or `404.html`. All CSS/JS live in external files. Each HTML page also ships a **meta Content-Security-Policy** fallback because GitHub Pages does not apply custom HTTP headers.
 - **Scrape-proof contact** — the email never appears in source. It is shown obfuscated (`name [dot] … [at] … [dot] edu`) and the real `mailto:` / copy value is assembled in JS only at click time. Discord copies to clipboard; LinkedIn and Instagram are sandboxed external links.
 - **Live, self-updating stats** — a daily GitHub Action (`update-stats.yml`) fetches GitHub numbers and writes `dev-stats.json`; `/dev` fetches it (`connect-src 'self'`) and falls back to baked values offline.
 - **Canvas effects** — mouse-reactive sandstorm on the landing page; an interactive constellation starfield on `/dev`. Both pause when the tab is hidden.
@@ -54,6 +54,8 @@ Everything is GPU-accelerated, respects `prefers-reduced-motion`, and loads in u
 ├── noscript.css          # Graceful fallback for no-JS
 ├── favicon.svg           # Worm-maw SVG (also inlined as data URI)
 ├── 404.html              # Dune-themed not-found page
+├── 404.css               # 404 page styles (externalized for CSP)
+├── _headers              # Reference CSP/HSTS contract (not served by GitHub Pages)
 ├── robots.txt
 ├── sitemap.xml
 ├── .github/workflows/
@@ -101,3 +103,5 @@ The landing page is a teaser ("something is being built here"); the dossier is t
 ## Security
 
 No `eval`, no untrusted `innerHTML`, no user-input surfaces. Strict CSP with no inline scripts or styles. The email address never appears in source (assembled client-side at click time). All external links use `rel="noopener noreferrer"`. No trackers, no cookies.
+
+**GitHub Pages does not apply** `_headers`, HSTS, `X-Frame-Options`, COOP, CORP, or Permissions-Policy as HTTP response headers. The strongest repository-controlled fallback on `github.io` hosting is per-page **meta CSP**, JavaScript frame-busting in `main.js` / `dev.js`, and the `_headers` file as documentation for a future CDN front door.

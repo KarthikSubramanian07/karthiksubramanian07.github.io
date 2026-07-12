@@ -1,6 +1,11 @@
 (function () {
   'use strict';
 
+  if (window.top !== window.self) {
+    window.top.location = window.self.location;
+    return;
+  }
+
   var CAPABILITIES = {
     reduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     coarse: window.matchMedia('(pointer: coarse)').matches,

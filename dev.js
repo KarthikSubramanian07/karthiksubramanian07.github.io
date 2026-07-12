@@ -1,4 +1,8 @@
 (function(){
+  if (window.top !== window.self) {
+    window.top.location = window.self.location;
+    return;
+  }
   history.scrollRestoration='manual';window.scrollTo(0,0);
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches, doc=document.documentElement;
 
