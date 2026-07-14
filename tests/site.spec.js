@@ -36,7 +36,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Page structure', () => {
   test('has correct title', async ({ page }) => {
-    await expect(page).toHaveTitle('Karthik Subramanian — founder, engineer & researcher');
+    await expect(page).toHaveTitle('Karthik Subramanian: founder, engineer and researcher');
   });
 
   test('has meta description mentioning Karthik Subramanian', async ({ page }) => {
