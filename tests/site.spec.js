@@ -36,7 +36,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Page structure', () => {
   test('has correct title', async ({ page }) => {
-    await expect(page).toHaveTitle('Karthik Subramanian');
+    await expect(page).toHaveTitle('Karthik Subramanian — founder, engineer & researcher');
   });
 
   test('has meta description mentioning Karthik Subramanian', async ({ page }) => {
@@ -290,7 +290,14 @@ test.describe('Security headers contract', () => {
   test('index.html ships meta CSP fallback', () => {
     const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
     expect(html).toContain(`content="${META_CSP}"`);
-    expect(html).not.toMatch(/<script(?![^>]*src=)/);
+    // Executable inline scripts are banned; JSON-LD (application/ld+json) is allowed.
+    const inlineScripts = [...html.matchAll(/<script\b([^>]*)>/gi)];
+    for (const [, attrs] of inlineScripts) {
+      const hasSrc = /\bsrc\s*=/i.test(attrs);
+      const isJsonLd = /type\s*=\s*["']application\/ld\+json["']/i.test(attrs);
+      expect(hasSrc || isJsonLd).toBe(true);
+    }
+    expect(html).toMatch(/type="application\/ld\+json"/);
     expect(html).not.toMatch(/<style/);
   });
 });
