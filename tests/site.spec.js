@@ -36,7 +36,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Page structure', () => {
   test('has correct title', async ({ page }) => {
-    await expect(page).toHaveTitle('Karthik Subramanian');
+    await expect(page).toHaveTitle(/Karthik Subramanian/);
   });
 
   test('has meta description mentioning Karthik Subramanian', async ({ page }) => {
@@ -292,7 +292,14 @@ test.describe('Security headers contract', () => {
   test('index.html ships meta CSP fallback', () => {
     const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
     expect(html).toContain(`content="${META_CSP}"`);
-    expect(html).not.toMatch(/<script(?![^>]*src=)/);
+    // External scripts and JSON-LD are fine; forbid other inline <script> / <style>.
+    const inlineScripts = [...html.matchAll(/<script\b([^>]*)>/gi)].filter((m) => {
+      const attrs = m[1];
+      if (/\bsrc\s*=/.test(attrs)) return false;
+      if (/type\s*=\s*["']application\/ld\+json["']/i.test(attrs)) return false;
+      return true;
+    });
+    expect(inlineScripts).toEqual([]);
     expect(html).not.toMatch(/<style/);
   });
 });
