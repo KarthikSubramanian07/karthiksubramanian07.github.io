@@ -36,7 +36,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('Page structure', () => {
   test('has correct title', async ({ page }) => {
-    await expect(page).toHaveTitle('Karthik Subramanian: founder, engineer and researcher');
+    await expect(page).toHaveTitle('Karthik Subramanian');
   });
 
   test('has meta description mentioning Karthik Subramanian', async ({ page }) => {
@@ -236,7 +236,9 @@ test.describe('Navigation links', () => {
     await expect(btn).toBeVisible();
     await expect(btn).toHaveAttribute('data-email', /\[at\]/);
     const content = await page.content();
-    expect(content).not.toContain('karthik.subramanian@berkeley.edu');
+    // Assemble from parts so a literal address never appears in this source file.
+    const literal = ['karthik', 'subramanian'].join('.') + '@' + ['berkeley', 'edu'].join('.');
+    expect(content).not.toContain(literal);
     expect(content).not.toContain('mailto:karthik');
   });
 
@@ -290,14 +292,7 @@ test.describe('Security headers contract', () => {
   test('index.html ships meta CSP fallback', () => {
     const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
     expect(html).toContain(`content="${META_CSP}"`);
-    // Executable inline scripts are banned; JSON-LD (application/ld+json) is allowed.
-    const inlineScripts = [...html.matchAll(/<script\b([^>]*)>/gi)];
-    for (const [, attrs] of inlineScripts) {
-      const hasSrc = /\bsrc\s*=/i.test(attrs);
-      const isJsonLd = /type\s*=\s*["']application\/ld\+json["']/i.test(attrs);
-      expect(hasSrc || isJsonLd).toBe(true);
-    }
-    expect(html).toMatch(/type="application\/ld\+json"/);
+    expect(html).not.toMatch(/<script(?![^>]*src=)/);
     expect(html).not.toMatch(/<style/);
   });
 });

@@ -37,7 +37,9 @@ test.describe('Dev Profile subpage (/dev)', () => {
 
   test('email is obfuscated and non-scrapable (no literal address in HTML)', async ({ page }) => {
     const content = await page.content();
-    expect(content).not.toContain('karthik.subramanian@berkeley.edu');
+    // Assemble from parts so a literal address never appears in this source file.
+    const literal = ['karthik', 'subramanian'].join('.') + '@' + ['berkeley', 'edu'].join('.');
+    expect(content).not.toContain(literal);
     expect(content).not.toContain('mailto:karthik');
     const emailBtn = page.locator('.email-open');
     await expect(emailBtn).toBeVisible();
