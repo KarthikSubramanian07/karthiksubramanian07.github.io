@@ -13,6 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Persist the owner's PAT as the push credential so the daily data-only
+          # commit can push to protected `main`. The default GITHUB_TOKEN
+          # (github-actions[bot]) is rejected by the "Playwright Tests" required
+          # check, which can't report on a direct bot push. Playwright still
+          # gates real PRs via ci.yml.
+          token: ${{ secrets.STATS_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
