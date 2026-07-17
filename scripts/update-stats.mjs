@@ -44,11 +44,11 @@ let commits = 0;
 let start = new Date(firstCommit);
 const now = new Date();
 
-// Contributions last 30 days.
-const thirtyDaysAgo = new Date(now.getTime() - 30 * 864e5);
+// Contributions last 14 days.
+const fourteenDaysAgo = new Date(now.getTime() - 14 * 864e5);
 const ly = await gql(
   `query($login:String!,$from:DateTime!,$to:DateTime!){user(login:$login){contributionsCollection(from:$from,to:$to){contributionCalendar{totalContributions}}}}`,
-  { login: USER, from: thirtyDaysAgo.toISOString(), to: now.toISOString() }
+  { login: USER, from: fourteenDaysAgo.toISOString(), to: now.toISOString() }
 );
 const contributions = ly.user.contributionsCollection.contributionCalendar.totalContributions;
 while (start < now) {
