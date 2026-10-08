@@ -12,3 +12,6 @@
 .scan-wrap {
   display: none !important;
 }
+
+.tag { opacity: 1 !important; transform: none !important; filter: none !important; }
+.rise { opacity: 1 !important; transform: none !important; }
