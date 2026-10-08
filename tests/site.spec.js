@@ -97,7 +97,7 @@ test.describe('Core content', () => {
 
   test('hero name renders all 7 letters with aria-label', async ({ page }) => {
     const nameEl = page.locator('#hero-name');
-    await expect(nameEl).toHaveAttribute('aria-label', 'Karthik');
+    await expect(nameEl).toHaveAttribute('aria-label', 'Karthik Subramanian');
     await waitForName(page);
     expect(await page.locator('#hero-name .ch').count()).toBe(7);
   });
@@ -391,7 +391,7 @@ test.describe('iPad 1024×768 (landscape)', () => {
 
 test.describe('Accessibility', () => {
   test('hero name h1 has aria-label', async ({ page }) => {
-    await expect(page.locator('#hero-name')).toHaveAttribute('aria-label', 'Karthik');
+    await expect(page.locator('#hero-name')).toHaveAttribute('aria-label', 'Karthik Subramanian');
   });
 
   test('canvas storm is not interactive (no tabindex)', async ({ page }) => {
