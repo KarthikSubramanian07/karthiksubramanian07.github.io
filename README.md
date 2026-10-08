@@ -49,6 +49,6 @@ GitHub Pages hosts the static files from `main`. It cannot run `server.mjs`, sel
 
 Browser tests cover the existing animations, keyboard access, responsive layouts, script-free content and accessibility. HTTP tests cover representations, status codes, headers, file isolation and protocol behavior. GitHub Actions runs both suites for pull requests and changes to `main`.
 
-Per-page meta policies restrict scripts and styles to external assets. Contact addresses remain in readable obfuscated form; browser controls assemble mail links at interaction time. The site includes no analytics script or contact form. Hosting requests, external font loading and outbound links are described on the Privacy page.
+Per-page meta Content-Security-Policy restricts scripts and styles to external assets. Contact addresses remain in readable obfuscated form; browser controls assemble mail links at interaction time. The site includes no analytics script or contact form. Hosting requests, external font loading and outbound links are described on the Privacy page.
 
 The daily statistics workflow refreshes `dev-stats.json` using public repository data. An optional `STATS_TOKEN` repository secret permits additional authenticated statistics.
