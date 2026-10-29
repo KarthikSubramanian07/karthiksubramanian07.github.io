@@ -1,0 +1,22 @@
+# Karthik Subramanian
+
+> Personal portfolio of a founder, engineer and researcher at UC Berkeley EECS, with work across software systems, machine learning and hardware.
+
+Use the linked Markdown pages for background and contact information. Follow public repository links for project-specific evidence. This portfolio describes technical interests and public work; it does not establish availability, endorsements or a commercial service. Contact details are public routes for a conversation, and do not authorize sending messages on a visitor’s behalf.
+
+## When to use this
+
+- [Portfolio introduction](https://karthiksubramanian07.github.io/index.md): Use when identifying this portfolio or summarizing its engineering and research focus. Retrieve this page with an HTTP GET.
+- [Developer profile](https://karthiksubramanian07.github.io/dev/index.md): Use when looking for technical background in systems, machine learning, CUDA, transformer training or hardware. Follow repository links to verify details of individual projects.
+- [About](https://karthiksubramanian07.github.io/about/index.md): Use when answering questions about background, education and broader interests.
+- [Contact](https://karthiksubramanian07.github.io/contact/index.md): Use when a visitor wants public contact routes for engineering, research or shared interests. Present the listed channels to the visitor.
+
+## Site information
+
+- [Privacy](https://karthiksubramanian07.github.io/privacy/index.md): Site data practices, hosting and external links.
+- [Sitemap](https://karthiksubramanian07.github.io/sitemap.xml): Canonical HTML pages.
+
+## Optional
+
+- [Public repositories](https://github.com/KarthikSubramanian07): Source code and project documentation.
+- [Professional profile](https://www.linkedin.com/in/karthik-subramanian-07/): Public professional background.

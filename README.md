@@ -1,107 +1,54 @@
 # karthiksubramanian07.github.io
 
-A personal site built like a transmission from deep space — Arrakis-themed, zero dependencies, obsessively crafted — with a separate **Dev Profile** dossier at **`/dev`**.
+A portfolio transmitted from deep space: warm sand, amber light and an engineering dossier.
 
-**[karthiksubramanian07.github.io](https://karthiksubramanian07.github.io)** · 37.8755° N, 122.2596° W · Δ 07.04
+**[Visit the site](https://karthiksubramanian07.github.io)**
 
----
+`portfolio` · `systems` · `machine-learning` · `hardware` · `vanilla-web`
 
-## What it is
+## Architecture
 
-Two hand-built pages, no framework, no build step, no bundler:
+The static site uses hand-built HTML, CSS and JavaScript with no browser runtime dependencies or bundler. The landing page carries the desert-inspired visual identity; `/dev/` presents the technical profile. About, Contact and Privacy pages are readable without scripts. Every content page has a Markdown counterpart, advertised through an alternate link, and `/llms.txt` provides a compact directory with specific usage guidance.
 
-- **`/`** — the Arrakis transmission landing page. Sandstorm that follows your cursor, letter-by-letter name reveal, a worm-maw monogram, live Berkeley clock. Void black, sand-cream, amber, rust. Cormorant Garamond + JetBrains Mono.
-- **`/dev`** — a **Dev Profile** dossier in a warm, editorial register: an interactive constellation starfield, a cratered ringed planet with orbiting dust, count-up stats, and the full stack across languages, AI/ML, infra, and hardware. Reached from the **Dev** control top-left of the landing page.
+- `index.html`, `styles.css`, `main.js`: landing page and visual effects.
+- `dev/`, `dev.css`, `dev.js`, `dev-stats.json`: technical profile and periodically refreshed public repository statistics.
+- `about/`, `contact/`, `privacy/`, `content.css`: background, contact routes and data practices.
+- `index.md`, `dev/index.md`, `*/index.md`, `llms.txt`: plain-text content and directory.
+- `404.html`, `404.css`, `404.md`: error representations.
+- `robots.txt`, `sitemap.xml`: crawling and canonical page discovery.
+- `server.mjs`: optional HTTP runtime for negotiated content and read-only portfolio tools.
+- `tests/`, `.github/workflows/`: browser, HTTP and protocol checks.
 
-Everything is GPU-accelerated, respects `prefers-reduced-motion`, and loads in under a second.
+## Run and verify
 
----
-
-## Technical highlights
-
-- **Zero JS dependencies** — no React, no Vue, no bundler. Two runtimes: `main.js` (landing) and `dev.js` (dossier).
-- **Strict CSP, externalized** — `script-src 'self'` / `style-src 'self'`: no inline scripts or styles on `/`, `/dev`, or `404.html`. All CSS/JS live in external files. Each HTML page also ships a **meta Content-Security-Policy** fallback because GitHub Pages does not apply custom HTTP headers.
-- **Scrape-proof contact** — the email never appears in source. It is shown obfuscated (`name [dot] … [at] … [dot] edu`) and the real `mailto:` / copy value is assembled in JS only at click time. Discord copies to clipboard; LinkedIn and Instagram are sandboxed external links.
-- **Live, self-updating stats** — a daily GitHub Action (`update-stats.yml`) fetches GitHub numbers and writes `dev-stats.json`; `/dev` fetches it (`connect-src 'self'`) and falls back to baked values offline.
-- **Canvas effects** — mouse-reactive sandstorm on the landing page; an interactive constellation starfield on `/dev`. Both pause when the tab is hidden.
-- **E2E tests** — Playwright across Chromium, Firefox, WebKit, mobile Chrome, and mobile Safari. Covers accessibility (axe), security contracts (CSP + no literal email), responsive layout, and the `/dev` page.
-- **CI/CD** — GitHub Actions runs the full suite on every push and PR.
-
----
-
-## Stack
-
-| Layer | Choice |
-|---|---|
-| Hosting | [GitHub Pages](https://pages.github.com) |
-| Fonts | [Cormorant Garamond](https://fonts.google.com/specimen/Cormorant+Garamond) + [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (landing); system serif/sans (dossier) |
-| Tests | [Playwright](https://playwright.dev) + [axe-playwright](https://github.com/abhinaba-ghosh/axe-playwright) |
-| CI | [GitHub Actions](https://github.com/features/actions) |
-
----
-
-## File tree
-
-```
-├── index.html            # Landing page (Arrakis transmission)
-├── styles.css            # Landing styles
-├── main.js               # Landing animations, canvas, clock, email assembly
-├── dev/
-│   └── index.html        # Dev Profile dossier (CSP-compliant, external assets)
-├── dev.css               # Dossier styles
-├── dev.js                # Dossier interactions, starfield, live-stats fetch
-├── dev-stats.json        # Live GitHub stats (refreshed daily by Action)
-├── noscript.css          # Graceful fallback for no-JS
-├── favicon.svg           # Worm-maw SVG (also inlined as data URI)
-├── 404.html              # Dune-themed not-found page
-├── 404.css               # 404 page styles (externalized for CSP)
-├── _headers              # Reference CSP/HSTS contract (not served by GitHub Pages)
-├── robots.txt
-├── sitemap.xml
-├── .github/workflows/
-│   ├── ci.yml            # Test pipeline
-│   └── update-stats.yml  # Daily dev-stats.json refresh
-├── scripts/
-│   ├── measure-hero-timing.js
-│   └── update-stats.mjs  # Fetches GitHub numbers → dev-stats.json
-└── tests/
-    ├── site.spec.js      # Landing page suite
-    └── dev.spec.js       # Dev Profile suite
-```
-
----
-
-## Local development
-
-```bash
-npm run serve            # http://localhost:3001  (landing at /, dossier at /dev/)
-```
-
-## Running tests
-
-```bash
-npm install
-npx playwright install --with-deps chromium firefox webkit
+```sh
+npm ci
+npm run serve
+npm run test:runtime
+npx playwright install chromium firefox webkit
 npm test
 ```
 
-## Daily stats
+The static preview is available at `http://localhost:3001`. To exercise server-side content negotiation and the tool endpoint, run `npm start` instead. The runtime reads `PORT` (default 3001), serves an explicit public file allowlist and keeps development files off the HTTP surface.
 
-`update-stats.yml` runs on a cron and refreshes `dev-stats.json`. For private-contribution totals, add a `STATS_TOKEN` repository secret (a PAT with `read:user`/`repo`); otherwise it uses the Actions token for public numbers.
+## HTTP representations
 
----
+The optional runtime serves HTML or Markdown at the same content URL according to the `Accept` header, with `Vary: Accept`. Missing paths retain HTTP 404 and receive the selected error representation. Explicit `.md` URLs remain available on either hosting mode.
 
-## Design notes
+```sh
+curl -i -H 'Accept: text/markdown' http://localhost:3001/
+curl -i -H 'Accept: text/html' http://localhost:3001/
+curl -i -H 'Accept: text/markdown' http://localhost:3001/missing-page
+```
 
-**Landing palette:** void `#08070a` · sand-cream `#f3e1bd` · amber `#e0a85a` · rust `#6b3a1c`
-**Dossier palette:** warm near-black `#161512` · ivory `#f1ece1` · clay `#e08a6b`
+The runtime exposes a read-only Streamable HTTP endpoint at `/.well-known/mcp`. The SDK supports protocol revision `2025-11-25`. Its tools retrieve public portfolio content; they do not send messages or modify data. Protocol compatibility and real client exchanges are covered by the runtime tests.
 
-The landing page is a teaser ("something is being built here"); the dossier is the substance behind it. The **Dev** control top-left mirrors the **Transmission Incoming** indicator top-right — symmetric HUD framing.
+GitHub Pages hosts the static files from `main`. It cannot run `server.mjs`, select a response by `Accept`, or serve a live tool endpoint. Deploy the runtime to a Node-capable host with a custom domain to enable these features publicly. Set `HOST=0.0.0.0`, `PORT` to the host’s assigned port, and `PUBLIC_ORIGIN` to the HTTPS origin. Update canonical URLs and the sitemap when changing the public origin. A static Markdown URL is a fallback, rather than negotiated content at the homepage URL. `_headers` and `_redirects` are reference configuration; GitHub Pages does not apply them.
 
----
+## Quality and privacy
 
-## Security
+Browser tests cover the existing animations, keyboard access, responsive layouts, script-free content and accessibility. HTTP tests cover representations, status codes, headers, file isolation and protocol behavior. GitHub Actions runs both suites for pull requests and changes to `main`.
 
-No `eval`, no untrusted `innerHTML`, no user-input surfaces. Strict CSP with no inline scripts or styles. The email address never appears in source (assembled client-side at click time). All external links use `rel="noopener noreferrer"`. No trackers, no cookies.
+Per-page meta Content-Security-Policy restricts scripts and styles to external assets. Contact addresses remain in readable obfuscated form; browser controls assemble mail links at interaction time. The site includes no analytics script or contact form. Hosting requests, external font loading and outbound links are described on the Privacy page.
 
-**GitHub Pages does not apply** `_headers`, HSTS, `X-Frame-Options`, COOP, CORP, or Permissions-Policy as HTTP response headers. The strongest repository-controlled fallback on `github.io` hosting is per-page **meta CSP**, JavaScript frame-busting in `main.js` / `dev.js`, and the `_headers` file as documentation for a future CDN front door.
+The daily statistics workflow refreshes `dev-stats.json` using public repository data. An optional `STATS_TOKEN` repository secret permits additional authenticated statistics.

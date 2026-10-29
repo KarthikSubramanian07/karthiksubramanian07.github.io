@@ -32,6 +32,9 @@ jobs:
       - name: Verify referenced assets exist
         run: test -f og-image.png && test -f apple-touch-icon.png
 
+      - name: Verify HTTP and protocol behavior
+        run: npm run test:runtime
+
       - name: Run tests
         run: npm test
 
