@@ -6,13 +6,13 @@ Building across software systems, machine learning and hardware, from CUDA telem
 
 ## Technical areas
 
-- Languages: Rust, C++, Python, TypeScript, C, SQL, Swift, Kotlin and Java.
-- Web and realtime: WebAssembly, WebRTC, LiveKit, Three.js, React Three Fiber, Deck.gl, D3, Next.js, React Native, Leptos, SvelteKit and Astro.
-- Backends and data: Tokio, Axum, SpacetimeDB, NATS, Protocol Buffers, PostgreSQL, pgvector, FastAPI, Hono, Polars and Apache Arrow.
-- Cloud and infrastructure: AWS, Terraform, Google Cloud, Azure, Kubernetes, Docker, Cloudflare (Workers, Durable Objects, D1, R2), Dagster, BigQuery, Prometheus, OpenTelemetry and GitHub Actions.
-- Machine learning and agents: PyTorch, CUDA, the Model Context Protocol, Hugging Face, XGBoost, YOLO, SAM, Depth Anything v2, OpenCV and scikit-learn.
-- Robotics and hardware: ROS 2, PX4, ArduPilot, MAVLink, DroneCAN, Gazebo, FPGA, STM32, SiPM, Raspberry Pi and Arduino.
-- Scientific computing: Geant4, ROOT, Astropy, PyMC, lmfit, SALib, NumPy, SciPy, pandas, Matplotlib and Jupyter.
+- Languages: Rust, C++, Zig, C, Swift, Kotlin, Python, TypeScript, SQL and Java.
+- Web and realtime: WebAssembly, WebRTC, LiveKit, Leptos, Three.js, Deck.gl, Pyodide, Next.js, React Native, D3, SvelteKit and Astro.
+- Backends and data: NATS, Protocol Buffers, Tokio, Axum, Apache Arrow, Polars, PySpark, Dask, pgvector, PostgreSQL, Redis and FastAPI.
+- Cloud and infrastructure: Kubernetes, Terraform, AWS, Cloudflare (Workers, Durable Objects, D1, R2), Google Cloud, Azure, Prometheus, OpenTelemetry, Dagster, BigQuery and GitHub Actions.
+- Machine learning and agents: CUDA, PyTorch, Hugging Face, bitsandbytes, the Model Context Protocol, SAM, Depth Anything v2, YOLO, OpenCV and ONNX.
+- Robotics and hardware: FPGA, ROS 2, PX4, ArduPilot, STM32, MAVLink, DroneCAN, SiPM, Gazebo, Raspberry Pi and Arduino.
+- Scientific computing: Geant4, ROOT, PyMC, Astropy, lmfit, SALib, SciPy, NumPy, pandas, Matplotlib and Jupyter.
 
 ## Contact and background
 
