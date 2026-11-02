@@ -44,13 +44,13 @@
   };
 
   var stack=[
-    {cat:'Languages',ic:IC.code,items:['Rust','C++','Zig','C','Swift','Kotlin','Python','TypeScript','SQL','Java','JavaScript']},
-    {cat:'Web & Realtime',ic:IC.layers,items:['WebAssembly','WebRTC','LiveKit','Leptos','Three.js','React Three Fiber','Deck.gl','Pyodide','Next.js','React Native','Expo','D3','Mapbox','Leaflet','SvelteKit','Astro','Electron','WebSocket','Web Audio','PWA','React','React Flow','TanStack Query','Framer Motion','Tailwind CSS','Zustand','Radix UI','Vite']},
-    {cat:'Backends & Data',ic:IC.cpu,items:['NATS','Protocol Buffers','Tokio','Axum','SpacetimeDB','Apache Arrow','Polars','PySpark','Dask','pgvector','PostgreSQL','Redis','GraphQL','tRPC','FastAPI','Hono','Node.js','MongoDB','Supabase','SQLite','Prisma','Drizzle','Flask','Express','FFmpeg','Stripe','Better Auth','Auth0','World ID','Zod']},
-    {cat:'Cloud & Infra',ic:IC.tools,items:['Kubernetes','Terraform','AWS','Cloudflare (Workers, Durable Objects, D1, R2)','Google Cloud','Azure','Prometheus','OpenTelemetry','Dagster','BigQuery','Docker','GitHub Actions','cargo-fuzz','Property-based testing','Playwright','Vitest','Daytona','Braintrust','Arize Phoenix','Browserbase','Stagehand','Sentry','PostHog','Vercel','Railway','Firebase','Turborepo','nginx']},
-    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['CUDA','PyTorch','Hugging Face','bitsandbytes','Model Context Protocol','SAM','Depth Anything v2','Depth Pro','YOLO','OpenCV','ONNX','TensorFlow','XGBoost','LightGBM','scikit-learn','SHAP','Sentence Transformers','fastembed','Cloud Vision','OCRmyPDF','pytesseract','spaCy','Pydantic AI','Letta','Agent S','browser-use','Fetch.ai uAgents']},
-    {cat:'Robotics & Hardware',ic:IC.chip,items:['FPGA','ROS 2','PX4','ArduPilot','STM32','MAVLink','DroneCAN','SiPM','Gazebo','DJI Tello','Bluetooth LE','roboRIO','WPILib','Talon FX','SPARK MAX','Raspberry Pi','Arduino','HX711']},
-    {cat:'Scientific Computing',ic:IC.sci,items:['Geant4','ROOT','PyMC','Astropy','lmfit','SALib','SciPy','NumPy','pandas','Matplotlib','Jupyter']}
+    {cat:'Languages',ic:IC.code,items:['Rust','C++','Python','TypeScript','Zig','C','Swift','Kotlin','SQL','Java','JavaScript']},
+    {cat:'Web & Realtime',ic:IC.layers,items:['Next.js','React','React Native','WebAssembly','WebRTC','Three.js','Deck.gl','D3','LiveKit','React Three Fiber','Mapbox','Leaflet','Expo','SvelteKit','Astro','Electron','Leptos','Pyodide','WebSocket','Web Audio','PWA','React Flow','TanStack Query','Framer Motion','Tailwind CSS','Zustand','Radix UI','Vite']},
+    {cat:'Backends & Data',ic:IC.cpu,items:['PostgreSQL','Redis','FastAPI','Node.js','GraphQL','pgvector','NATS','Protocol Buffers','PySpark','MongoDB','Supabase','tRPC','Tokio','Axum','Apache Arrow','Polars','Dask','SpacetimeDB','Hono','SQLite','Prisma','Drizzle','Flask','Express','FFmpeg','Stripe','Better Auth','Auth0','World ID','Zod']},
+    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Kubernetes','Docker','Terraform','Google Cloud','Cloudflare (Workers, Durable Objects, D1, R2)','BigQuery','Azure','Prometheus','OpenTelemetry','GitHub Actions','Dagster','Vercel','Playwright','Vitest','cargo-fuzz','Property-based testing','Sentry','PostHog','Daytona','Braintrust','Arize Phoenix','Browserbase','Stagehand','Railway','Firebase','Turborepo','nginx']},
+    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['PyTorch','CUDA','Hugging Face','TensorFlow','Model Context Protocol','OpenCV','YOLO','scikit-learn','XGBoost','SAM','Depth Anything v2','Depth Pro','ONNX','bitsandbytes','LightGBM','SHAP','Sentence Transformers','fastembed','Cloud Vision','OCRmyPDF','pytesseract','spaCy','Pydantic AI','Letta','Agent S','browser-use','Fetch.ai uAgents']},
+    {cat:'Robotics & Hardware',ic:IC.chip,items:['ROS 2','FPGA','STM32','Raspberry Pi','Arduino','PX4','ArduPilot','SiPM','MAVLink','DroneCAN','Gazebo','DJI Tello','Bluetooth LE','roboRIO','WPILib','Talon FX','SPARK MAX','HX711']},
+    {cat:'Scientific Computing',ic:IC.sci,items:['NumPy','SciPy','pandas','Geant4','ROOT','PyMC','Astropy','Jupyter','Matplotlib','lmfit','SALib']}
   ];
   var sEl=document.getElementById('stack');
   stack.forEach(function(s){
