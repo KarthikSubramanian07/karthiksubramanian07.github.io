@@ -44,13 +44,13 @@
   };
 
   var stack=[
-    {cat:'Languages',ic:IC.code,items:['Rust','Python','TypeScript','C++','C','Swift','Kotlin','Java','JavaScript','Scheme']},
-    {cat:'Web & Realtime',ic:IC.layers,items:['Next.js','React','React Native','Electron','WebRTC','LiveKit','Three.js','Deck.gl','Mapbox','WebSocket','React Flow','Svelte','Framer Motion','Node.js','Tailwind CSS','Zustand','Radix UI','Vite','Zod']},
-    {cat:'Backends & Data',ic:IC.cpu,items:['PostgreSQL','pgvector','GraphQL','FastAPI','Redis','PySpark','Polars','Dask','MongoDB','FFmpeg','Supabase','tRPC','Prisma','Drizzle','Express','Flask','MySQL','SQLite','Auth0','World ID']},
-    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Google Cloud','Kubernetes','Docker','Dagster','BigQuery','Cloudflare','Vercel','OpenTelemetry','Arize Phoenix','Browserbase','Stagehand','Sentry','Firebase','PostHog','Playwright','Railway','Retool','Make','Turborepo','nginx']},
-    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['PyTorch','CUDA','TensorFlow','XGBoost','YOLO','SAM','Depth Anything v2','OpenCV','Hugging Face','Sentence Transformers','fastembed','scikit-learn','LightGBM','ONNX','SHAP','pytesseract','Pydantic AI','Letta','Agent S','Fetch.ai uAgents','spaCy']},
-    {cat:'Robotics & Hardware',ic:IC.chip,items:['FPGA','roboRIO','WPILib','STM32','Talon FX','SPARK MAX','SiPM','HX711','Raspberry Pi','Arduino']},
-    {cat:'Scientific Computing',ic:IC.sci,items:['ROOT','Geant4','PyMC','SciPy','Matplotlib','Jupyter']}
+    {cat:'Languages',ic:IC.code,items:['Rust','C++','Python','TypeScript','C','SQL','Swift','Kotlin','Java','JavaScript']},
+    {cat:'Web & Realtime',ic:IC.layers,items:['WebAssembly','WebRTC','LiveKit','Three.js','React Three Fiber','Deck.gl','D3','Mapbox','Leaflet','Next.js','React','React Native','Expo','Leptos','SvelteKit','Astro','Electron','Pyodide','WebSocket','Web Audio','PWA','React Flow','TanStack Query','Framer Motion','Tailwind CSS','Zustand','Radix UI','Vite']},
+    {cat:'Backends & Data',ic:IC.cpu,items:['Tokio','Axum','SpacetimeDB','NATS','Protocol Buffers','PostgreSQL','pgvector','GraphQL','tRPC','FastAPI','Hono','Node.js','Redis','PySpark','Polars','Dask','Apache Arrow','MongoDB','Supabase','SQLite','Prisma','Drizzle','Flask','Express','FFmpeg','Zod','Stripe','Auth0','Better Auth','World ID']},
+    {cat:'Cloud & Infra',ic:IC.tools,items:['AWS','Terraform','Google Cloud','Azure','Kubernetes','Docker','Cloudflare (Workers, Durable Objects, D1, R2)','Dagster','BigQuery','Prometheus','OpenTelemetry','GitHub Actions','Vercel','Railway','Firebase','Sentry','PostHog','Daytona','Browserbase','Stagehand','Arize Phoenix','Braintrust','Playwright','Vitest','Property-based testing','cargo-fuzz','Turborepo','nginx']},
+    {cat:'AI / ML & Agents',ic:IC.ai,full:true,items:['PyTorch','CUDA','Model Context Protocol','Hugging Face','bitsandbytes','TensorFlow','XGBoost','LightGBM','YOLO','SAM','Depth Anything v2','Depth Pro','OpenCV','Cloud Vision','OCRmyPDF','pytesseract','Sentence Transformers','fastembed','scikit-learn','ONNX','SHAP','spaCy','Pydantic AI','Letta','Agent S','browser-use','Fetch.ai uAgents']},
+    {cat:'Robotics & Hardware',ic:IC.chip,items:['ROS 2','PX4','ArduPilot','MAVLink','DroneCAN','Gazebo','FPGA','STM32','SiPM','DJI Tello','Bluetooth LE','Raspberry Pi','Arduino','roboRIO','WPILib','Talon FX','SPARK MAX','HX711']},
+    {cat:'Scientific Computing',ic:IC.sci,items:['Geant4','ROOT','Astropy','PyMC','lmfit','SALib','NumPy','SciPy','pandas','Matplotlib','Jupyter']}
   ];
   var sEl=document.getElementById('stack');
   stack.forEach(function(s){

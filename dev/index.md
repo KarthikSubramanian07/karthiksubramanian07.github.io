@@ -6,11 +6,13 @@ Building across software systems, machine learning and hardware, from CUDA telem
 
 ## Technical areas
 
-- Languages: Python, C++, Rust, JavaScript and TypeScript.
-- Software systems: backend services, databases, infrastructure, containers and observability.
-- Machine learning: PyTorch, CUDA, TensorFlow, computer vision, transformer training and scientific computing.
-- Robotics and hardware: embedded systems, FPGA, Raspberry Pi and Arduino.
-- Scientific computing: ROOT, Geant4, PyMC, SciPy, Matplotlib and Jupyter.
+- Languages: Rust, C++, Python, TypeScript, C, SQL, Swift, Kotlin and Java.
+- Web and realtime: WebAssembly, WebRTC, LiveKit, Three.js, React Three Fiber, Deck.gl, D3, Next.js, React Native, Leptos, SvelteKit and Astro.
+- Backends and data: Tokio, Axum, SpacetimeDB, NATS, Protocol Buffers, PostgreSQL, pgvector, FastAPI, Hono, Polars and Apache Arrow.
+- Cloud and infrastructure: AWS, Terraform, Google Cloud, Azure, Kubernetes, Docker, Cloudflare (Workers, Durable Objects, D1, R2), Dagster, BigQuery, Prometheus, OpenTelemetry and GitHub Actions.
+- Machine learning and agents: PyTorch, CUDA, the Model Context Protocol, Hugging Face, XGBoost, YOLO, SAM, Depth Anything v2, OpenCV and scikit-learn.
+- Robotics and hardware: ROS 2, PX4, ArduPilot, MAVLink, DroneCAN, Gazebo, FPGA, STM32, SiPM, Raspberry Pi and Arduino.
+- Scientific computing: Geant4, ROOT, Astropy, PyMC, lmfit, SALib, NumPy, SciPy, pandas, Matplotlib and Jupyter.
 
 ## Contact and background
 
