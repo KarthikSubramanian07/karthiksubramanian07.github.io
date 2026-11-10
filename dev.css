@@ -22,7 +22,7 @@
     font-size:12px;letter-spacing:1.6px;text-transform:lowercase;color:var(--muted)}
   .badge{color:var(--coral)}
   .clock{font-variant-numeric:tabular-nums}
-  .back-link{font:inherit;letter-spacing:1.6px;text-transform:lowercase;color:var(--muted);text-decoration:none;transition:color .25s}
+  .back-link{font:inherit;letter-spacing:1.6px;text-transform:lowercase;color:var(--muted);text-decoration:none;transition:color .25s;display:inline-flex;align-items:center;min-height:24px;padding:4px 0}
   .back-link:hover{color:var(--coral)}
   .back-link:focus-visible{outline:2px solid var(--coral);outline-offset:2px;border-radius:4px}
 
