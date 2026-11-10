@@ -76,7 +76,7 @@
     var inner='<span class="ic"><svg viewBox="0 0 24 24">'+c.ic+'</svg></span><span class="tx"><span class="lab">'+c.lab+'</span><span class="val">'+c.val+'</span></span>';
     var main;
     if(c.href){main='<a class="cmain" href="'+c.href+'"'+(c.ext?' target="_blank" rel="noopener noreferrer"':'')+'>'+inner+'</a>';}
-    else if(c.email){main='<button type="button" class="cmain email-open" data-email="'+esc(c.val)+'" aria-label="Email Karthik (opens mail app)">'+inner+'</button>';}
+    else if(c.email){main='<button type="button" class="cmain email-open" data-email="'+esc(c.val)+'">'+inner+'</button>';}
     else{main='<span class="cmain">'+inner+'</span>';}
     var copy=c.copy?'<button type="button" class="copybtn"'+(c.email?' data-copy-email':' data-copy="'+esc(c.copy)+'"')+' aria-label="Copy '+c.lab+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+IC.copy+'</svg></button>':'';
     item.innerHTML=main+copy;
